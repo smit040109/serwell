@@ -5,19 +5,35 @@ import Link from 'next/link'
 import { ArrowRight, MapPin, ShieldCheck, Zap, Users } from 'lucide-react'
 import {
   LandingFlow, Navbar, Footer, SILHOUETTE_IMG, PORTFOLIO_IMAGES,
-  Tilt3DCard, SectionHeading, CTABlock
+  Tilt3DCard, SectionHeading, CTABlock, useVideoColor
 } from '@/components/site/Shared'
 
 /* ============================================================
-   EDITORIAL HERO
+   EDITORIAL HERO \u2014 dynamically tinted by sampled video color
 ============================================================ */
 function EditorialHero() {
+  const vc = useVideoColor()
+  // Build dynamic gradient based on sampled video color (fallback to warm amber)
+  const c = vc || { r: 255, g: 138, b: 61 }
+  // Tone shifts for layered radial gradient
+  const c1 = `rgb(${Math.min(255, c.r + 40)},${Math.min(255, c.g + 40)},${Math.min(255, c.b + 30)})`
+  const c2 = `rgb(${c.r},${c.g},${c.b})`
+  const c3 = `rgb(${Math.max(0, c.r - 80)},${Math.max(0, c.g - 80)},${Math.max(0, c.b - 60)})`
+  const c4 = `rgb(${Math.max(0, c.r - 150)},${Math.max(0, c.g - 150)},${Math.max(0, c.b - 130)})`
+
   return (
     <section id="top" className="relative w-full min-h-screen bg-black overflow-hidden">
       <div className="absolute inset-0">
-        <div className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse 90% 70% at 75% 50%, #FFB36B 0%, #FF8A3D 20%, #D24B0E 45%, #4A1505 70%, #0B0604 100%)'
-        }} />
+        <motion.div
+          key={c2}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.2 }}
+          className="absolute inset-0"
+          style={{
+            background: `radial-gradient(ellipse 90% 70% at 75% 50%, ${c1} 0%, ${c2} 20%, ${c3} 45%, ${c4} 70%, #060606 100%)`
+          }}
+        />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
         <div className="absolute inset-0 opacity-[0.07] mix-blend-overlay" style={{
           backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")"

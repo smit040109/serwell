@@ -1,12 +1,18 @@
 'use client'
 
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useCallback, createContext, useContext } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  ArrowRight, Menu, X, MapPin, Mail, Phone, CheckCircle2, Circle, Sparkles
+  ArrowRight, Menu, X, MapPin, Mail, Phone, CheckCircle2, Circle, Sparkles, Volume2
 } from 'lucide-react'
+
+/* ============================================================
+   VIDEO COLOR CONTEXT \u2014 propagate sampled color from intro to hero
+============================================================ */
+export const VideoColorContext = createContext(null)
+export function useVideoColor() { return useContext(VideoColorContext) }
 
 /* ============================================================
    DESIGN TOKENS
@@ -348,32 +354,186 @@ export function Preloader({ progress }) {
 }
 
 /* ============================================================
-   VIDEO INTRO — Ken Burns cinematic carousel
+   CINEMATIC VIDEO INTRO \u2014 iPhone 15 Pro Max footage + typewriter + sound
 ============================================================ */
-export function VideoIntro({ onEnd }) {
-  const [idx, setIdx] = useState(0)
-  const [progress, setProgress] = useState(0)
-  const DURATION = 6500
-  const slides = [CITY_IMG_PRIMARY, CITY_IMG_SECONDARY, CITY_IMG_TERTIARY]
+export const CINEMATIC_VIDEO_URL = '/video/intro.mp4'
+export const CINEMATIC_VIDEO_POSTER = '/video/intro-poster.jpg'
+
+// Typing-sound: synthesized via Web Audio API for crisp mechanical clicks
+function useTypingSound() {
+  const ctxRef = useRef(null)
+  const readyRef = useRef(false)
 
   useEffect(() => {
-    const id = setInterval(() => setIdx(i => (i + 1) % slides.length), 2200)
-    return () => clearInterval(id)
+    if (typeof window === 'undefined') return
+    const Ctx = window.AudioContext || window.webkitAudioContext
+    if (!Ctx) return
+    const ctx = new Ctx()
+    ctxRef.current = ctx
+
+    const resume = () => {
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => { readyRef.current = true }).catch(() => {})
+      } else {
+        readyRef.current = true
+      }
+    }
+    // Try immediately
+    resume()
+    // Also bind to first interaction
+    const events = ['click', 'touchstart', 'keydown', 'pointerdown', 'mousemove']
+    events.forEach(e => document.addEventListener(e, resume, { once: true, passive: true }))
+
+    return () => {
+      events.forEach(e => document.removeEventListener(e, resume))
+      ctx.close().catch(() => {})
+    }
   }, [])
 
-  useEffect(() => {
-    const t = setTimeout(onEnd, DURATION)
-    return () => clearTimeout(t)
-  }, [onEnd])
+  return useCallback((isSpace = false) => {
+    const ctx = ctxRef.current
+    if (!ctx || ctx.state !== 'running') return
+    try {
+      const t = ctx.currentTime
+      // OSC layer \u2014 main click pitch
+      const osc = ctx.createOscillator()
+      const filter = ctx.createBiquadFilter()
+      const gain = ctx.createGain()
+      osc.type = 'square'
+      const baseFreq = isSpace ? 320 : 1100 + Math.random() * 700
+      osc.frequency.setValueAtTime(baseFreq, t)
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.4, t + 0.04)
+      filter.type = 'bandpass'
+      filter.frequency.value = isSpace ? 600 : 2400
+      filter.Q.value = 6
+      osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination)
+      gain.gain.setValueAtTime(0, t)
+      gain.gain.linearRampToValueAtTime(0.09, t + 0.002)
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.045)
+      osc.start(t); osc.stop(t + 0.06)
 
+      // Noise burst layer \u2014 mechanical attack
+      const bufferSize = 0.02 * ctx.sampleRate
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
+      const data = noiseBuffer.getChannelData(0)
+      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.4))
+      const noise = ctx.createBufferSource()
+      noise.buffer = noiseBuffer
+      const noiseFilter = ctx.createBiquadFilter()
+      noiseFilter.type = 'highpass'
+      noiseFilter.frequency.value = 1800
+      const noiseGain = ctx.createGain()
+      noiseGain.gain.value = 0.05
+      noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(ctx.destination)
+      noise.start(t)
+      noise.stop(t + 0.02)
+    } catch (e) { /* silently fail */ }
+  }, [])
+}
+
+// Typewriter hook with variable timing
+function useTypewriter(text, { speed = 180, startDelay = 1200, jitter = 80, onChar = () => {} } = {}) {
+  const [displayed, setDisplayed] = useState('')
+  const [done, setDone] = useState(false)
+  useEffect(() => {
+    setDisplayed('')
+    setDone(false)
+    let cancelled = false
+    let i = 0
+    const tick = () => {
+      if (cancelled) return
+      if (i < text.length) {
+        const ch = text[i]
+        setDisplayed(text.slice(0, i + 1))
+        onChar(ch)
+        i++
+        const next = speed + (Math.random() - 0.5) * jitter
+        setTimeout(tick, next)
+      } else {
+        setDone(true)
+      }
+    }
+    const start = setTimeout(tick, startDelay)
+    return () => { cancelled = true; clearTimeout(start) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text])
+  return { displayed, done }
+}
+
+export function VideoIntro({ onEnd, onColor }) {
+  const videoRef = useRef(null)
+  const [progress, setProgress] = useState(0)
+  const [videoReady, setVideoReady] = useState(false)
+  const [soundHint, setSoundHint] = useState(true)
+  const playClick = useTypingSound()
+  const TARGET = 'vayucodes'
+  const { displayed, done } = useTypewriter(TARGET, {
+    speed: 180,
+    startDelay: 1400,
+    jitter: 90,
+    onChar: () => playClick(),
+  })
+
+  // Color sampling from video frames
+  const sampledRef = useRef(false)
+  const sampleColor = useCallback(() => {
+    const v = videoRef.current
+    if (!v || sampledRef.current) return
+    try {
+      const cw = 32, ch = 18
+      const canvas = document.createElement('canvas')
+      canvas.width = cw; canvas.height = ch
+      const cx = canvas.getContext('2d')
+      cx.drawImage(v, 0, 0, cw, ch)
+      const data = cx.getImageData(0, 0, cw, ch).data
+      let r = 0, g = 0, b = 0, count = 0
+      // Find vibrant non-dark pixels
+      for (let i = 0; i < data.length; i += 4) {
+        const lum = (data[i] + data[i+1] + data[i+2]) / 3
+        if (lum < 25 || lum > 240) continue
+        r += data[i]; g += data[i+1]; b += data[i+2]; count++
+      }
+      if (count > 50) {
+        const color = { r: Math.round(r/count), g: Math.round(g/count), b: Math.round(b/count) }
+        // Boost saturation a bit for hero gradient
+        sampledRef.current = true
+        onColor?.(color)
+        try { sessionStorage.setItem('vc_video_color', JSON.stringify(color)) } catch {}
+      }
+    } catch (e) { /* CORS or other \u2014 silently fall back */ }
+  }, [onColor])
+
+  // Auto-end after duration OR onEnded fires
+  useEffect(() => {
+    const DURATION = 8500
+    const id = setTimeout(() => { sampleColor(); onEnd() }, DURATION)
+    return () => clearTimeout(id)
+  }, [onEnd, sampleColor])
+
+  // Progress bar
   useEffect(() => {
     const start = Date.now()
     const id = setInterval(() => {
-      const p = Math.min(100, ((Date.now() - start) / DURATION) * 100)
+      const p = Math.min(100, ((Date.now() - start) / 8500) * 100)
       setProgress(p)
       if (p >= 100) clearInterval(id)
     }, 60)
     return () => clearInterval(id)
+  }, [])
+
+  // Sample color periodically while playing
+  useEffect(() => {
+    const id = setInterval(sampleColor, 1500)
+    return () => clearInterval(id)
+  }, [sampleColor])
+
+  // Hide sound hint after any interaction or 3s
+  useEffect(() => {
+    const hide = () => setSoundHint(false)
+    const t = setTimeout(hide, 4500)
+    document.addEventListener('click', hide, { once: true })
+    document.addEventListener('touchstart', hide, { once: true })
+    return () => { clearTimeout(t); document.removeEventListener('click', hide); document.removeEventListener('touchstart', hide) }
   }, [])
 
   return (
@@ -381,34 +541,44 @@ export function VideoIntro({ onEnd }) {
       key="videointro"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.9, ease: 'easeInOut' } }}
+      exit={{ opacity: 0, transition: { duration: 1.0, ease: 'easeInOut' } }}
       transition={{ duration: 0.6 }}
       className="fixed inset-0 z-[90] bg-black overflow-hidden"
     >
-      <AnimatePresence mode="sync">
-        {slides.map((src, i) => idx === i && (
-          <motion.div
-            key={src}
-            initial={{ opacity: 0, scale: 1.0 }}
-            animate={{ opacity: 1, scale: 1.18 }}
-            exit={{ opacity: 0, scale: 1.25, transition: { duration: 1.2, ease: 'easeInOut' } }}
-            transition={{ opacity: { duration: 1.4 }, scale: { duration: 4, ease: 'linear' } }}
-            className="absolute inset-0"
-          >
-            <img src={src} alt="" className="absolute inset-0 w-full h-full object-cover" />
-          </motion.div>
-        ))}
-      </AnimatePresence>
+      {/* THE CINEMATIC VIDEO \u2014 same-origin H.264 for universal playback */}
+      <video
+        ref={videoRef}
+        src={CINEMATIC_VIDEO_URL}
+        poster={CINEMATIC_VIDEO_POSTER}
+        autoPlay
+        muted
+        playsInline
+        loop
+        preload="auto"
+        onLoadedData={() => setVideoReady(true)}
+        onCanPlay={() => setVideoReady(true)}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      {/* Soft cinematic fallback \u2014 visible until first video frame */}
+      {!videoReady && (
+        <motion.div
+          initial={{ scale: 1.05 }}
+          animate={{ scale: 1.2 }}
+          transition={{ duration: 8, ease: 'linear' }}
+          className="absolute inset-0 z-0"
+        >
+          <img src={CINEMATIC_VIDEO_POSTER} alt="" className="absolute inset-0 w-full h-full object-cover" />
+        </motion.div>
+      )}
 
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/80 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40 pointer-events-none" />
-      <div className="absolute inset-0 mix-blend-overlay" style={{
-        background: 'radial-gradient(ellipse at 70% 40%, rgba(232,93,44,0.35), transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(255,138,61,0.15), transparent 50%)'
-      }} />
+      {/* Cinematic overlays */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/70 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30 pointer-events-none" />
       <div className="absolute inset-0 opacity-[0.08] mix-blend-overlay pointer-events-none" style={{
         backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")"
       }} />
 
+      {/* TOP BAR */}
       <div className="absolute top-0 inset-x-0 flex justify-between items-center p-8 z-10">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -422,49 +592,108 @@ export function VideoIntro({ onEnd }) {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="text-[10px] tracking-[0.3em] uppercase text-white/70"
+          className="text-[10px] tracking-[0.3em] uppercase text-white/70 flex items-center gap-2"
         >
-          Cinematic Intro · 2025
+          <span className="w-1.5 h-1.5 rounded-full bg-[#E85D2C] animate-pulse" />
+          {'Cinematic Intro · 2025'}
         </motion.div>
       </div>
 
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+      {/* TYPEWRITER CENTER */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 px-6">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.6, duration: 1.4, ease: 'easeOut' }}
-          className="text-center px-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6, duration: 0.8 }}
+          className="text-center"
         >
-          <div className="text-[10px] tracking-[0.5em] uppercase text-white/60 mb-4">
-            Welcome to
-          </div>
-          <h2 className="text-white text-5xl md:text-7xl lg:text-9xl font-light tracking-tight leading-none" style={{ fontFamily: 'var(--font-playfair)' }}>
-            vayu<span className="italic text-[#FFD9B8]">codes</span>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9, duration: 0.6 }}
+            className="text-[10px] tracking-[0.5em] uppercase text-white/70 mb-6"
+          >
+            {'— An independent studio —'}
+          </motion.div>
+
+          <h2
+            className="text-white text-[clamp(64px,12vw,200px)] font-light tracking-[-0.03em] leading-none inline-flex items-baseline"
+            style={{ fontFamily: 'var(--font-playfair)' }}
+          >
+            <span style={{ filter: 'drop-shadow(0 4px 24px rgba(0,0,0,0.4))' }}>
+              {displayed.split('').map((ch, i) => (
+                <motion.span
+                  key={i}
+                  initial={{ opacity: 0, y: 20, scale: 0.85 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.18, ease: 'easeOut' }}
+                  className={i >= 4 ? 'italic text-[#FFD9B8]' : ''}
+                >
+                  {ch}
+                </motion.span>
+              ))}
+            </span>
+            {/* Blinking caret */}
+            <motion.span
+              animate={{ opacity: done ? [1, 0, 1] : 1 }}
+              transition={{ duration: 1.0, repeat: Infinity, ease: 'linear' }}
+              className="inline-block w-[0.06em] h-[0.85em] ml-[0.04em] bg-[#FFD9B8]"
+              style={{ transform: 'translateY(0.05em)' }}
+            />
           </h2>
-          <div className="mt-6 text-[10px] tracking-[0.5em] uppercase text-white/60">
-            We build the wind beneath your business
-          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: done ? 1 : 0, y: done ? 0 : 10 }}
+            transition={{ duration: 0.8, delay: done ? 0.4 : 0 }}
+            className="mt-8 text-[10px] tracking-[0.5em] uppercase text-white/70"
+          >
+            {'Valsad, Gujarat · Worldwide'}
+          </motion.div>
         </motion.div>
       </div>
 
+      {/* SOUND HINT (subtle, auto-hides) */}
+      <AnimatePresence>
+        {soundHint && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+            className="absolute bottom-12 left-8 flex items-center gap-3 backdrop-blur-md bg-white/8 border border-white/15 rounded-full px-4 py-2 z-20"
+          >
+            <Volume2 size={12} className="text-white/70" />
+            <span className="text-[10px] tracking-[0.25em] uppercase text-white/70">Tap for sound</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* BOTTOM PROGRESS LINE */}
       <div className="absolute bottom-0 inset-x-0 h-[2px] bg-white/10 z-10">
-        <div className="h-full bg-gradient-to-r from-[#E85D2C] via-white to-[#E85D2C] transition-[width] duration-100" style={{ width: `${progress}%` }} />
+        <div className="h-full bg-gradient-to-r from-[#E85D2C] via-white to-[#FFD9B8] transition-[width] duration-100" style={{ width: `${progress}%` }} />
       </div>
     </motion.div>
   )
 }
 
 /* ============================================================
-   LANDING FLOW — only used on home; once per session
+   LANDING FLOW \u2014 cinematic intro + color context
 ============================================================ */
 export function LandingFlow({ children }) {
   const [mounted, setMounted] = useState(false)
   const [stage, setStage] = useState('home')
   const [progress, setProgress] = useState(0)
+  const [videoColor, setVideoColor] = useState(null)
 
   useEffect(() => {
     setMounted(true)
     if (typeof window === 'undefined') return
+    // Try to restore previously sampled color
+    try {
+      const saved = sessionStorage.getItem('vc_video_color')
+      if (saved) setVideoColor(JSON.parse(saved))
+    } catch {}
     const seen = sessionStorage.getItem('vc_intro_seen')
     if (!seen) setStage('loading')
   }, [])
@@ -473,13 +702,13 @@ export function LandingFlow({ children }) {
     if (!mounted || stage !== 'loading') return
     let p = 0
     const id = setInterval(() => {
-      p = Math.min(100, p + Math.random() * 10 + 3)
+      p = Math.min(100, p + Math.random() * 12 + 4)
       setProgress(Math.round(p))
       if (p >= 100) {
         clearInterval(id)
         setTimeout(() => setStage('intro'), 600)
       }
-    }, 110)
+    }, 100)
     return () => clearInterval(id)
   }, [stage, mounted])
 
@@ -495,20 +724,26 @@ export function LandingFlow({ children }) {
   if (!mounted) return <div className="fixed inset-0 bg-black" />
 
   return (
-    <>
+    <VideoColorContext.Provider value={videoColor}>
       <AnimatePresence mode="wait">
         {stage === 'loading' && <Preloader key="pre" progress={progress} />}
-        {stage === 'intro' && <VideoIntro key="vid" onEnd={() => setStage('home')} />}
+        {stage === 'intro' && (
+          <VideoIntro
+            key="vid"
+            onColor={(c) => setVideoColor(c)}
+            onEnd={() => setStage('home')}
+          />
+        )}
       </AnimatePresence>
       <motion.main
         initial={{ opacity: 0 }}
         animate={{ opacity: stage === 'home' ? 1 : 0 }}
-        transition={{ duration: 0.9, ease: 'easeOut' }}
+        transition={{ duration: 1.0, ease: 'easeOut' }}
         className="relative"
       >
         {children}
       </motion.main>
-    </>
+    </VideoColorContext.Provider>
   )
 }
 
