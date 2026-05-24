@@ -1,16 +1,22 @@
 'use client'
 
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion'
+import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
 import {
   ArrowRight, Globe, Cpu, TrendingUp, ShieldCheck, Zap, Users,
   MapPin, CheckCircle2, AlertTriangle, BarChart3, Code2, Sparkles,
-  Phone, Mail, MessageSquare, Menu, X
+  Phone, Mail, MessageSquare, Menu, X, Play, SkipForward, Circle
 } from 'lucide-react'
 
 const NAVY = '#0A2540'
 const TEAL = '#00D4B6'
 const SILVER = '#F8F9FA'
+const AMBER = '#FF8A3D'
+
+const CITY_IMG_PRIMARY = 'https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=2400&q=80'
+const CITY_IMG_SECONDARY = 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=2400&q=80'
+const CITY_IMG_TERTIARY = 'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?w=2400&q=80'
+const SILHOUETTE_IMG = 'https://images.pexels.com/photos/5175616/pexels-photo-5175616.jpeg'
 
 const PORTFOLIO_IMAGES = [
   'https://images.unsplash.com/photo-1648134859187-71dadc9f815a',
@@ -25,46 +31,97 @@ const PORTFOLIO_IMAGES = [
 ]
 
 /* ============================================================
-   NAV — fixed top, glassy on scroll
+   LIVE CLOCK — used in editorial hero nav
+============================================================ */
+function LiveClock({ label, tz }) {
+  const [time, setTime] = useState('')
+  useEffect(() => {
+    const zone = tz || (typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : undefined)
+    const tick = () => {
+      try {
+        const t = new Intl.DateTimeFormat('en-GB', {
+          hour: '2-digit', minute: '2-digit', second: '2-digit',
+          hour12: false, timeZone: zone,
+        }).format(new Date())
+        setTime(t)
+      } catch {
+        setTime(new Date().toLocaleTimeString('en-GB'))
+      }
+    }
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [tz])
+  return (
+    <div className="flex flex-col items-end leading-tight">
+      <span className="text-[10px] tracking-[0.2em] uppercase opacity-60">{label}</span>
+      <span className="text-xs font-medium tabular-nums tracking-wider">{time || '--:--:--'}</span>
+    </div>
+  )
+}
+
+/* ============================================================
+   NAV — adaptive: dark over editorial hero, glassy on scroll
 ============================================================ */
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
+    const onScroll = () => setScrolled(window.scrollY > 80)
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  const isDark = !scrolled // transparent over dark editorial hero → white text
+
   return (
     <motion.header
       initial={{ y: -30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+      transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
+      className={`fixed top-0 inset-x-0 z-40 transition-all duration-500 ${
         scrolled
-          ? 'bg-white/80 backdrop-blur-xl border-b border-zinc-100 shadow-[0_1px_0_rgba(10,37,64,0.04)]'
+          ? 'bg-white/85 backdrop-blur-xl border-b border-zinc-100 shadow-[0_1px_0_rgba(10,37,64,0.04)]'
           : 'bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto flex justify-between items-center py-4 px-6">
-        <a href="#top" className="text-2xl font-extrabold tracking-tight text-[#0A2540]">
+      <div className="max-w-[1500px] mx-auto flex justify-between items-center py-5 px-6 lg:px-10">
+        <a
+          href="#top"
+          className={`text-2xl font-extrabold tracking-tight transition-colors ${
+            isDark ? 'text-white' : 'text-[#0A2540]'
+          }`}
+        >
           vayu<span className="text-[#00D4B6]">.code</span>
         </a>
-        <nav className="hidden md:flex items-center space-x-8 text-sm font-medium text-zinc-600">
-          <a href="#services" className="hover:text-[#0A2540] transition-colors">Services</a>
-          <a href="#why-us" className="hover:text-[#0A2540] transition-colors">Why Us</a>
-          <a href="#portfolio" className="hover:text-[#0A2540] transition-colors">Our Work</a>
-          <a href="#trust" className="hover:text-[#0A2540] transition-colors">Trust</a>
+        <nav
+          className={`hidden md:flex items-center space-x-10 text-[11px] font-medium tracking-[0.18em] uppercase transition-colors ${
+            isDark ? 'text-white/70' : 'text-zinc-600'
+          }`}
+        >
+          <a href="#services" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0A2540]'} transition-colors`}>Services</a>
+          <a href="#why-us" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0A2540]'} transition-colors`}>Why Us</a>
+          <a href="#portfolio" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0A2540]'} transition-colors`}>Our Work</a>
+          <a href="#trust" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0A2540]'} transition-colors`}>Trust</a>
         </nav>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-6">
+          {/* live time counters — only show over dark hero */}
+          <div className={`hidden lg:flex items-center gap-6 transition-opacity duration-500 ${isDark ? 'text-white opacity-100' : 'opacity-0 pointer-events-none'}`}>
+            <LiveClock label="Valsad, IN" tz="Asia/Kolkata" />
+            <LiveClock label="Your Time" tz={null} />
+          </div>
           <a
             href="#contact"
-            className="hidden sm:inline-flex bg-[#0A2540] text-white text-xs font-semibold tracking-wider uppercase px-6 py-3 rounded-full hover:bg-zinc-800 transition-all shadow-sm"
+            className={`hidden sm:inline-flex text-[11px] font-semibold tracking-[0.18em] uppercase px-5 py-2.5 rounded-full transition-all border ${
+              isDark
+                ? 'bg-white text-[#0A2540] border-white hover:bg-transparent hover:text-white'
+                : 'bg-[#0A2540] text-white border-[#0A2540] hover:bg-zinc-800'
+            }`}
           >
-            Contact Us
+            Contact
           </a>
           <button
-            className="md:hidden p-2 text-[#0A2540]"
+            className={`md:hidden p-2 ${isDark ? 'text-white' : 'text-[#0A2540]'}`}
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
           >
@@ -85,125 +142,351 @@ function Navbar() {
 }
 
 /* ============================================================
-   HERO — expanding canvas (Lesse Studio mechanic)
+   PRELOADER — black screen with progress %
 ============================================================ */
-function Hero() {
-  const containerRef = useRef(null)
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start start', 'end start'],
-  })
+function Preloader({ progress }) {
+  return (
+    <motion.div
+      key="preloader"
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.6, ease: 'easeInOut' } }}
+      className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center"
+    >
+      {/* subtle grid texture */}
+      <div className="absolute inset-0 opacity-[0.04]" style={{
+        backgroundImage: 'radial-gradient(circle at center, rgba(255,255,255,0.6) 1px, transparent 1px)',
+        backgroundSize: '40px 40px',
+      }} />
 
-  const containerPadding = useTransform(scrollYProgress, [0, 0.4], ['24px', '0px'])
-  const containerRadius = useTransform(scrollYProgress, [0, 0.4], ['32px', '0px'])
-  const textScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.92])
-  const textOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
+      {/* logo wordmark — small, top-left */}
+      <div className="absolute top-8 left-8 text-white text-sm font-extrabold tracking-tight">
+        vayu<span className="text-[#00D4B6]">.code</span>
+      </div>
+
+      {/* loading label — top right */}
+      <div className="absolute top-8 right-8 text-[10px] tracking-[0.3em] uppercase text-white/40">
+        Loading Experience
+      </div>
+
+      {/* progress wheel */}
+      <div className="relative flex flex-col items-center">
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          className="text-[clamp(80px,18vw,220px)] font-extralight text-white leading-none tabular-nums tracking-tight"
+          style={{ fontFamily: 'var(--font-playfair)' }}
+        >
+          {String(progress).padStart(2, '0')}
+          <span className="text-white/30">%</span>
+        </motion.div>
+        <div className="mt-6 w-[280px] h-px bg-white/10 overflow-hidden">
+          <motion.div
+            className="h-full bg-gradient-to-r from-[#00D4B6] via-white to-[#FF8A3D]"
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ ease: 'easeOut', duration: 0.3 }}
+          />
+        </div>
+        <div className="mt-4 text-[10px] tracking-[0.3em] uppercase text-white/40">
+          Caching cinematic assets
+        </div>
+      </div>
+
+      {/* bottom credit */}
+      <div className="absolute bottom-8 inset-x-0 text-center text-[10px] tracking-[0.3em] uppercase text-white/30">
+        A studio based in Valsad, Gujarat
+      </div>
+    </motion.div>
+  )
+}
+
+/* ============================================================
+   VIDEO INTRO — cinematic Ken Burns image carousel + scripted reveal
+============================================================ */
+function VideoIntro({ onEnd }) {
+  const [idx, setIdx] = useState(0)
+  const [progress, setProgress] = useState(0)
+  const DURATION = 6500
+  const slides = [CITY_IMG_PRIMARY, CITY_IMG_SECONDARY, CITY_IMG_TERTIARY]
+
+  // Cycle slides
+  useEffect(() => {
+    const id = setInterval(() => {
+      setIdx(i => (i + 1) % slides.length)
+    }, 2200)
+    return () => clearInterval(id)
+  }, [])
+
+  // Auto-advance to home
+  useEffect(() => {
+    const t = setTimeout(onEnd, DURATION)
+    return () => clearTimeout(t)
+  }, [onEnd])
+
+  // Progress bar
+  useEffect(() => {
+    const start = Date.now()
+    const id = setInterval(() => {
+      const p = Math.min(100, ((Date.now() - start) / DURATION) * 100)
+      setProgress(p)
+      if (p >= 100) clearInterval(id)
+    }, 60)
+    return () => clearInterval(id)
+  }, [])
 
   return (
-    <div ref={containerRef} id="top" className="relative w-full min-h-[160vh] bg-[#F8F9FA]">
-      <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
-        <motion.div
-          style={{ padding: containerPadding, borderRadius: containerRadius }}
-          className="relative w-full h-full bg-white flex flex-col justify-between border border-zinc-100 overflow-hidden"
-        >
-          {/* Ambient wind / glassmorphic waves */}
-          <div className="pointer-events-none absolute inset-0 overflow-hidden">
-            <div className="absolute -top-1/3 -left-1/4 w-[80vw] h-[80vw] rounded-full bg-gradient-to-br from-[#00D4B6]/10 via-[#00D4B6]/0 to-transparent blur-3xl" />
-            <div className="absolute -bottom-1/3 -right-1/4 w-[70vw] h-[70vw] rounded-full bg-gradient-to-tl from-[#0A2540]/8 via-[#0A2540]/0 to-transparent blur-3xl" />
-            {/* subtle grid */}
-            <svg className="absolute inset-0 w-full h-full opacity-[0.025]" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
-                  <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#0A2540" strokeWidth="1" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#grid)" />
-            </svg>
-            {/* wind streams */}
-            {[0, 1, 2, 3].map(i => (
-              <div
-                key={i}
-                className="wind-stream absolute h-px bg-gradient-to-r from-transparent via-[#00D4B6]/40 to-transparent"
-                style={{ top: `${20 + i * 18}%`, width: '40%', animationDelay: `${i * 2}s` }}
-              />
-            ))}
-          </div>
-
-          {/* placeholder for nav-height since Navbar is fixed */}
-          <div className="h-20" />
-
-          {/* HERO CONTENT */}
-          <motion.main
-            style={{ scale: textScale, opacity: textOpacity }}
-            className="relative z-10 w-full max-w-5xl mx-auto text-center px-6 my-auto flex flex-col items-center justify-center"
+    <motion.div
+      key="videointro"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.9, ease: 'easeInOut' } }}
+      transition={{ duration: 0.6 }}
+      className="fixed inset-0 z-[90] bg-black overflow-hidden"
+    >
+      {/* Cinematic Ken Burns image carousel */}
+      <AnimatePresence mode="sync">
+        {slides.map((src, i) => idx === i && (
+          <motion.div
+            key={src}
+            initial={{ opacity: 0, scale: 1.0 }}
+            animate={{ opacity: 1, scale: 1.18 }}
+            exit={{ opacity: 0, scale: 1.25, transition: { duration: 1.2, ease: 'easeInOut' } }}
+            transition={{ opacity: { duration: 1.4 }, scale: { duration: 4, ease: 'linear' } }}
+            className="absolute inset-0"
           >
-            <motion.span
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="inline-flex items-center gap-2 text-xs font-bold tracking-widest text-[#00D4B6] uppercase mb-6 bg-[#00D4B6]/10 px-4 py-1.5 rounded-full"
-            >
-              <MapPin size={12} /> Based in Valsad, Gujarat
-            </motion.span>
+            <img src={src} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          </motion.div>
+        ))}
+      </AnimatePresence>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.7 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-[#0A2540] tracking-tight leading-[1.05] mb-6 text-balance"
-            >
-              We Build the Tech That Runs Your Business.
-              <br />
-              <span className="bg-gradient-to-r from-[#0A2540] via-[#1a4d8a] to-[#00D4B6] bg-clip-text text-transparent">
-                We Run the Marketing That Drives Your Growth.
-              </span>
-            </motion.h1>
+      {/* cinematic vignette + warm tint + grading */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/80 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40 pointer-events-none" />
+      <div className="absolute inset-0 mix-blend-overlay" style={{
+        background: 'radial-gradient(ellipse at 70% 40%, rgba(255,138,61,0.35), transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(0,212,182,0.15), transparent 50%)'
+      }} />
+      {/* faint film grain */}
+      <div className="absolute inset-0 opacity-[0.08] mix-blend-overlay pointer-events-none" style={{
+        backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")"
+      }} />
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.7 }}
-              className="text-base sm:text-lg md:text-xl text-zinc-600 max-w-2xl font-normal leading-relaxed mb-10 text-balance"
-            >
-              No complex jargon. Just blazing-fast websites that never crash, custom software that automates your daily operations, and targeted local marketing that fills your business with ready-to-buy customers.
-            </motion.p>
+      {/* TOP BAR */}
+      <div className="absolute top-0 inset-x-0 flex justify-between items-center p-8 z-10">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="text-white text-sm font-extrabold tracking-tight"
+        >
+          vayu<span className="text-[#00D4B6]">.code</span>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="text-[10px] tracking-[0.3em] uppercase text-white/70"
+        >
+          Cinematic Intro · 2025
+        </motion.div>
+      </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.65, duration: 0.6 }}
-              className="flex flex-col sm:flex-row items-center gap-4"
-            >
-              <a
-                href="#contact"
-                className="group flex items-center gap-3 bg-[#0A2540] text-white font-semibold text-sm px-8 py-4 rounded-full shadow-[0_10px_30px_-10px_rgba(10,37,64,0.45)] hover:shadow-[0_18px_40px_-10px_rgba(10,37,64,0.5)] hover:bg-zinc-800 transition-all"
-              >
-                Modernize My Business Today
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-              </a>
-              <a
-                href="#portfolio"
-                className="flex items-center gap-2 text-sm font-medium text-[#0A2540] hover:text-[#00D4B6] transition-colors px-4 py-2"
-              >
-                See our work
-                <ArrowRight size={14} />
-              </a>
-            </motion.div>
-
-            {/* Trust micro-row */}
-            <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-zinc-500 font-medium">
-              <span className="flex items-center gap-2"><ShieldCheck size={14} className="text-[#00D4B6]" /> Local Gujarat Team</span>
-              <span className="flex items-center gap-2"><Zap size={14} className="text-[#00D4B6]" /> Blazing-fast Delivery</span>
-              <span className="flex items-center gap-2"><Users size={14} className="text-[#00D4B6]" /> 50+ Local Businesses</span>
-            </div>
-          </motion.main>
-
-          <div className="relative z-10 pb-8 text-center text-xs text-zinc-400 font-medium uppercase tracking-widest">
-            Scroll down to explore ↓
+      {/* CENTER LABEL */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.6, duration: 1.4, ease: 'easeOut' }}
+          className="text-center px-6"
+        >
+          <div className="text-[10px] tracking-[0.5em] uppercase text-white/60 mb-4">
+            Welcome to
+          </div>
+          <h2 className="text-white text-5xl md:text-7xl lg:text-9xl font-light tracking-tight leading-none" style={{ fontFamily: 'var(--font-playfair)' }}>
+            vayu<span className="italic text-[#FFD9B8]">.code</span>
+          </h2>
+          <div className="mt-6 text-[10px] tracking-[0.5em] uppercase text-white/60">
+            We build the wind beneath your business
           </div>
         </motion.div>
       </div>
-    </div>
+
+      {/* BOTTOM PROGRESS LINE */}
+      <div className="absolute bottom-0 inset-x-0 h-[2px] bg-white/10 z-10">
+        <div className="h-full bg-gradient-to-r from-[#00D4B6] via-white to-[#FF8A3D] transition-[width] duration-100" style={{ width: `${progress}%` }} />
+      </div>
+
+      {/* SKIP BUTTON */}
+      <motion.button
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.2 }}
+        onClick={onEnd}
+        className="group absolute bottom-8 right-8 z-20 flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white text-[11px] font-medium tracking-[0.18em] uppercase px-5 py-2.5 rounded-full transition-all"
+      >
+        Skip Intro
+        <SkipForward size={12} className="group-hover:translate-x-0.5 transition-transform" />
+      </motion.button>
+    </motion.div>
+  )
+}
+
+/* ============================================================
+   EDITORIAL HERO — dark amber gradient, silhouette, serif headline
+============================================================ */
+function EditorialHero() {
+  return (
+    <section id="top" className="relative w-full min-h-screen bg-black overflow-hidden">
+      {/* AMBIENT RADIAL GLOW */}
+      <div className="absolute inset-0">
+        {/* base warm gradient */}
+        <div className="absolute inset-0" style={{
+          background: 'radial-gradient(ellipse 90% 70% at 75% 50%, #FFB36B 0%, #FF8A3D 20%, #D24B0E 45%, #4A1505 70%, #0B0604 100%)'
+        }} />
+        {/* deep shadow on left to anchor type */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
+        {/* film grain */}
+        <div className="absolute inset-0 opacity-[0.07] mix-blend-overlay" style={{
+          backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")"
+        }} />
+        {/* warm vignette */}
+        <div className="absolute inset-0" style={{
+          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%)'
+        }} />
+      </div>
+
+      {/* SILHOUETTE IMAGE — right side */}
+      <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[60%] xl:w-[55%] pointer-events-none">
+        <img
+          src={SILHOUETTE_IMG}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-70 mix-blend-screen"
+        />
+        {/* darken edges of image */}
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
+      </div>
+
+      {/* CONTENT GRID */}
+      <div className="relative z-10 min-h-screen flex flex-col">
+        {/* nav spacer */}
+        <div className="h-24" />
+
+        <div className="flex-1 flex items-center">
+          <div className="w-full max-w-[1500px] mx-auto px-6 lg:px-10 grid lg:grid-cols-12 gap-8 items-center">
+            {/* LEFT — Editorial headline */}
+            <div className="lg:col-span-7 xl:col-span-7">
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                className="flex items-center gap-3 mb-8"
+              >
+                <span className="w-10 h-px bg-white/40" />
+                <span className="text-[10px] tracking-[0.4em] uppercase text-white/60">
+                  Independent Studio · Est. 2025 · Valsad, IN
+                </span>
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                className="text-white text-[clamp(48px,8vw,128px)] leading-[0.95] tracking-[-0.02em] font-light"
+                style={{ fontFamily: 'var(--font-playfair)' }}
+              >
+                Art direction
+                <br />
+                with a <span className="italic text-[#FFD9B8]">Systems</span>
+                <br />
+                Brain.
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55, duration: 0.9 }}
+                className="mt-8 max-w-md text-white/70 text-base leading-relaxed"
+              >
+                We craft websites, custom software & marketing systems for ambitious businesses across Gujarat — engineered to run, designed to seduce.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.75, duration: 0.8 }}
+                className="mt-10 flex flex-wrap items-center gap-4"
+              >
+                <a
+                  href="#contact"
+                  className="group inline-flex items-center gap-3 bg-white text-[#1a0a04] font-semibold text-[12px] tracking-[0.15em] uppercase px-7 py-3.5 rounded-full hover:bg-[#FFD9B8] transition-all"
+                >
+                  Start here
+                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                </a>
+                <a
+                  href="#services"
+                  className="group inline-flex items-center gap-3 backdrop-blur-md bg-white/5 border border-white/25 text-white text-[12px] tracking-[0.15em] uppercase font-semibold px-7 py-3.5 rounded-full hover:bg-white/10 transition-all"
+                >
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00D4B6] opacity-70" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00D4B6]" />
+                  </span>
+                  Available · Q3 2025
+                </a>
+              </motion.div>
+            </div>
+
+            {/* RIGHT — Spec details */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1, duration: 0.8 }}
+              className="lg:col-span-5 xl:col-span-5 hidden lg:flex flex-col justify-end h-full pb-12"
+            >
+              <div className="ml-auto max-w-xs space-y-4 text-right">
+                <div className="text-[10px] tracking-[0.3em] uppercase text-white/40">Currently shipping</div>
+                <div className="text-white/90 text-sm leading-relaxed" style={{ fontFamily: 'var(--font-playfair)' }}>
+                  Three local manufacturers · One D2C jewelry brand · Two retail chains · Custom CRM for a textile exporter.
+                </div>
+                <div className="flex justify-end gap-6 pt-4 border-t border-white/10">
+                  <div>
+                    <div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Projects</div>
+                    <div className="text-white text-xl font-light tabular-nums" style={{ fontFamily: 'var(--font-playfair)' }}>50+</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Avg. Lift</div>
+                    <div className="text-white text-xl font-light tabular-nums" style={{ fontFamily: 'var(--font-playfair)' }}>3.2×</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Uptime</div>
+                    <div className="text-white text-xl font-light tabular-nums" style={{ fontFamily: 'var(--font-playfair)' }}>99.9</div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* FOOTER BAR */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 1 }}
+          className="relative z-10 border-t border-white/10 py-5 px-6 lg:px-10"
+        >
+          <div className="max-w-[1500px] mx-auto flex flex-wrap items-center justify-between gap-4 text-[10px] tracking-[0.3em] uppercase text-white/50">
+            <div className="flex items-center gap-2">
+              <Circle size={6} className="fill-[#00D4B6] text-[#00D4B6]" />
+              In the studio: brewing chai, shipping pixels
+            </div>
+            <div className="hidden md:flex items-center gap-6">
+              <span>↓ Scroll to see what we make</span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
   )
 }
 
@@ -632,20 +915,60 @@ function Footer() {
 }
 
 /* ============================================================
-   APP
+   APP — with cinematic intro state machine
 ============================================================ */
 function App() {
+  const [stage, setStage] = useState('loading') // loading | intro | home
+  const [progress, setProgress] = useState(0)
+
+  // Preloader progress simulation
+  useEffect(() => {
+    if (stage !== 'loading') return
+    let p = 0
+    const id = setInterval(() => {
+      p = Math.min(100, p + Math.random() * 12 + 4)
+      setProgress(Math.round(p))
+      if (p >= 100) {
+        clearInterval(id)
+        setTimeout(() => setStage('intro'), 500)
+      }
+    }, 110)
+    return () => clearInterval(id)
+  }, [stage])
+
+  // Lock scroll while intro is playing
+  useEffect(() => {
+    if (stage !== 'home') {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [stage])
+
   return (
-    <main className="relative bg-white">
-      <Navbar />
-      <Hero />
-      <ProblemSection />
-      <SplitPinnedSection />
-      <TiltedPortfolio />
-      <TrustSection />
-      <ContactSection />
-      <Footer />
-    </main>
+    <>
+      <AnimatePresence mode="wait">
+        {stage === 'loading' && <Preloader key="pre" progress={progress} />}
+        {stage === 'intro' && <VideoIntro key="vid" onEnd={() => setStage('home')} />}
+      </AnimatePresence>
+
+      <motion.main
+        initial={{ opacity: 0 }}
+        animate={{ opacity: stage === 'home' ? 1 : 0 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+        className="relative bg-white"
+      >
+        <Navbar />
+        <EditorialHero />
+        <ProblemSection />
+        <SplitPinnedSection />
+        <TiltedPortfolio />
+        <TrustSection />
+        <ContactSection />
+        <Footer />
+      </motion.main>
+    </>
   )
 }
 
