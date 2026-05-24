@@ -717,6 +717,262 @@ function TiltedPortfolio() {
 }
 
 /* ============================================================
+   HORIZONTAL CASE STUDIES — vertical→horizontal lock + circle→rectangle morph
+============================================================ */
+const CASE_STUDIES = [
+  {
+    n: '01',
+    tag: 'Hospitality · Website + Booking',
+    title: 'Nirvana Eco-Resort',
+    location: 'Saputara, Gujarat',
+    body: 'A 24-villa boutique resort tucked into the Sahyadri ghats. We built a cinematic website with a real-time direct-booking engine, replacing OTA commissions with a clean revenue stream — 4.2× direct bookings in 90 days.',
+    stat: '4.2×',
+    statLabel: 'Direct Bookings',
+    img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1800&q=80',
+    accent: '#FF8A3D',
+  },
+  {
+    n: '02',
+    tag: 'Manufacturing · Custom ERP',
+    title: 'Sutra Textile Co.',
+    location: 'Surat, Gujarat',
+    body: 'A third-generation textile exporter drowning in registers. We engineered a custom ERP — order intake on WhatsApp, real-time loom tracking, and one-tap dispatch — cutting reconciliation from 4 days to 9 minutes.',
+    stat: '9 min',
+    statLabel: 'Recon Time',
+    img: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1800&q=80',
+    accent: '#00D4B6',
+  },
+  {
+    n: '03',
+    tag: 'D2C · E-commerce + Performance Ads',
+    title: 'Anaya Jewels',
+    location: 'Rajkot → Pan-India',
+    body: 'A heritage jewelry house ready to skip the showroom era. We shipped a slick D2C store, plugged Instagram and Meta funnels, and ran festive performance ads — ₹1.2 Cr in 60 days from a cold audience.',
+    stat: '₹1.2 Cr',
+    statLabel: 'GMV · 60 days',
+    img: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1800&q=80',
+    accent: '#FFD9B8',
+  },
+  {
+    n: '04',
+    tag: 'Multi-Outlet Retail · POS + Local SEO',
+    title: 'Bandhan Retail',
+    location: '11 outlets · South Gujarat',
+    body: 'Eleven outlets, eleven Excel sheets, zero clarity. We deployed a unified POS, synced inventory across stores, and lit up local-SEO — footfall up 38%, stockouts down 71% within a quarter.',
+    stat: '+38%',
+    statLabel: 'Footfall',
+    img: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1800&q=80',
+    accent: '#0A2540',
+  },
+]
+
+function CaseStudySlide({ scrollYProgress, index, total, project }) {
+  // Each slide is "active" when the scroll progress is near its center band
+  const start = index / total
+  const center = (index + 0.5) / total
+  const end = (index + 1) / total
+
+  // Morph: outside band = circle (50%, scale 0.6), at center = rectangle (16px, scale 1)
+  const borderRadius = useTransform(scrollYProgress, [start, center, end], ['50%', '20px', '50%'])
+  const scale = useTransform(scrollYProgress, [start, center, end], [0.65, 1, 0.65])
+  const imgScale = useTransform(scrollYProgress, [start, center, end], [1.25, 1, 1.25])
+  const textOpacity = useTransform(scrollYProgress, [start, center - 0.02, center + 0.02, end], [0, 1, 1, 0])
+  const textY = useTransform(scrollYProgress, [start, center, end], [40, 0, -40])
+  const numberOpacity = useTransform(scrollYProgress, [start, center - 0.05, center + 0.05, end], [0.15, 0.4, 0.4, 0.15])
+
+  return (
+    <div className="relative h-screen w-screen flex-shrink-0 flex items-center justify-center px-6 lg:px-20">
+      <div className="relative w-full max-w-[1500px] grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        {/* LEFT — Big outlined number + copy */}
+        <div className="lg:col-span-5 relative">
+          <motion.div
+            style={{
+              opacity: numberOpacity,
+              fontFamily: 'var(--font-playfair)',
+              WebkitTextStroke: '1px rgba(10,37,64,0.35)',
+              letterSpacing: '-0.05em',
+            }}
+            className="absolute -top-32 -left-2 lg:-left-6 select-none pointer-events-none text-[clamp(180px,22vw,360px)] leading-none font-light text-transparent"
+          >
+            {project.n}
+          </motion.div>
+
+          <motion.div
+            style={{ opacity: textOpacity, y: textY }}
+            className="relative z-10"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-8 h-px bg-[#0A2540]/30" />
+              <span className="text-[10px] tracking-[0.3em] uppercase text-[#0A2540]/60">
+                Case Study · {project.tag}
+              </span>
+            </div>
+
+            <h3
+              className="text-[clamp(36px,4.5vw,64px)] leading-[1] text-[#0A2540] tracking-[-0.02em] font-light mb-4"
+              style={{ fontFamily: 'var(--font-playfair)' }}
+            >
+              {project.title}
+            </h3>
+
+            <div className="text-sm tracking-[0.2em] uppercase text-[#0A2540]/50 mb-6">
+              {project.location}
+            </div>
+
+            <p className="text-zinc-600 leading-relaxed max-w-md mb-8">
+              {project.body}
+            </p>
+
+            <div className="flex items-end gap-6 pt-6 border-t border-zinc-200">
+              <div>
+                <div
+                  className="text-5xl font-light text-[#0A2540] tabular-nums leading-none"
+                  style={{ fontFamily: 'var(--font-playfair)' }}
+                >
+                  {project.stat}
+                </div>
+                <div className="text-[10px] tracking-[0.25em] uppercase text-[#0A2540]/50 mt-2">
+                  {project.statLabel}
+                </div>
+              </div>
+              <a
+                href="#contact"
+                className="ml-auto inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase font-semibold text-[#0A2540] hover:text-[#00D4B6] transition-colors group"
+              >
+                Read case study
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+              </a>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* RIGHT — Morphing image (circle → rounded rectangle) */}
+        <div className="lg:col-span-7 flex justify-center lg:justify-end">
+          <motion.div
+            style={{
+              borderRadius,
+              scale,
+              boxShadow: `0 40px 80px -30px ${project.accent}40, 0 0 0 1px rgba(10,37,64,0.05)`,
+            }}
+            className="relative aspect-[4/3] w-full max-w-[640px] overflow-hidden bg-[#F8F9FA]"
+          >
+            <motion.img
+              src={project.img}
+              alt={project.title}
+              style={{ scale: imgScale }}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            {/* color accent bleed */}
+            <div
+              className="absolute inset-0 mix-blend-multiply opacity-20"
+              style={{
+                background: `radial-gradient(circle at 30% 30%, ${project.accent}, transparent 60%)`,
+              }}
+            />
+            {/* index badge */}
+            <div className="absolute top-5 left-5 backdrop-blur-md bg-white/70 border border-white/40 rounded-full px-3 py-1 text-[10px] tracking-[0.25em] uppercase font-semibold text-[#0A2540]">
+              · {project.n} · Live
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function HorizontalCaseStudies() {
+  const trackRef = useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: trackRef,
+    offset: ['start start', 'end end'],
+  })
+
+  // Slide horizontally as vertical scroll progresses
+  // We need to traverse (total - 1) slide widths in viewport units
+  const total = CASE_STUDIES.length
+  const xPct = useTransform(scrollYProgress, [0, 1], ['0%', `-${(total - 1) * (100 / total)}%`])
+
+  // Progress indicator (1 of 4 etc.)
+  const [activeIdx, setActiveIdx] = useState(0)
+  useEffect(() => {
+    return scrollYProgress.on('change', v => {
+      const idx = Math.min(total - 1, Math.max(0, Math.round(v * (total - 1) + 0.0001)))
+      setActiveIdx(idx)
+    })
+  }, [scrollYProgress, total])
+
+  return (
+    <section
+      ref={trackRef}
+      id="case-studies"
+      className="relative bg-white"
+      style={{ height: `${total * 100}vh` }}
+    >
+      <div className="sticky top-0 h-screen w-screen overflow-hidden">
+        {/* Section heading — pinned overlay */}
+        <div className="absolute top-0 inset-x-0 z-20 pt-28 px-6 lg:px-20 pointer-events-none">
+          <div className="max-w-[1500px] mx-auto flex items-end justify-between">
+            <div>
+              <span className="text-[10px] tracking-[0.3em] uppercase text-[#0A2540]/60 mb-2 inline-block">
+                · Selected Work · 2024 – 2025
+              </span>
+              <h2
+                className="text-[clamp(28px,3.5vw,52px)] leading-[1] text-[#0A2540] tracking-[-0.02em] font-light"
+                style={{ fontFamily: 'var(--font-playfair)' }}
+              >
+                Case <span className="italic text-[#00D4B6]">studies.</span>
+              </h2>
+            </div>
+            <div className="hidden md:flex items-center gap-6 text-[10px] tracking-[0.3em] uppercase text-[#0A2540]/50">
+              <span className="tabular-nums">
+                {String(activeIdx + 1).padStart(2, '0')} <span className="opacity-40">/ {String(total).padStart(2, '0')}</span>
+              </span>
+              <span className="opacity-60">Scroll ↓ to navigate →</span>
+            </div>
+          </div>
+        </div>
+
+        {/* horizontal track */}
+        <motion.div
+          style={{ x: xPct, width: `${total * 100}vw` }}
+          className="flex h-full"
+        >
+          {CASE_STUDIES.map((p, i) => (
+            <CaseStudySlide
+              key={p.n}
+              scrollYProgress={scrollYProgress}
+              index={i}
+              total={total}
+              project={p}
+            />
+          ))}
+        </motion.div>
+
+        {/* bottom progress rail */}
+        <div className="absolute bottom-10 inset-x-0 px-6 lg:px-20 z-20">
+          <div className="max-w-[1500px] mx-auto flex items-center gap-3">
+            {CASE_STUDIES.map((_, i) => (
+              <div
+                key={i}
+                className="flex-1 h-[2px] bg-[#0A2540]/10 overflow-hidden rounded-full"
+              >
+                <motion.div
+                  className="h-full bg-[#0A2540]"
+                  initial={false}
+                  animate={{ width: i < activeIdx ? '100%' : i === activeIdx ? '100%' : '0%' }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+
+/* ============================================================
    WHY GUJARAT TRUSTS US
 ============================================================ */
 function TrustSection() {
@@ -964,6 +1220,7 @@ function App() {
         <ProblemSection />
         <SplitPinnedSection />
         <TiltedPortfolio />
+        <HorizontalCaseStudies />
         <TrustSection />
         <ContactSection />
         <Footer />
