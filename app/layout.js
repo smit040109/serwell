@@ -22,7 +22,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <body className="font-sans antialiased bg-white text-[#0A2540]">
+      <body className="font-sans antialiased bg-[#F4F1EA] text-[#0E0E10]">
         {children}
       </body>
     </html>

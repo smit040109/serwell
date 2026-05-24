@@ -8,9 +8,9 @@ import {
   Phone, Mail, MessageSquare, Menu, X, Play, SkipForward, Circle
 } from 'lucide-react'
 
-const NAVY = '#0A2540'
-const TEAL = '#00D4B6'
-const SILVER = '#F8F9FA'
+const NAVY = '#0E0E10'
+const TEAL = '#E85D2C'
+const SILVER = '#F4F1EA'
 const AMBER = '#FF8A3D'
 
 const CITY_IMG_PRIMARY = 'https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=2400&q=80'
@@ -89,20 +89,20 @@ function Navbar() {
         <a
           href="#top"
           className={`text-2xl font-extrabold tracking-tight transition-colors ${
-            isDark ? 'text-white' : 'text-[#0A2540]'
+            isDark ? 'text-white' : 'text-[#0E0E10]'
           }`}
         >
-          vayu<span className="text-[#00D4B6]">.code</span>
+          vayu<span className="text-[#E85D2C]">.code</span>
         </a>
         <nav
           className={`hidden md:flex items-center space-x-10 text-[11px] font-medium tracking-[0.18em] uppercase transition-colors ${
             isDark ? 'text-white/70' : 'text-zinc-600'
           }`}
         >
-          <a href="#services" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0A2540]'} transition-colors`}>Services</a>
-          <a href="#why-us" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0A2540]'} transition-colors`}>Why Us</a>
-          <a href="#portfolio" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0A2540]'} transition-colors`}>Our Work</a>
-          <a href="#trust" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0A2540]'} transition-colors`}>Trust</a>
+          <a href="#services" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0E0E10]'} transition-colors`}>Services</a>
+          <a href="#why-us" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0E0E10]'} transition-colors`}>Why Us</a>
+          <a href="#portfolio" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0E0E10]'} transition-colors`}>Our Work</a>
+          <a href="#trust" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0E0E10]'} transition-colors`}>Trust</a>
         </nav>
         <div className="flex items-center gap-6">
           {/* live time counters — only show over dark hero */}
@@ -114,14 +114,14 @@ function Navbar() {
             href="#contact"
             className={`hidden sm:inline-flex text-[11px] font-semibold tracking-[0.18em] uppercase px-5 py-2.5 rounded-full transition-all border ${
               isDark
-                ? 'bg-white text-[#0A2540] border-white hover:bg-transparent hover:text-white'
-                : 'bg-[#0A2540] text-white border-[#0A2540] hover:bg-zinc-800'
+                ? 'bg-white text-[#0E0E10] border-white hover:bg-transparent hover:text-white'
+                : 'bg-[#0E0E10] text-white border-[#0E0E10] hover:bg-zinc-800'
             }`}
           >
             Contact
           </a>
           <button
-            className={`md:hidden p-2 ${isDark ? 'text-white' : 'text-[#0A2540]'}`}
+            className={`md:hidden p-2 ${isDark ? 'text-white' : 'text-[#0E0E10]'}`}
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
           >
@@ -134,7 +134,7 @@ function Navbar() {
           <a href="#services" onClick={() => setOpen(false)} className="block">Services</a>
           <a href="#why-us" onClick={() => setOpen(false)} className="block">Why Us</a>
           <a href="#portfolio" onClick={() => setOpen(false)} className="block">Our Work</a>
-          <a href="#contact" onClick={() => setOpen(false)} className="block text-[#00D4B6]">Contact Us →</a>
+          <a href="#contact" onClick={() => setOpen(false)} className="block text-[#E85D2C]">Contact Us →</a>
         </div>
       )}
     </motion.header>
@@ -160,7 +160,7 @@ function Preloader({ progress }) {
 
       {/* logo wordmark — small, top-left */}
       <div className="absolute top-8 left-8 text-white text-sm font-extrabold tracking-tight">
-        vayu<span className="text-[#00D4B6]">.code</span>
+        vayu<span className="text-[#E85D2C]">.code</span>
       </div>
 
       {/* loading label — top right */}
@@ -182,7 +182,7 @@ function Preloader({ progress }) {
         </motion.div>
         <div className="mt-6 w-[280px] h-px bg-white/10 overflow-hidden">
           <motion.div
-            className="h-full bg-gradient-to-r from-[#00D4B6] via-white to-[#FF8A3D]"
+            className="h-full bg-gradient-to-r from-[#E85D2C] via-white to-[#FF8A3D]"
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ ease: 'easeOut', duration: 0.3 }}
@@ -279,7 +279,7 @@ function VideoIntro({ onEnd }) {
           transition={{ delay: 0.3 }}
           className="text-white text-sm font-extrabold tracking-tight"
         >
-          vayu<span className="text-[#00D4B6]">.code</span>
+          vayu<span className="text-[#E85D2C]">.code</span>
         </motion.div>
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -313,20 +313,8 @@ function VideoIntro({ onEnd }) {
 
       {/* BOTTOM PROGRESS LINE */}
       <div className="absolute bottom-0 inset-x-0 h-[2px] bg-white/10 z-10">
-        <div className="h-full bg-gradient-to-r from-[#00D4B6] via-white to-[#FF8A3D] transition-[width] duration-100" style={{ width: `${progress}%` }} />
+        <div className="h-full bg-gradient-to-r from-[#E85D2C] via-white to-[#E85D2C] transition-[width] duration-100" style={{ width: `${progress}%` }} />
       </div>
-
-      {/* SKIP BUTTON */}
-      <motion.button
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2 }}
-        onClick={onEnd}
-        className="group absolute bottom-8 right-8 z-20 flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white text-[11px] font-medium tracking-[0.18em] uppercase px-5 py-2.5 rounded-full transition-all"
-      >
-        Skip Intro
-        <SkipForward size={12} className="group-hover:translate-x-0.5 transition-transform" />
-      </motion.button>
     </motion.div>
   )
 }
@@ -429,8 +417,8 @@ function EditorialHero() {
                   className="group inline-flex items-center gap-3 backdrop-blur-md bg-white/5 border border-white/25 text-white text-[12px] tracking-[0.15em] uppercase font-semibold px-7 py-3.5 rounded-full hover:bg-white/10 transition-all"
                 >
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00D4B6] opacity-70" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00D4B6]" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E85D2C] opacity-70" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E85D2C]" />
                   </span>
                   Available · Q3 2025
                 </a>
@@ -477,7 +465,7 @@ function EditorialHero() {
         >
           <div className="max-w-[1500px] mx-auto flex flex-wrap items-center justify-between gap-4 text-[10px] tracking-[0.3em] uppercase text-white/50">
             <div className="flex items-center gap-2">
-              <Circle size={6} className="fill-[#00D4B6] text-[#00D4B6]" />
+              <Circle size={6} className="fill-[#E85D2C] text-[#E85D2C]" />
               In the studio: brewing chai, shipping pixels
             </div>
             <div className="hidden md:flex items-center gap-6">
@@ -521,10 +509,10 @@ function ProblemSection() {
           transition={{ duration: 0.6 }}
           className="max-w-3xl mb-16"
         >
-          <span className="text-xs font-bold tracking-widest text-[#00D4B6] uppercase mb-4 inline-block">
+          <span className="text-xs font-bold tracking-widest text-[#E85D2C] uppercase mb-4 inline-block">
             // The Problem We Solve
           </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#0A2540] tracking-tight leading-[1.1] text-balance">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#0E0E10] tracking-tight leading-[1.1] text-balance">
             Running a business in 2025 shouldn&apos;t feel like fighting fires every morning.
           </h2>
         </motion.div>
@@ -537,12 +525,12 @@ function ProblemSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-80px' }}
               transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="group relative bg-[#F8F9FA] rounded-3xl p-8 border border-zinc-100 hover:border-[#00D4B6]/40 hover:bg-white hover:shadow-[0_30px_60px_-30px_rgba(10,37,64,0.15)] transition-all duration-500"
+              className="group relative bg-[#F4F1EA] rounded-3xl p-8 border border-zinc-100 hover:border-[#E85D2C]/40 hover:bg-white hover:shadow-[0_30px_60px_-30px_rgba(10,37,64,0.15)] transition-all duration-500"
             >
-              <div className="w-12 h-12 rounded-2xl bg-white border border-zinc-100 flex items-center justify-center mb-6 group-hover:bg-[#0A2540] group-hover:border-[#0A2540] transition-colors">
-                <p.icon size={20} className="text-[#0A2540] group-hover:text-[#00D4B6] transition-colors" />
+              <div className="w-12 h-12 rounded-2xl bg-white border border-zinc-100 flex items-center justify-center mb-6 group-hover:bg-[#0E0E10] group-hover:border-[#0E0E10] transition-colors">
+                <p.icon size={20} className="text-[#0E0E10] group-hover:text-[#E85D2C] transition-colors" />
               </div>
-              <h3 className="text-lg font-bold text-[#0A2540] mb-3 leading-snug">{p.title}</h3>
+              <h3 className="text-lg font-bold text-[#0E0E10] mb-3 leading-snug">{p.title}</h3>
               <p className="text-sm text-zinc-600 leading-relaxed">{p.body}</p>
             </motion.div>
           ))}
@@ -586,18 +574,18 @@ function SplitPinnedSection() {
   ]
 
   return (
-    <section ref={sectionRef} id="services" className="relative bg-[#F8F9FA]" style={{ height: `${blocks.length * 100}vh` }}>
+    <section ref={sectionRef} id="services" className="relative bg-[#F4F1EA]" style={{ height: `${blocks.length * 100}vh` }}>
       <div className="sticky top-0 h-screen flex flex-col md:flex-row">
         {/* LEFT — sticky header */}
         <div className="md:w-1/2 w-full md:h-screen flex items-center justify-center bg-white border-r border-zinc-100 px-8 md:px-16 py-12">
           <div className="max-w-md">
-            <span className="text-xs font-bold tracking-widest text-[#00D4B6] uppercase mb-4 inline-block">
+            <span className="text-xs font-bold tracking-widest text-[#E85D2C] uppercase mb-4 inline-block">
               // What We Build
             </span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#0A2540] tracking-tight leading-[1.05] mb-6 text-balance">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#0E0E10] tracking-tight leading-[1.05] mb-6 text-balance">
               Three engines.
               <br />
-              <span className="bg-gradient-to-r from-[#0A2540] to-[#00D4B6] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#0E0E10] to-[#E85D2C] bg-clip-text text-transparent">
                 One unstoppable business.
               </span>
             </h2>
@@ -629,8 +617,8 @@ function SplitPinnedSection() {
                   >
                     <img src={b.img} alt={b.title} className="w-full h-full object-cover" />
                   </div>
-                  <div className="text-[11px] font-bold tracking-widest text-[#00D4B6] uppercase mb-3">{b.tag}</div>
-                  <h3 className="text-2xl md:text-3xl font-extrabold text-[#0A2540] mb-3 tracking-tight">{b.title}</h3>
+                  <div className="text-[11px] font-bold tracking-widest text-[#E85D2C] uppercase mb-3">{b.tag}</div>
+                  <h3 className="text-2xl md:text-3xl font-extrabold text-[#0E0E10] mb-3 tracking-tight">{b.title}</h3>
                   <p className="text-zinc-600 leading-relaxed">{b.body}</p>
                 </div>
               </div>
@@ -657,7 +645,7 @@ function TiltedPortfolio() {
     <section ref={sectionRef} id="portfolio" className="relative bg-white py-32 px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
         {/* LEFT — Tilted grid */}
-        <div className="relative h-[600px] lg:h-[700px] overflow-hidden rounded-3xl bg-[#F8F9FA] border border-zinc-100">
+        <div className="relative h-[600px] lg:h-[700px] overflow-hidden rounded-3xl bg-[#F4F1EA] border border-zinc-100">
           <motion.div
             style={{ y: yShift, rotate: -12 }}
             className="absolute inset-0 -inset-x-20 grid grid-cols-3 gap-4 p-8 origin-center"
@@ -677,13 +665,13 @@ function TiltedPortfolio() {
 
         {/* RIGHT — cross-fading trust copy */}
         <div className="space-y-10">
-          <span className="text-xs font-bold tracking-widest text-[#00D4B6] uppercase">
+          <span className="text-xs font-bold tracking-widest text-[#E85D2C] uppercase">
             // Proof of Work
           </span>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-[#0A2540] tracking-tight leading-[1.05] text-balance">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-[#0E0E10] tracking-tight leading-[1.05] text-balance">
             Real businesses.
             <br />
-            <span className="bg-gradient-to-r from-[#0A2540] to-[#00D4B6] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#0E0E10] to-[#E85D2C] bg-clip-text text-transparent">
               Real numbers.
             </span>
           </h2>
@@ -703,9 +691,9 @@ function TiltedPortfolio() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                className="border-l-2 border-[#00D4B6] pl-4"
+                className="border-l-2 border-[#E85D2C] pl-4"
               >
-                <div className="text-3xl font-extrabold text-[#0A2540]">{s.k}</div>
+                <div className="text-3xl font-extrabold text-[#0E0E10]">{s.k}</div>
                 <div className="text-sm text-zinc-500 mt-1">{s.v}</div>
               </motion.div>
             ))}
@@ -740,7 +728,7 @@ const CASE_STUDIES = [
     stat: '9 min',
     statLabel: 'Recon Time',
     img: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1800&q=80',
-    accent: '#00D4B6',
+    accent: '#E85D2C',
   },
   {
     n: '03',
@@ -762,7 +750,7 @@ const CASE_STUDIES = [
     stat: '+38%',
     statLabel: 'Footfall',
     img: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1800&q=80',
-    accent: '#0A2540',
+    accent: '#0E0E10',
   },
 ]
 
@@ -802,20 +790,20 @@ function CaseStudySlide({ scrollYProgress, index, total, project }) {
             className="relative z-10"
           >
             <div className="flex items-center gap-3 mb-6">
-              <span className="w-8 h-px bg-[#0A2540]/30" />
-              <span className="text-[10px] tracking-[0.3em] uppercase text-[#0A2540]/60">
+              <span className="w-8 h-px bg-[#0E0E10]/30" />
+              <span className="text-[10px] tracking-[0.3em] uppercase text-[#0E0E10]/60">
                 Case Study · {project.tag}
               </span>
             </div>
 
             <h3
-              className="text-[clamp(36px,4.5vw,64px)] leading-[1] text-[#0A2540] tracking-[-0.02em] font-light mb-4"
+              className="text-[clamp(36px,4.5vw,64px)] leading-[1] text-[#0E0E10] tracking-[-0.02em] font-light mb-4"
               style={{ fontFamily: 'var(--font-playfair)' }}
             >
               {project.title}
             </h3>
 
-            <div className="text-sm tracking-[0.2em] uppercase text-[#0A2540]/50 mb-6">
+            <div className="text-sm tracking-[0.2em] uppercase text-[#0E0E10]/50 mb-6">
               {project.location}
             </div>
 
@@ -826,18 +814,18 @@ function CaseStudySlide({ scrollYProgress, index, total, project }) {
             <div className="flex items-end gap-6 pt-6 border-t border-zinc-200">
               <div>
                 <div
-                  className="text-5xl font-light text-[#0A2540] tabular-nums leading-none"
+                  className="text-5xl font-light text-[#0E0E10] tabular-nums leading-none"
                   style={{ fontFamily: 'var(--font-playfair)' }}
                 >
                   {project.stat}
                 </div>
-                <div className="text-[10px] tracking-[0.25em] uppercase text-[#0A2540]/50 mt-2">
+                <div className="text-[10px] tracking-[0.25em] uppercase text-[#0E0E10]/50 mt-2">
                   {project.statLabel}
                 </div>
               </div>
               <a
                 href="#contact"
-                className="ml-auto inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase font-semibold text-[#0A2540] hover:text-[#00D4B6] transition-colors group"
+                className="ml-auto inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase font-semibold text-[#0E0E10] hover:text-[#E85D2C] transition-colors group"
               >
                 Read case study
                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -854,7 +842,7 @@ function CaseStudySlide({ scrollYProgress, index, total, project }) {
               scale,
               boxShadow: `0 40px 80px -30px ${project.accent}40, 0 0 0 1px rgba(10,37,64,0.05)`,
             }}
-            className="relative aspect-[4/3] w-full max-w-[640px] overflow-hidden bg-[#F8F9FA]"
+            className="relative aspect-[4/3] w-full max-w-[640px] overflow-hidden bg-[#F4F1EA]"
           >
             <motion.img
               src={project.img}
@@ -870,7 +858,7 @@ function CaseStudySlide({ scrollYProgress, index, total, project }) {
               }}
             />
             {/* index badge */}
-            <div className="absolute top-5 left-5 backdrop-blur-md bg-white/70 border border-white/40 rounded-full px-3 py-1 text-[10px] tracking-[0.25em] uppercase font-semibold text-[#0A2540]">
+            <div className="absolute top-5 left-5 backdrop-blur-md bg-white/70 border border-white/40 rounded-full px-3 py-1 text-[10px] tracking-[0.25em] uppercase font-semibold text-[#0E0E10]">
               · {project.n} · Live
             </div>
           </motion.div>
@@ -913,17 +901,17 @@ function HorizontalCaseStudies() {
         <div className="absolute top-0 inset-x-0 z-20 pt-28 px-6 lg:px-20 pointer-events-none">
           <div className="max-w-[1500px] mx-auto flex items-end justify-between">
             <div>
-              <span className="text-[10px] tracking-[0.3em] uppercase text-[#0A2540]/60 mb-2 inline-block">
+              <span className="text-[10px] tracking-[0.3em] uppercase text-[#0E0E10]/60 mb-2 inline-block">
                 · Selected Work · 2024 – 2025
               </span>
               <h2
-                className="text-[clamp(28px,3.5vw,52px)] leading-[1] text-[#0A2540] tracking-[-0.02em] font-light"
+                className="text-[clamp(28px,3.5vw,52px)] leading-[1] text-[#0E0E10] tracking-[-0.02em] font-light"
                 style={{ fontFamily: 'var(--font-playfair)' }}
               >
-                Case <span className="italic text-[#00D4B6]">studies.</span>
+                Case <span className="italic text-[#E85D2C]">studies.</span>
               </h2>
             </div>
-            <div className="hidden md:flex items-center gap-6 text-[10px] tracking-[0.3em] uppercase text-[#0A2540]/50">
+            <div className="hidden md:flex items-center gap-6 text-[10px] tracking-[0.3em] uppercase text-[#0E0E10]/50">
               <span className="tabular-nums">
                 {String(activeIdx + 1).padStart(2, '0')} <span className="opacity-40">/ {String(total).padStart(2, '0')}</span>
               </span>
@@ -954,10 +942,10 @@ function HorizontalCaseStudies() {
             {CASE_STUDIES.map((_, i) => (
               <div
                 key={i}
-                className="flex-1 h-[2px] bg-[#0A2540]/10 overflow-hidden rounded-full"
+                className="flex-1 h-[2px] bg-[#0E0E10]/10 overflow-hidden rounded-full"
               >
                 <motion.div
-                  className="h-full bg-[#0A2540]"
+                  className="h-full bg-[#0E0E10]"
                   initial={false}
                   animate={{ width: i < activeIdx ? '100%' : i === activeIdx ? '100%' : '0%' }}
                   transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -982,10 +970,10 @@ function TrustSection() {
     { icon: ShieldCheck, title: 'Built to Scale While You Focus on Execution', body: 'You run your factory, your shop, your team. We handle the tech, the website, the leads. One predictable monthly partner — not five vendors fighting each other.' },
   ]
   return (
-    <section id="trust" className="relative bg-[#0A2540] text-white py-32 px-6 overflow-hidden">
+    <section id="trust" className="relative bg-[#0E0E10] text-white py-32 px-6 overflow-hidden">
       {/* ambient teal glows */}
-      <div className="pointer-events-none absolute -top-40 -right-40 w-[60vw] h-[60vw] rounded-full bg-[#00D4B6]/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -left-40 w-[60vw] h-[60vw] rounded-full bg-[#00D4B6]/5 blur-3xl" />
+      <div className="pointer-events-none absolute -top-40 -right-40 w-[60vw] h-[60vw] rounded-full bg-[#E85D2C]/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 -left-40 w-[60vw] h-[60vw] rounded-full bg-[#E85D2C]/5 blur-3xl" />
 
       <div id="why-us" className="relative max-w-7xl mx-auto">
         <motion.div
@@ -995,13 +983,13 @@ function TrustSection() {
           transition={{ duration: 0.6 }}
           className="max-w-3xl mb-16"
         >
-          <span className="text-xs font-bold tracking-widest text-[#00D4B6] uppercase mb-4 inline-block">
+          <span className="text-xs font-bold tracking-widest text-[#E85D2C] uppercase mb-4 inline-block">
             // Why Gujarat Trusts vayu.code
           </span>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.05] text-balance">
             You don&apos;t need a Mumbai agency.
             <br />
-            <span className="text-[#00D4B6]">You need a partner who picks up the phone.</span>
+            <span className="text-[#E85D2C]">You need a partner who picks up the phone.</span>
           </h2>
         </motion.div>
 
@@ -1013,10 +1001,10 @@ function TrustSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-80px' }}
               transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="group bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 hover:bg-white/10 hover:border-[#00D4B6]/40 transition-all"
+              className="group bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 hover:bg-white/10 hover:border-[#E85D2C]/40 transition-all"
             >
-              <div className="w-12 h-12 rounded-2xl bg-[#00D4B6]/15 border border-[#00D4B6]/30 flex items-center justify-center mb-6">
-                <p.icon size={20} className="text-[#00D4B6]" />
+              <div className="w-12 h-12 rounded-2xl bg-[#E85D2C]/15 border border-[#E85D2C]/30 flex items-center justify-center mb-6">
+                <p.icon size={20} className="text-[#E85D2C]" />
               </div>
               <h3 className="text-lg font-bold mb-3 leading-snug">{p.title}</h3>
               <p className="text-sm text-zinc-300 leading-relaxed">{p.body}</p>
@@ -1036,7 +1024,7 @@ function TrustSection() {
             <h3 className="text-2xl font-bold mb-1">Ready to stop losing customers to outdated systems?</h3>
             <p className="text-zinc-300 text-sm">Book a free 30-minute consultation. We&apos;ll tell you exactly what to fix — even if you don&apos;t hire us.</p>
           </div>
-          <a href="#contact" className="group flex items-center gap-3 bg-[#00D4B6] text-[#0A2540] font-bold text-sm px-8 py-4 rounded-full hover:bg-white transition-all whitespace-nowrap">
+          <a href="#contact" className="group flex items-center gap-3 bg-[#E85D2C] text-[#0E0E10] font-bold text-sm px-8 py-4 rounded-full hover:bg-white transition-all whitespace-nowrap">
             Book Free Consultation
             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </a>
@@ -1075,23 +1063,23 @@ function ContactSection() {
     <section id="contact" className="relative bg-white py-28 px-6">
       <div className="max-w-6xl mx-auto grid lg:grid-cols-5 gap-12">
         <div className="lg:col-span-2">
-          <span className="text-xs font-bold tracking-widest text-[#00D4B6] uppercase mb-4 inline-block">
+          <span className="text-xs font-bold tracking-widest text-[#E85D2C] uppercase mb-4 inline-block">
             // Let&apos;s Build Together
           </span>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-[#0A2540] tracking-tight leading-[1.05] mb-6 text-balance">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-[#0E0E10] tracking-tight leading-[1.05] mb-6 text-balance">
             Tell us about your business.
           </h2>
           <p className="text-zinc-600 mb-8 leading-relaxed">
             Drop your details. We&apos;ll call within 12 hours — not next week. Free consultation, no obligations, no jargon.
           </p>
           <div className="space-y-4 text-sm text-zinc-700">
-            <div className="flex items-center gap-3"><MapPin size={16} className="text-[#00D4B6]" /> Valsad, Gujarat — India</div>
-            <div className="flex items-center gap-3"><Mail size={16} className="text-[#00D4B6]" /> hello@vayu.code</div>
-            <div className="flex items-center gap-3"><Phone size={16} className="text-[#00D4B6]" /> +91 — Available on WhatsApp</div>
+            <div className="flex items-center gap-3"><MapPin size={16} className="text-[#E85D2C]" /> Valsad, Gujarat — India</div>
+            <div className="flex items-center gap-3"><Mail size={16} className="text-[#E85D2C]" /> hello@vayu.code</div>
+            <div className="flex items-center gap-3"><Phone size={16} className="text-[#E85D2C]" /> +91 — Available on WhatsApp</div>
           </div>
         </div>
 
-        <form onSubmit={submit} className="lg:col-span-3 bg-[#F8F9FA] rounded-3xl p-8 md:p-10 border border-zinc-100 space-y-5">
+        <form onSubmit={submit} className="lg:col-span-3 bg-[#F4F1EA] rounded-3xl p-8 md:p-10 border border-zinc-100 space-y-5">
           <div className="grid md:grid-cols-2 gap-5">
             <Input label="Your Name" value={form.name} onChange={v => setForm({ ...form, name: v })} required />
             <Input label="Email" type="email" value={form.email} onChange={v => setForm({ ...form, email: v })} required />
@@ -1106,20 +1094,20 @@ function ContactSection() {
               rows={4}
               value={form.message}
               onChange={e => setForm({ ...form, message: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl bg-white border border-zinc-200 focus:border-[#0A2540] focus:outline-none focus:ring-2 focus:ring-[#00D4B6]/30 text-sm text-[#0A2540] placeholder:text-zinc-400 resize-none"
+              className="w-full px-4 py-3 rounded-xl bg-white border border-zinc-200 focus:border-[#0E0E10] focus:outline-none focus:ring-2 focus:ring-[#E85D2C]/30 text-sm text-[#0E0E10] placeholder:text-zinc-400 resize-none"
               placeholder="e.g. We run a textile shop in Surat — need a website and want to start running ads."
             />
           </div>
           <button
             type="submit"
             disabled={status.loading}
-            className="group w-full sm:w-auto flex items-center justify-center gap-3 bg-[#0A2540] text-white font-semibold text-sm px-8 py-4 rounded-full shadow-md hover:bg-zinc-800 transition-all disabled:opacity-60"
+            className="group w-full sm:w-auto flex items-center justify-center gap-3 bg-[#0E0E10] text-white font-semibold text-sm px-8 py-4 rounded-full shadow-md hover:bg-zinc-800 transition-all disabled:opacity-60"
           >
             {status.loading ? 'Sending…' : 'Send Inquiry'}
             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </button>
           {status.ok && (
-            <div className="flex items-center gap-2 text-sm text-[#00D4B6] font-medium">
+            <div className="flex items-center gap-2 text-sm text-[#E85D2C] font-medium">
               <CheckCircle2 size={16} /> Got it! We&apos;ll call within 12 hours.
             </div>
           )}
@@ -1141,7 +1129,7 @@ function Input({ label, value, onChange, type = 'text', required = false }) {
         required={required}
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="w-full px-4 py-3 rounded-xl bg-white border border-zinc-200 focus:border-[#0A2540] focus:outline-none focus:ring-2 focus:ring-[#00D4B6]/30 text-sm text-[#0A2540] placeholder:text-zinc-400"
+        className="w-full px-4 py-3 rounded-xl bg-white border border-zinc-200 focus:border-[#0E0E10] focus:outline-none focus:ring-2 focus:ring-[#E85D2C]/30 text-sm text-[#0E0E10] placeholder:text-zinc-400"
       />
     </div>
   )
@@ -1152,18 +1140,18 @@ function Input({ label, value, onChange, type = 'text', required = false }) {
 ============================================================ */
 function Footer() {
   return (
-    <footer className="bg-[#F8F9FA] border-t border-zinc-100 px-6 py-12">
+    <footer className="bg-[#F4F1EA] border-t border-zinc-100 px-6 py-12">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <span className="text-xl font-extrabold tracking-tight text-[#0A2540]">
-            vayu<span className="text-[#00D4B6]">.code</span>
+          <span className="text-xl font-extrabold tracking-tight text-[#0E0E10]">
+            vayu<span className="text-[#E85D2C]">.code</span>
           </span>
           <span className="text-xs text-zinc-400">© 2025 — Built in Valsad, Gujarat 🇮🇳</span>
         </div>
         <div className="flex items-center gap-6 text-sm text-zinc-500">
-          <a href="#services" className="hover:text-[#0A2540] transition-colors">Services</a>
-          <a href="#portfolio" className="hover:text-[#0A2540] transition-colors">Work</a>
-          <a href="#contact" className="hover:text-[#0A2540] transition-colors">Contact</a>
+          <a href="#services" className="hover:text-[#0E0E10] transition-colors">Services</a>
+          <a href="#portfolio" className="hover:text-[#0E0E10] transition-colors">Work</a>
+          <a href="#contact" className="hover:text-[#0E0E10] transition-colors">Contact</a>
         </div>
       </div>
     </footer>
@@ -1174,23 +1162,27 @@ function Footer() {
    APP — with cinematic intro state machine
 ============================================================ */
 function App() {
+  const [mounted, setMounted] = useState(false)
   const [stage, setStage] = useState('loading') // loading | intro | home
   const [progress, setProgress] = useState(0)
 
+  // Mount guard — eliminates hydration mismatch by rendering client-only
+  useEffect(() => { setMounted(true) }, [])
+
   // Preloader progress simulation
   useEffect(() => {
-    if (stage !== 'loading') return
+    if (!mounted || stage !== 'loading') return
     let p = 0
     const id = setInterval(() => {
-      p = Math.min(100, p + Math.random() * 12 + 4)
+      p = Math.min(100, p + Math.random() * 10 + 3)
       setProgress(Math.round(p))
       if (p >= 100) {
         clearInterval(id)
-        setTimeout(() => setStage('intro'), 500)
+        setTimeout(() => setStage('intro'), 600)
       }
     }, 110)
     return () => clearInterval(id)
-  }, [stage])
+  }, [stage, mounted])
 
   // Lock scroll while intro is playing
   useEffect(() => {
@@ -1202,6 +1194,11 @@ function App() {
     return () => { document.body.style.overflow = '' }
   }, [stage])
 
+  if (!mounted) {
+    // Render solid black on server to match Preloader background = zero hydration mismatch
+    return <div className="fixed inset-0 bg-black" />
+  }
+
   return (
     <>
       <AnimatePresence mode="wait">
@@ -1212,8 +1209,8 @@ function App() {
       <motion.main
         initial={{ opacity: 0 }}
         animate={{ opacity: stage === 'home' ? 1 : 0 }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
-        className="relative bg-white"
+        transition={{ duration: 0.9, ease: 'easeOut' }}
+        className="relative bg-[#F4F1EA]"
       >
         <Navbar />
         <EditorialHero />

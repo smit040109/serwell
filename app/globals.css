@@ -3,20 +3,20 @@
 @tailwind utilities;
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 213 73% 15%;
+  --background: 40 27% 92%;       /* bone */
+  --foreground: 240 5% 6%;        /* ink */
   --card: 0 0% 100%;
-  --card-foreground: 213 73% 15%;
-  --primary: 213 73% 15%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 210 20% 98%;
-  --secondary-foreground: 213 73% 15%;
-  --muted: 210 20% 98%;
+  --card-foreground: 240 5% 6%;
+  --primary: 240 5% 6%;
+  --primary-foreground: 40 27% 92%;
+  --secondary: 40 27% 92%;
+  --secondary-foreground: 240 5% 6%;
+  --muted: 40 27% 92%;
   --muted-foreground: 215 16% 47%;
-  --accent: 170 100% 42%;
+  --accent: 16 79% 54%;           /* ember orange */
   --accent-foreground: 0 0% 100%;
-  --border: 214 32% 91%;
-  --ring: 213 73% 15%;
+  --border: 40 15% 85%;
+  --ring: 240 5% 6%;
   --radius: 0.5rem;
 }
 
@@ -24,35 +24,62 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: #F4F1EA;
 }
 
 body {
   font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   letter-spacing: -0.011em;
+  background: #F4F1EA;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: #F8F9FA; }
-::-webkit-scrollbar-thumb { background: #0A2540; border-radius: 6px; }
-::-webkit-scrollbar-thumb:hover { background: #00D4B6; }
+/* Refined editorial scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #F4F1EA; }
+::-webkit-scrollbar-thumb { background: #0E0E10; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #E85D2C; }
 
 .text-balance { text-wrap: balance; }
 
-.grayscale-fade {
-  filter: grayscale(100%);
-  transition: filter 0.6s ease;
-}
-.grayscale-fade:hover {
-  filter: grayscale(0%);
-}
+/* Tabular numerals for clocks/stats */
+.tabular-nums { font-variant-numeric: tabular-nums; }
 
+/* Ambient wind streams */
 @keyframes wind-flow {
   0% { transform: translateX(-100%) translateY(0); opacity: 0; }
   50% { opacity: 0.6; }
   100% { transform: translateX(100%) translateY(-20px); opacity: 0; }
 }
-
 .wind-stream {
   animation: wind-flow 8s ease-in-out infinite;
+}
+
+/* Hide platform-injected branding badges */
+[id*="emergent" i],
+[class*="emergent" i],
+a[href*="emergent" i],
+[data-emergent],
+iframe[src*="emergent" i]:not([src*="preview.emergentagent" i]):not([src*="customer-assets" i]),
+.made-with-emergent,
+#made-with-emergent {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+}
+
+/* Selection color */
+::selection {
+  background: #E85D2C;
+  color: #F4F1EA;
+}
+
+/* Refined focus rings */
+*:focus-visible {
+  outline: 2px solid #E85D2C;
+  outline-offset: 2px;
 }
