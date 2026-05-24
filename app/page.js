@@ -1,369 +1,40 @@
 'use client'
 
-import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'
-import { useRef, useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import Link from 'next/link'
+import { ArrowRight, MapPin, ShieldCheck, Zap, Users } from 'lucide-react'
 import {
-  ArrowRight, Globe, Cpu, TrendingUp, ShieldCheck, Zap, Users,
-  MapPin, CheckCircle2, AlertTriangle, BarChart3, Code2, Sparkles,
-  Phone, Mail, MessageSquare, Menu, X, Play, SkipForward, Circle
-} from 'lucide-react'
-
-const NAVY = '#0E0E10'
-const TEAL = '#E85D2C'
-const SILVER = '#F4F1EA'
-const AMBER = '#FF8A3D'
-
-const CITY_IMG_PRIMARY = 'https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=2400&q=80'
-const CITY_IMG_SECONDARY = 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=2400&q=80'
-const CITY_IMG_TERTIARY = 'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?w=2400&q=80'
-const SILHOUETTE_IMG = 'https://images.pexels.com/photos/5175616/pexels-photo-5175616.jpeg'
-
-const PORTFOLIO_IMAGES = [
-  'https://images.unsplash.com/photo-1648134859187-71dadc9f815a',
-  'https://images.unsplash.com/photo-1648134859177-525771773915',
-  'https://images.unsplash.com/photo-1648134859196-3aa762e9440d',
-  'https://images.pexels.com/photos/27141314/pexels-photo-27141314.jpeg',
-  'https://images.pexels.com/photos/27141307/pexels-photo-27141307.jpeg',
-  'https://images.unsplash.com/photo-1660970781103-ba6749cb9ce3',
-  'https://images.unsplash.com/photo-1648134859186-a05fb609f41e',
-  'https://images.unsplash.com/photo-1590658094082-88f4c5814ea1',
-  'https://images.pexels.com/photos/8636589/pexels-photo-8636589.jpeg',
-]
+  LandingFlow, Navbar, Footer, SILHOUETTE_IMG, PORTFOLIO_IMAGES,
+  Tilt3DCard, SectionHeading, CTABlock
+} from '@/components/site/Shared'
 
 /* ============================================================
-   LIVE CLOCK — used in editorial hero nav
-============================================================ */
-function LiveClock({ label, tz }) {
-  const [time, setTime] = useState('')
-  useEffect(() => {
-    const zone = tz || (typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : undefined)
-    const tick = () => {
-      try {
-        const t = new Intl.DateTimeFormat('en-GB', {
-          hour: '2-digit', minute: '2-digit', second: '2-digit',
-          hour12: false, timeZone: zone,
-        }).format(new Date())
-        setTime(t)
-      } catch {
-        setTime(new Date().toLocaleTimeString('en-GB'))
-      }
-    }
-    tick()
-    const id = setInterval(tick, 1000)
-    return () => clearInterval(id)
-  }, [tz])
-  return (
-    <div className="flex flex-col items-end leading-tight">
-      <span className="text-[10px] tracking-[0.2em] uppercase opacity-60">{label}</span>
-      <span className="text-xs font-medium tabular-nums tracking-wider">{time || '--:--:--'}</span>
-    </div>
-  )
-}
-
-/* ============================================================
-   NAV — adaptive: dark over editorial hero, glassy on scroll
-============================================================ */
-function Navbar() {
-  const [scrolled, setScrolled] = useState(false)
-  const [open, setOpen] = useState(false)
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 80)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  const isDark = !scrolled // transparent over dark editorial hero → white text
-
-  return (
-    <motion.header
-      initial={{ y: -30, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
-      className={`fixed top-0 inset-x-0 z-40 transition-all duration-500 ${
-        scrolled
-          ? 'bg-white/85 backdrop-blur-xl border-b border-zinc-100 shadow-[0_1px_0_rgba(10,37,64,0.04)]'
-          : 'bg-transparent'
-      }`}
-    >
-      <div className="max-w-[1500px] mx-auto flex justify-between items-center py-5 px-6 lg:px-10">
-        <a
-          href="#top"
-          className={`text-2xl font-extrabold tracking-tight transition-colors ${
-            isDark ? 'text-white' : 'text-[#0E0E10]'
-          }`}
-        >
-          vayu<span className="text-[#E85D2C]">.code</span>
-        </a>
-        <nav
-          className={`hidden md:flex items-center space-x-10 text-[11px] font-medium tracking-[0.18em] uppercase transition-colors ${
-            isDark ? 'text-white/70' : 'text-zinc-600'
-          }`}
-        >
-          <a href="#services" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0E0E10]'} transition-colors`}>Services</a>
-          <a href="#why-us" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0E0E10]'} transition-colors`}>Why Us</a>
-          <a href="#portfolio" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0E0E10]'} transition-colors`}>Our Work</a>
-          <a href="#trust" className={`${isDark ? 'hover:text-white' : 'hover:text-[#0E0E10]'} transition-colors`}>Trust</a>
-        </nav>
-        <div className="flex items-center gap-6">
-          {/* live time counters — only show over dark hero */}
-          <div className={`hidden lg:flex items-center gap-6 transition-opacity duration-500 ${isDark ? 'text-white opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <LiveClock label="Valsad, IN" tz="Asia/Kolkata" />
-            <LiveClock label="Your Time" tz={null} />
-          </div>
-          <a
-            href="#contact"
-            className={`hidden sm:inline-flex text-[11px] font-semibold tracking-[0.18em] uppercase px-5 py-2.5 rounded-full transition-all border ${
-              isDark
-                ? 'bg-white text-[#0E0E10] border-white hover:bg-transparent hover:text-white'
-                : 'bg-[#0E0E10] text-white border-[#0E0E10] hover:bg-zinc-800'
-            }`}
-          >
-            Contact
-          </a>
-          <button
-            className={`md:hidden p-2 ${isDark ? 'text-white' : 'text-[#0E0E10]'}`}
-            onClick={() => setOpen(!open)}
-            aria-label="Toggle menu"
-          >
-            {open ? <X size={22} /> : <Menu size={22} />}
-          </button>
-        </div>
-      </div>
-      {open && (
-        <div className="md:hidden bg-white border-t border-zinc-100 px-6 py-4 space-y-3 text-sm font-medium text-zinc-700">
-          <a href="#services" onClick={() => setOpen(false)} className="block">Services</a>
-          <a href="#why-us" onClick={() => setOpen(false)} className="block">Why Us</a>
-          <a href="#portfolio" onClick={() => setOpen(false)} className="block">Our Work</a>
-          <a href="#contact" onClick={() => setOpen(false)} className="block text-[#E85D2C]">Contact Us →</a>
-        </div>
-      )}
-    </motion.header>
-  )
-}
-
-/* ============================================================
-   PRELOADER — black screen with progress %
-============================================================ */
-function Preloader({ progress }) {
-  return (
-    <motion.div
-      key="preloader"
-      initial={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.6, ease: 'easeInOut' } }}
-      className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center"
-    >
-      {/* subtle grid texture */}
-      <div className="absolute inset-0 opacity-[0.04]" style={{
-        backgroundImage: 'radial-gradient(circle at center, rgba(255,255,255,0.6) 1px, transparent 1px)',
-        backgroundSize: '40px 40px',
-      }} />
-
-      {/* logo wordmark — small, top-left */}
-      <div className="absolute top-8 left-8 text-white text-sm font-extrabold tracking-tight">
-        vayu<span className="text-[#E85D2C]">.code</span>
-      </div>
-
-      {/* loading label — top right */}
-      <div className="absolute top-8 right-8 text-[10px] tracking-[0.3em] uppercase text-white/40">
-        Loading Experience
-      </div>
-
-      {/* progress wheel */}
-      <div className="relative flex flex-col items-center">
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6 }}
-          className="text-[clamp(80px,18vw,220px)] font-extralight text-white leading-none tabular-nums tracking-tight"
-          style={{ fontFamily: 'var(--font-playfair)' }}
-        >
-          {String(progress).padStart(2, '0')}
-          <span className="text-white/30">%</span>
-        </motion.div>
-        <div className="mt-6 w-[280px] h-px bg-white/10 overflow-hidden">
-          <motion.div
-            className="h-full bg-gradient-to-r from-[#E85D2C] via-white to-[#FF8A3D]"
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ ease: 'easeOut', duration: 0.3 }}
-          />
-        </div>
-        <div className="mt-4 text-[10px] tracking-[0.3em] uppercase text-white/40">
-          Caching cinematic assets
-        </div>
-      </div>
-
-      {/* bottom credit */}
-      <div className="absolute bottom-8 inset-x-0 text-center text-[10px] tracking-[0.3em] uppercase text-white/30">
-        A studio based in Valsad, Gujarat
-      </div>
-    </motion.div>
-  )
-}
-
-/* ============================================================
-   VIDEO INTRO — cinematic Ken Burns image carousel + scripted reveal
-============================================================ */
-function VideoIntro({ onEnd }) {
-  const [idx, setIdx] = useState(0)
-  const [progress, setProgress] = useState(0)
-  const DURATION = 6500
-  const slides = [CITY_IMG_PRIMARY, CITY_IMG_SECONDARY, CITY_IMG_TERTIARY]
-
-  // Cycle slides
-  useEffect(() => {
-    const id = setInterval(() => {
-      setIdx(i => (i + 1) % slides.length)
-    }, 2200)
-    return () => clearInterval(id)
-  }, [])
-
-  // Auto-advance to home
-  useEffect(() => {
-    const t = setTimeout(onEnd, DURATION)
-    return () => clearTimeout(t)
-  }, [onEnd])
-
-  // Progress bar
-  useEffect(() => {
-    const start = Date.now()
-    const id = setInterval(() => {
-      const p = Math.min(100, ((Date.now() - start) / DURATION) * 100)
-      setProgress(p)
-      if (p >= 100) clearInterval(id)
-    }, 60)
-    return () => clearInterval(id)
-  }, [])
-
-  return (
-    <motion.div
-      key="videointro"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.9, ease: 'easeInOut' } }}
-      transition={{ duration: 0.6 }}
-      className="fixed inset-0 z-[90] bg-black overflow-hidden"
-    >
-      {/* Cinematic Ken Burns image carousel */}
-      <AnimatePresence mode="sync">
-        {slides.map((src, i) => idx === i && (
-          <motion.div
-            key={src}
-            initial={{ opacity: 0, scale: 1.0 }}
-            animate={{ opacity: 1, scale: 1.18 }}
-            exit={{ opacity: 0, scale: 1.25, transition: { duration: 1.2, ease: 'easeInOut' } }}
-            transition={{ opacity: { duration: 1.4 }, scale: { duration: 4, ease: 'linear' } }}
-            className="absolute inset-0"
-          >
-            <img src={src} alt="" className="absolute inset-0 w-full h-full object-cover" />
-          </motion.div>
-        ))}
-      </AnimatePresence>
-
-      {/* cinematic vignette + warm tint + grading */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/80 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40 pointer-events-none" />
-      <div className="absolute inset-0 mix-blend-overlay" style={{
-        background: 'radial-gradient(ellipse at 70% 40%, rgba(255,138,61,0.35), transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(0,212,182,0.15), transparent 50%)'
-      }} />
-      {/* faint film grain */}
-      <div className="absolute inset-0 opacity-[0.08] mix-blend-overlay pointer-events-none" style={{
-        backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")"
-      }} />
-
-      {/* TOP BAR */}
-      <div className="absolute top-0 inset-x-0 flex justify-between items-center p-8 z-10">
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="text-white text-sm font-extrabold tracking-tight"
-        >
-          vayu<span className="text-[#E85D2C]">.code</span>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="text-[10px] tracking-[0.3em] uppercase text-white/70"
-        >
-          Cinematic Intro · 2025
-        </motion.div>
-      </div>
-
-      {/* CENTER LABEL */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.6, duration: 1.4, ease: 'easeOut' }}
-          className="text-center px-6"
-        >
-          <div className="text-[10px] tracking-[0.5em] uppercase text-white/60 mb-4">
-            Welcome to
-          </div>
-          <h2 className="text-white text-5xl md:text-7xl lg:text-9xl font-light tracking-tight leading-none" style={{ fontFamily: 'var(--font-playfair)' }}>
-            vayu<span className="italic text-[#FFD9B8]">.code</span>
-          </h2>
-          <div className="mt-6 text-[10px] tracking-[0.5em] uppercase text-white/60">
-            We build the wind beneath your business
-          </div>
-        </motion.div>
-      </div>
-
-      {/* BOTTOM PROGRESS LINE */}
-      <div className="absolute bottom-0 inset-x-0 h-[2px] bg-white/10 z-10">
-        <div className="h-full bg-gradient-to-r from-[#E85D2C] via-white to-[#E85D2C] transition-[width] duration-100" style={{ width: `${progress}%` }} />
-      </div>
-    </motion.div>
-  )
-}
-
-/* ============================================================
-   EDITORIAL HERO — dark amber gradient, silhouette, serif headline
+   EDITORIAL HERO
 ============================================================ */
 function EditorialHero() {
   return (
     <section id="top" className="relative w-full min-h-screen bg-black overflow-hidden">
-      {/* AMBIENT RADIAL GLOW */}
       <div className="absolute inset-0">
-        {/* base warm gradient */}
         <div className="absolute inset-0" style={{
           background: 'radial-gradient(ellipse 90% 70% at 75% 50%, #FFB36B 0%, #FF8A3D 20%, #D24B0E 45%, #4A1505 70%, #0B0604 100%)'
         }} />
-        {/* deep shadow on left to anchor type */}
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
-        {/* film grain */}
         <div className="absolute inset-0 opacity-[0.07] mix-blend-overlay" style={{
           backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")"
         }} />
-        {/* warm vignette */}
-        <div className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%)'
-        }} />
       </div>
 
-      {/* SILHOUETTE IMAGE — right side */}
       <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[60%] xl:w-[55%] pointer-events-none">
-        <img
-          src={SILHOUETTE_IMG}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover object-center opacity-70 mix-blend-screen"
-        />
-        {/* darken edges of image */}
+        <img src={SILHOUETTE_IMG} alt="" className="absolute inset-0 w-full h-full object-cover object-center opacity-70 mix-blend-screen" />
         <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-black" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
       </div>
 
-      {/* CONTENT GRID */}
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* nav spacer */}
         <div className="h-24" />
-
         <div className="flex-1 flex items-center">
           <div className="w-full max-w-[1500px] mx-auto px-6 lg:px-10 grid lg:grid-cols-12 gap-8 items-center">
-            {/* LEFT — Editorial headline */}
-            <div className="lg:col-span-7 xl:col-span-7">
+            <div className="lg:col-span-7">
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -405,32 +76,31 @@ function EditorialHero() {
                 transition={{ delay: 0.75, duration: 0.8 }}
                 className="mt-10 flex flex-wrap items-center gap-4"
               >
-                <a
-                  href="#contact"
+                <Link
+                  href="/contact"
                   className="group inline-flex items-center gap-3 bg-white text-[#1a0a04] font-semibold text-[12px] tracking-[0.15em] uppercase px-7 py-3.5 rounded-full hover:bg-[#FFD9B8] transition-all"
                 >
                   Start here
                   <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                </a>
-                <a
-                  href="#services"
+                </Link>
+                <Link
+                  href="/our-work"
                   className="group inline-flex items-center gap-3 backdrop-blur-md bg-white/5 border border-white/25 text-white text-[12px] tracking-[0.15em] uppercase font-semibold px-7 py-3.5 rounded-full hover:bg-white/10 transition-all"
                 >
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E85D2C] opacity-70" />
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E85D2C]" />
                   </span>
-                  Available · Q3 2025
-                </a>
+                  See our work
+                </Link>
               </motion.div>
             </div>
 
-            {/* RIGHT — Spec details */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1, duration: 0.8 }}
-              className="lg:col-span-5 xl:col-span-5 hidden lg:flex flex-col justify-end h-full pb-12"
+              className="lg:col-span-5 hidden lg:flex flex-col justify-end h-full pb-12"
             >
               <div className="ml-auto max-w-xs space-y-4 text-right">
                 <div className="text-[10px] tracking-[0.3em] uppercase text-white/40">Currently shipping</div>
@@ -438,25 +108,15 @@ function EditorialHero() {
                   Three local manufacturers · One D2C jewelry brand · Two retail chains · Custom CRM for a textile exporter.
                 </div>
                 <div className="flex justify-end gap-6 pt-4 border-t border-white/10">
-                  <div>
-                    <div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Projects</div>
-                    <div className="text-white text-xl font-light tabular-nums" style={{ fontFamily: 'var(--font-playfair)' }}>50+</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Avg. Lift</div>
-                    <div className="text-white text-xl font-light tabular-nums" style={{ fontFamily: 'var(--font-playfair)' }}>3.2×</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Uptime</div>
-                    <div className="text-white text-xl font-light tabular-nums" style={{ fontFamily: 'var(--font-playfair)' }}>99.9</div>
-                  </div>
+                  <div><div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Projects</div><div className="text-white text-xl font-light tabular-nums" style={{ fontFamily: 'var(--font-playfair)' }}>50+</div></div>
+                  <div><div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Avg. Lift</div><div className="text-white text-xl font-light tabular-nums" style={{ fontFamily: 'var(--font-playfair)' }}>3.2×</div></div>
+                  <div><div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Uptime</div><div className="text-white text-xl font-light tabular-nums" style={{ fontFamily: 'var(--font-playfair)' }}>99.9</div></div>
                 </div>
               </div>
             </motion.div>
           </div>
         </div>
 
-        {/* FOOTER BAR */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -465,7 +125,7 @@ function EditorialHero() {
         >
           <div className="max-w-[1500px] mx-auto flex flex-wrap items-center justify-between gap-4 text-[10px] tracking-[0.3em] uppercase text-white/50">
             <div className="flex items-center gap-2">
-              <Circle size={6} className="fill-[#E85D2C] text-[#E85D2C]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E85D2C] animate-pulse" />
               In the studio: brewing chai, shipping pixels
             </div>
             <div className="hidden md:flex items-center gap-6">
@@ -479,59 +139,59 @@ function EditorialHero() {
 }
 
 /* ============================================================
-   PROBLEM SECTION — pain points
+   SERVICES TEASER — 3 services with 3D tilt cards
 ============================================================ */
-function ProblemSection() {
-  const problems = [
-    {
-      icon: AlertTriangle,
-      title: 'Losing Customers to Online Competitors',
-      body: 'Your competitors show up first on Google while your shop relies on word-of-mouth. Every day without a strong online presence is a customer walking into someone else\'s store.',
-    },
-    {
-      icon: BarChart3,
-      title: 'Drowning in Excel Sheets & Paper Registers',
-      body: 'Inventory mismatched, orders missed, staff confused. Your business runs on memory and messy spreadsheets — one mistake costs you lakhs in lost stock and trust.',
-    },
-    {
-      icon: TrendingUp,
-      title: 'Marketing Money That Brings Zero Sales',
-      body: 'You\'ve paid agencies for "posts" and "likes" — but not one ready-to-buy customer walked in. Marketing without sales is just expensive decoration.',
-    },
+function ServicesTeaser() {
+  const services = [
+    { n: '01', title: 'Websites', desc: 'Blazing-fast sites that load on any phone, any network.', accent: '#E85D2C', href: '/services' },
+    { n: '02', title: 'Software', desc: 'Custom ERPs, dashboards, internal tools — made for your shop floor.', accent: '#FF8A3D', href: '/services' },
+    { n: '03', title: 'Marketing', desc: 'Targeted local ads that fill your phone with ready-to-buy customers.', accent: '#FFD9B8', href: '/services' },
   ]
   return (
-    <section className="relative bg-white py-28 px-6">
-      <div className="max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.6 }}
-          className="max-w-3xl mb-16"
-        >
-          <span className="text-xs font-bold tracking-widest text-[#E85D2C] uppercase mb-4 inline-block">
-            // The Problem We Solve
-          </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#0E0E10] tracking-tight leading-[1.1] text-balance">
-            Running a business in 2025 shouldn&apos;t feel like fighting fires every morning.
-          </h2>
-        </motion.div>
+    <section className="relative bg-[#F4F1EA] py-28 px-6 lg:px-10">
+      <div className="max-w-[1500px] mx-auto">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-16">
+          <SectionHeading
+            tag="· What we make"
+            title="Three engines. One business."
+            italicWord="One business."
+          />
+          <Link href="/services" className="group inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase font-semibold text-[#0E0E10] hover:text-[#E85D2C] transition-colors">
+            View all services
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
 
         <div className="grid md:grid-cols-3 gap-6">
-          {problems.map((p, i) => (
+          {services.map((s, i) => (
             <motion.div
-              key={i}
+              key={s.n}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="group relative bg-[#F4F1EA] rounded-3xl p-8 border border-zinc-100 hover:border-[#E85D2C]/40 hover:bg-white hover:shadow-[0_30px_60px_-30px_rgba(10,37,64,0.15)] transition-all duration-500"
+              transition={{ duration: 0.7, delay: i * 0.1 }}
             >
-              <div className="w-12 h-12 rounded-2xl bg-white border border-zinc-100 flex items-center justify-center mb-6 group-hover:bg-[#0E0E10] group-hover:border-[#0E0E10] transition-colors">
-                <p.icon size={20} className="text-[#0E0E10] group-hover:text-[#E85D2C] transition-colors" />
-              </div>
-              <h3 className="text-lg font-bold text-[#0E0E10] mb-3 leading-snug">{p.title}</h3>
-              <p className="text-sm text-zinc-600 leading-relaxed">{p.body}</p>
+              <Tilt3DCard intensity={10} className="group h-full">
+                <Link
+                  href={s.href}
+                  className="block h-full bg-white rounded-3xl p-8 lg:p-10 border border-[#0E0E10]/8 hover:border-[#E85D2C]/40 transition-all"
+                  style={{ boxShadow: '0 30px 60px -30px rgba(14,14,16,0.15)' }}
+                >
+                  <div style={{ transform: 'translateZ(40px)' }} className="flex flex-col h-full">
+                    <div className="flex items-start justify-between mb-12">
+                      <span className="text-[10px] tracking-[0.3em] uppercase text-[#E85D2C] font-bold">{s.n}</span>
+                      <div className="w-2 h-2 rounded-full" style={{ background: s.accent }} />
+                    </div>
+                    <h3 className="text-[clamp(28px,3vw,44px)] leading-[1] text-[#0E0E10] tracking-[-0.02em] font-light mb-4" style={{ fontFamily: 'var(--font-playfair)' }}>
+                      {s.title}
+                    </h3>
+                    <p className="text-zinc-600 text-sm leading-relaxed mb-12">{s.desc}</p>
+                    <div className="mt-auto flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase font-semibold text-[#0E0E10] group-hover:text-[#E85D2C] transition-colors">
+                      Read more <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </Link>
+              </Tilt3DCard>
             </motion.div>
           ))}
         </div>
@@ -541,689 +201,139 @@ function ProblemSection() {
 }
 
 /* ============================================================
-   SPLIT PINNED SECTION — left sticky, right scrolling mockups (grayscale → color)
+   SELECTED WORK TEASER — 3D project tiles
 ============================================================ */
-function SplitPinnedSection() {
-  const sectionRef = useRef(null)
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end end'],
-  })
-
-  const yTrack = useTransform(scrollYProgress, [0, 1], ['0%', '-66.66%'])
-
-  const blocks = [
-    {
-      tag: '01 / WEBSITES',
-      title: 'Your 24/7 Digital Showroom',
-      body: 'Custom websites built from scratch — blazing fast on every phone, every village, every network. They look premium, load instantly, and turn casual visitors into paying clients while you sleep.',
-      img: PORTFOLIO_IMAGES[0],
-    },
-    {
-      tag: '02 / SOFTWARE',
-      title: 'Automate Your Daily Operations',
-      body: 'Custom systems that track inventory, orders, leads, and staff — replacing manual errors and messy registers. Made for the way your business actually works, not the way an app from America thinks it should.',
-      img: PORTFOLIO_IMAGES[1],
-    },
-    {
-      tag: '03 / MARKETING',
-      title: 'Consistent Customer Inflow',
-      body: 'Targeted local ads and Gujarati-first social strategy that bring real sales inquiries — not vanity likes. We measure success in calls answered and bills raised.',
-      img: PORTFOLIO_IMAGES[2],
-    },
+function WorkTeaser() {
+  const projects = [
+    { n: '01', title: 'Nirvana Eco-Resort', tag: 'Hospitality', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1400&q=80' },
+    { n: '02', title: 'Sutra Textile Co.', tag: 'Manufacturing', img: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1400&q=80' },
+    { n: '03', title: 'Anaya Jewels', tag: 'D2C', img: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1400&q=80' },
   ]
-
   return (
-    <section ref={sectionRef} id="services" className="relative bg-[#F4F1EA]" style={{ height: `${blocks.length * 100}vh` }}>
-      <div className="sticky top-0 h-screen flex flex-col md:flex-row">
-        {/* LEFT — sticky header */}
-        <div className="md:w-1/2 w-full md:h-screen flex items-center justify-center bg-white border-r border-zinc-100 px-8 md:px-16 py-12">
-          <div className="max-w-md">
-            <span className="text-xs font-bold tracking-widest text-[#E85D2C] uppercase mb-4 inline-block">
-              // What We Build
-            </span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#0E0E10] tracking-tight leading-[1.05] mb-6 text-balance">
-              Three engines.
-              <br />
-              <span className="bg-gradient-to-r from-[#0E0E10] to-[#E85D2C] bg-clip-text text-transparent">
-                One unstoppable business.
-              </span>
-            </h2>
-            <p className="text-zinc-600 text-base leading-relaxed mb-8">
-              Websites that sell. Software that runs your shop floor. Marketing that fills your phone with buyers. We don&apos;t do one — we do all three, stitched together.
-            </p>
-            <div className="flex items-center gap-3 text-xs font-medium text-zinc-500">
-              <div className="flex -space-x-2">
-                {[TEAL, NAVY, '#1a4d8a'].map((c, i) => (
-                  <div key={i} className="w-7 h-7 rounded-full border-2 border-white" style={{ background: c }} />
-                ))}
-              </div>
-              Scroll → to explore each
-            </div>
-          </div>
+    <section className="relative bg-[#F4F1EA] py-28 px-6 lg:px-10 border-t border-[#0E0E10]/8">
+      <div className="max-w-[1500px] mx-auto">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-16">
+          <SectionHeading tag="· Selected work · 2024 – 2025" title="Real businesses. Real numbers." italicWord="Real numbers." />
+          <Link href="/our-work" className="group inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase font-semibold text-[#0E0E10] hover:text-[#E85D2C] transition-colors">
+            See all case studies
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
 
-        {/* RIGHT — scrolling blocks */}
-        <div className="md:w-1/2 w-full md:h-screen overflow-hidden relative">
-          <motion.div
-            style={{ y: yTrack }}
-            className="w-full"
-          >
-            {blocks.map((b, i) => (
-              <div key={i} className="h-screen w-full flex items-center justify-center px-8 md:px-16 py-12">
-                <div className="max-w-lg w-full">
-                  <div
-                    className="relative rounded-2xl overflow-hidden border border-zinc-200 shadow-[0_30px_80px_-30px_rgba(10,37,64,0.25)] mb-6 aspect-[16/10]"
-                  >
-                    <img src={b.img} alt={b.title} className="w-full h-full object-cover" />
-                  </div>
-                  <div className="text-[11px] font-bold tracking-widest text-[#E85D2C] uppercase mb-3">{b.tag}</div>
-                  <h3 className="text-2xl md:text-3xl font-extrabold text-[#0E0E10] mb-3 tracking-tight">{b.title}</h3>
-                  <p className="text-zinc-600 leading-relaxed">{b.body}</p>
-                </div>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ============================================================
-   TILTED PORTFOLIO GRID — 50/50, left tilted img grid scrolls up, right copy fades
-============================================================ */
-function TiltedPortfolio() {
-  const sectionRef = useRef(null)
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start end', 'end start'],
-  })
-  const yShift = useTransform(scrollYProgress, [0, 1], ['10%', '-25%'])
-
-  return (
-    <section ref={sectionRef} id="portfolio" className="relative bg-white py-32 px-6 overflow-hidden">
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
-        {/* LEFT — Tilted grid */}
-        <div className="relative h-[600px] lg:h-[700px] overflow-hidden rounded-3xl bg-[#F4F1EA] border border-zinc-100">
-          <motion.div
-            style={{ y: yShift, rotate: -12 }}
-            className="absolute inset-0 -inset-x-20 grid grid-cols-3 gap-4 p-8 origin-center"
-          >
-            {PORTFOLIO_IMAGES.concat(PORTFOLIO_IMAGES).slice(0, 12).map((src, i) => (
-              <div
-                key={i}
-                className="rounded-2xl overflow-hidden border border-zinc-200 shadow-[0_20px_50px_-20px_rgba(10,37,64,0.25)] aspect-[3/4]"
-              >
-                <img src={src} alt="" className="w-full h-full object-cover" />
-              </div>
-            ))}
-          </motion.div>
-          {/* fade edges */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white via-transparent to-white" />
-        </div>
-
-        {/* RIGHT — cross-fading trust copy */}
-        <div className="space-y-10">
-          <span className="text-xs font-bold tracking-widest text-[#E85D2C] uppercase">
-            // Proof of Work
-          </span>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-[#0E0E10] tracking-tight leading-[1.05] text-balance">
-            Real businesses.
-            <br />
-            <span className="bg-gradient-to-r from-[#0E0E10] to-[#E85D2C] bg-clip-text text-transparent">
-              Real numbers.
-            </span>
-          </h2>
-          <p className="text-zinc-600 text-lg leading-relaxed">
-            From textile manufacturers in Surat to retail chains across South Gujarat — we&apos;ve replaced registers with real-time dashboards, replaced pamphlets with WhatsApp funnels, and replaced &quot;we&apos;ll think about it&quot; with &quot;can you start tomorrow?&quot;.
-          </p>
-          <div className="grid grid-cols-2 gap-6">
-            {[
-              { k: '50+', v: 'Local Businesses Modernized' },
-              { k: '3.2x', v: 'Average Sales Lift in 90 days' },
-              { k: '99.9%', v: 'Website Uptime Delivered' },
-              { k: '12 hr', v: 'Average Response Time' },
-            ].map((s, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
-                className="border-l-2 border-[#E85D2C] pl-4"
-              >
-                <div className="text-3xl font-extrabold text-[#0E0E10]">{s.k}</div>
-                <div className="text-sm text-zinc-500 mt-1">{s.v}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ============================================================
-   HORIZONTAL CASE STUDIES — vertical→horizontal lock + circle→rectangle morph
-============================================================ */
-const CASE_STUDIES = [
-  {
-    n: '01',
-    tag: 'Hospitality · Website + Booking',
-    title: 'Nirvana Eco-Resort',
-    location: 'Saputara, Gujarat',
-    body: 'A 24-villa boutique resort tucked into the Sahyadri ghats. We built a cinematic website with a real-time direct-booking engine, replacing OTA commissions with a clean revenue stream — 4.2× direct bookings in 90 days.',
-    stat: '4.2×',
-    statLabel: 'Direct Bookings',
-    img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1800&q=80',
-    accent: '#FF8A3D',
-  },
-  {
-    n: '02',
-    tag: 'Manufacturing · Custom ERP',
-    title: 'Sutra Textile Co.',
-    location: 'Surat, Gujarat',
-    body: 'A third-generation textile exporter drowning in registers. We engineered a custom ERP — order intake on WhatsApp, real-time loom tracking, and one-tap dispatch — cutting reconciliation from 4 days to 9 minutes.',
-    stat: '9 min',
-    statLabel: 'Recon Time',
-    img: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1800&q=80',
-    accent: '#E85D2C',
-  },
-  {
-    n: '03',
-    tag: 'D2C · E-commerce + Performance Ads',
-    title: 'Anaya Jewels',
-    location: 'Rajkot → Pan-India',
-    body: 'A heritage jewelry house ready to skip the showroom era. We shipped a slick D2C store, plugged Instagram and Meta funnels, and ran festive performance ads — ₹1.2 Cr in 60 days from a cold audience.',
-    stat: '₹1.2 Cr',
-    statLabel: 'GMV · 60 days',
-    img: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1800&q=80',
-    accent: '#FFD9B8',
-  },
-  {
-    n: '04',
-    tag: 'Multi-Outlet Retail · POS + Local SEO',
-    title: 'Bandhan Retail',
-    location: '11 outlets · South Gujarat',
-    body: 'Eleven outlets, eleven Excel sheets, zero clarity. We deployed a unified POS, synced inventory across stores, and lit up local-SEO — footfall up 38%, stockouts down 71% within a quarter.',
-    stat: '+38%',
-    statLabel: 'Footfall',
-    img: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1800&q=80',
-    accent: '#0E0E10',
-  },
-]
-
-function CaseStudySlide({ scrollYProgress, index, total, project }) {
-  // Each slide is "active" when the scroll progress is near its center band
-  const start = index / total
-  const center = (index + 0.5) / total
-  const end = (index + 1) / total
-
-  // Morph: outside band = circle (50%, scale 0.6), at center = rectangle (16px, scale 1)
-  const borderRadius = useTransform(scrollYProgress, [start, center, end], ['50%', '20px', '50%'])
-  const scale = useTransform(scrollYProgress, [start, center, end], [0.65, 1, 0.65])
-  const imgScale = useTransform(scrollYProgress, [start, center, end], [1.25, 1, 1.25])
-  const textOpacity = useTransform(scrollYProgress, [start, center - 0.02, center + 0.02, end], [0, 1, 1, 0])
-  const textY = useTransform(scrollYProgress, [start, center, end], [40, 0, -40])
-  const numberOpacity = useTransform(scrollYProgress, [start, center - 0.05, center + 0.05, end], [0.15, 0.4, 0.4, 0.15])
-
-  return (
-    <div className="relative h-screen w-screen flex-shrink-0 flex items-center justify-center px-6 lg:px-20">
-      <div className="relative w-full max-w-[1500px] grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-        {/* LEFT — Big outlined number + copy */}
-        <div className="lg:col-span-5 relative">
-          <motion.div
-            style={{
-              opacity: numberOpacity,
-              fontFamily: 'var(--font-playfair)',
-              WebkitTextStroke: '1px rgba(10,37,64,0.35)',
-              letterSpacing: '-0.05em',
-            }}
-            className="absolute -top-32 -left-2 lg:-left-6 select-none pointer-events-none text-[clamp(180px,22vw,360px)] leading-none font-light text-transparent"
-          >
-            {project.n}
-          </motion.div>
-
-          <motion.div
-            style={{ opacity: textOpacity, y: textY }}
-            className="relative z-10"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <span className="w-8 h-px bg-[#0E0E10]/30" />
-              <span className="text-[10px] tracking-[0.3em] uppercase text-[#0E0E10]/60">
-                Case Study · {project.tag}
-              </span>
-            </div>
-
-            <h3
-              className="text-[clamp(36px,4.5vw,64px)] leading-[1] text-[#0E0E10] tracking-[-0.02em] font-light mb-4"
-              style={{ fontFamily: 'var(--font-playfair)' }}
-            >
-              {project.title}
-            </h3>
-
-            <div className="text-sm tracking-[0.2em] uppercase text-[#0E0E10]/50 mb-6">
-              {project.location}
-            </div>
-
-            <p className="text-zinc-600 leading-relaxed max-w-md mb-8">
-              {project.body}
-            </p>
-
-            <div className="flex items-end gap-6 pt-6 border-t border-zinc-200">
-              <div>
-                <div
-                  className="text-5xl font-light text-[#0E0E10] tabular-nums leading-none"
-                  style={{ fontFamily: 'var(--font-playfair)' }}
-                >
-                  {project.stat}
-                </div>
-                <div className="text-[10px] tracking-[0.25em] uppercase text-[#0E0E10]/50 mt-2">
-                  {project.statLabel}
-                </div>
-              </div>
-              <a
-                href="#contact"
-                className="ml-auto inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase font-semibold text-[#0E0E10] hover:text-[#E85D2C] transition-colors group"
-              >
-                Read case study
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-              </a>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* RIGHT — Morphing image (circle → rounded rectangle) */}
-        <div className="lg:col-span-7 flex justify-center lg:justify-end">
-          <motion.div
-            style={{
-              borderRadius,
-              scale,
-              boxShadow: `0 40px 80px -30px ${project.accent}40, 0 0 0 1px rgba(10,37,64,0.05)`,
-            }}
-            className="relative aspect-[4/3] w-full max-w-[640px] overflow-hidden bg-[#F4F1EA]"
-          >
-            <motion.img
-              src={project.img}
-              alt={project.title}
-              style={{ scale: imgScale }}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            {/* color accent bleed */}
-            <div
-              className="absolute inset-0 mix-blend-multiply opacity-20"
-              style={{
-                background: `radial-gradient(circle at 30% 30%, ${project.accent}, transparent 60%)`,
-              }}
-            />
-            {/* index badge */}
-            <div className="absolute top-5 left-5 backdrop-blur-md bg-white/70 border border-white/40 rounded-full px-3 py-1 text-[10px] tracking-[0.25em] uppercase font-semibold text-[#0E0E10]">
-              · {project.n} · Live
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function HorizontalCaseStudies() {
-  const trackRef = useRef(null)
-  const { scrollYProgress } = useScroll({
-    target: trackRef,
-    offset: ['start start', 'end end'],
-  })
-
-  // Slide horizontally as vertical scroll progresses
-  // We need to traverse (total - 1) slide widths in viewport units
-  const total = CASE_STUDIES.length
-  const xPct = useTransform(scrollYProgress, [0, 1], ['0%', `-${(total - 1) * (100 / total)}%`])
-
-  // Progress indicator (1 of 4 etc.)
-  const [activeIdx, setActiveIdx] = useState(0)
-  useEffect(() => {
-    return scrollYProgress.on('change', v => {
-      const idx = Math.min(total - 1, Math.max(0, Math.round(v * (total - 1) + 0.0001)))
-      setActiveIdx(idx)
-    })
-  }, [scrollYProgress, total])
-
-  return (
-    <section
-      ref={trackRef}
-      id="case-studies"
-      className="relative bg-white"
-      style={{ height: `${total * 100}vh` }}
-    >
-      <div className="sticky top-0 h-screen w-screen overflow-hidden">
-        {/* Section heading — pinned overlay */}
-        <div className="absolute top-0 inset-x-0 z-20 pt-28 px-6 lg:px-20 pointer-events-none">
-          <div className="max-w-[1500px] mx-auto flex items-end justify-between">
-            <div>
-              <span className="text-[10px] tracking-[0.3em] uppercase text-[#0E0E10]/60 mb-2 inline-block">
-                · Selected Work · 2024 – 2025
-              </span>
-              <h2
-                className="text-[clamp(28px,3.5vw,52px)] leading-[1] text-[#0E0E10] tracking-[-0.02em] font-light"
-                style={{ fontFamily: 'var(--font-playfair)' }}
-              >
-                Case <span className="italic text-[#E85D2C]">studies.</span>
-              </h2>
-            </div>
-            <div className="hidden md:flex items-center gap-6 text-[10px] tracking-[0.3em] uppercase text-[#0E0E10]/50">
-              <span className="tabular-nums">
-                {String(activeIdx + 1).padStart(2, '0')} <span className="opacity-40">/ {String(total).padStart(2, '0')}</span>
-              </span>
-              <span className="opacity-60">Scroll ↓ to navigate →</span>
-            </div>
-          </div>
-        </div>
-
-        {/* horizontal track */}
-        <motion.div
-          style={{ x: xPct, width: `${total * 100}vw` }}
-          className="flex h-full"
-        >
-          {CASE_STUDIES.map((p, i) => (
-            <CaseStudySlide
+        <div className="grid md:grid-cols-3 gap-6">
+          {projects.map((p, i) => (
+            <motion.div
               key={p.n}
-              scrollYProgress={scrollYProgress}
-              index={i}
-              total={total}
-              project={p}
-            />
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.8, delay: i * 0.1 }}
+            >
+              <Tilt3DCard intensity={8} className="group h-full">
+                <Link href="/our-work" className="block relative aspect-[3/4] rounded-3xl overflow-hidden bg-zinc-100">
+                  <img src={p.img} alt={p.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1.2s] ease-out" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0E0E10] via-[#0E0E10]/30 to-transparent" />
+                  <div className="absolute inset-0 p-6 lg:p-8 flex flex-col justify-between" style={{ transform: 'translateZ(50px)' }}>
+                    <div className="flex items-center justify-between">
+                      <span className="backdrop-blur-md bg-white/15 border border-white/30 rounded-full px-3 py-1 text-[10px] tracking-[0.2em] uppercase font-semibold text-white">
+                        · {p.n} · Live
+                      </span>
+                      <span className="text-[10px] tracking-[0.25em] uppercase text-white/70">{p.tag}</span>
+                    </div>
+                    <div>
+                      <h3 className="text-white text-[clamp(28px,2.6vw,40px)] leading-[1] tracking-[-0.02em] font-light" style={{ fontFamily: 'var(--font-playfair)' }}>
+                        {p.title}
+                      </h3>
+                      <div className="mt-4 inline-flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase font-semibold text-white group-hover:text-[#FFD9B8] transition-colors">
+                        View case <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </Tilt3DCard>
+            </motion.div>
           ))}
-        </motion.div>
-
-        {/* bottom progress rail */}
-        <div className="absolute bottom-10 inset-x-0 px-6 lg:px-20 z-20">
-          <div className="max-w-[1500px] mx-auto flex items-center gap-3">
-            {CASE_STUDIES.map((_, i) => (
-              <div
-                key={i}
-                className="flex-1 h-[2px] bg-[#0E0E10]/10 overflow-hidden rounded-full"
-              >
-                <motion.div
-                  className="h-full bg-[#0E0E10]"
-                  initial={false}
-                  animate={{ width: i < activeIdx ? '100%' : i === activeIdx ? '100%' : '0%' }}
-                  transition={{ duration: 0.4, ease: 'easeOut' }}
-                />
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </section>
   )
 }
 
-
 /* ============================================================
-   WHY GUJARAT TRUSTS US
+   TRUST TEASER
 ============================================================ */
-function TrustSection() {
+function TrustTeaser() {
   const points = [
-    { icon: MapPin, title: 'Local Partners, Not Distant Vendors', body: 'We\'re right here in Valsad. Walk into our office, call us in Gujarati, message us on WhatsApp. No outsourced support teams reading scripts.' },
-    { icon: Users, title: 'We Understand Gujarat\'s Market', body: 'We know the rhythm of Diwali sales, the festive ad spikes, the way your customer talks. Mumbai and Bangalore agencies guess — we know.' },
-    { icon: ShieldCheck, title: 'Built to Scale While You Focus on Execution', body: 'You run your factory, your shop, your team. We handle the tech, the website, the leads. One predictable monthly partner — not five vendors fighting each other.' },
+    { icon: MapPin, k: 'Local Partners', v: 'Right here in Valsad. Call us in Gujarati.' },
+    { icon: Users, k: 'Gujarat-Native', v: 'We know your festive cycle, your customer.' },
+    { icon: ShieldCheck, k: 'One Partner', v: 'No five vendors fighting each other.' },
   ]
   return (
-    <section id="trust" className="relative bg-[#0E0E10] text-white py-32 px-6 overflow-hidden">
-      {/* ambient teal glows */}
-      <div className="pointer-events-none absolute -top-40 -right-40 w-[60vw] h-[60vw] rounded-full bg-[#E85D2C]/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -left-40 w-[60vw] h-[60vw] rounded-full bg-[#E85D2C]/5 blur-3xl" />
+    <section className="relative bg-[#0E0E10] text-white py-32 px-6 lg:px-10 overflow-hidden">
+      <div className="pointer-events-none absolute -top-40 -right-40 w-[60vw] h-[60vw] rounded-full bg-[#E85D2C]/12 blur-3xl" />
 
-      <div id="why-us" className="relative max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="max-w-3xl mb-16"
-        >
-          <span className="text-xs font-bold tracking-widest text-[#E85D2C] uppercase mb-4 inline-block">
-            // Why Gujarat Trusts vayu.code
-          </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.05] text-balance">
-            You don&apos;t need a Mumbai agency.
-            <br />
-            <span className="text-[#E85D2C]">You need a partner who picks up the phone.</span>
-          </h2>
-        </motion.div>
+      <div className="relative max-w-[1500px] mx-auto">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-16">
+          <div>
+            <span className="text-[10px] font-bold tracking-[0.3em] text-[#E85D2C] uppercase mb-4 inline-block">
+              · Why Gujarat trusts vayucodes
+            </span>
+            <h2 className="text-[clamp(40px,6vw,88px)] leading-[1] tracking-[-0.02em] font-light max-w-[16ch]" style={{ fontFamily: 'var(--font-playfair)' }}>
+              You don&apos;t need Mumbai.
+              <span className="italic text-[#FFD9B8]"> You need us.</span>
+            </h2>
+          </div>
+          <Link href="/why-us" className="group inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase font-semibold text-white/70 hover:text-[#E85D2C] transition-colors">
+            Read full story
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
 
         <div className="grid md:grid-cols-3 gap-6">
           {points.map((p, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="group bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 hover:bg-white/10 hover:border-[#E85D2C]/40 transition-all"
+              transition={{ duration: 0.7, delay: i * 0.1 }}
             >
-              <div className="w-12 h-12 rounded-2xl bg-[#E85D2C]/15 border border-[#E85D2C]/30 flex items-center justify-center mb-6">
-                <p.icon size={20} className="text-[#E85D2C]" />
-              </div>
-              <h3 className="text-lg font-bold mb-3 leading-snug">{p.title}</h3>
-              <p className="text-sm text-zinc-300 leading-relaxed">{p.body}</p>
+              <Tilt3DCard intensity={8} className="h-full">
+                <div className="h-full bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 hover:bg-white/8 transition-colors" style={{ transform: 'translateZ(0)' }}>
+                  <div style={{ transform: 'translateZ(30px)' }}>
+                    <div className="w-10 h-10 rounded-2xl bg-[#E85D2C]/15 border border-[#E85D2C]/30 flex items-center justify-center mb-6">
+                      <p.icon size={18} className="text-[#E85D2C]" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">{p.k}</h3>
+                    <p className="text-sm text-white/60 leading-relaxed">{p.v}</p>
+                  </div>
+                </div>
+              </Tilt3DCard>
             </motion.div>
           ))}
         </div>
-
-        {/* CTA strip */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mt-20 flex flex-col md:flex-row items-center justify-between gap-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8"
-        >
-          <div>
-            <h3 className="text-2xl font-bold mb-1">Ready to stop losing customers to outdated systems?</h3>
-            <p className="text-zinc-300 text-sm">Book a free 30-minute consultation. We&apos;ll tell you exactly what to fix — even if you don&apos;t hire us.</p>
-          </div>
-          <a href="#contact" className="group flex items-center gap-3 bg-[#E85D2C] text-[#0E0E10] font-bold text-sm px-8 py-4 rounded-full hover:bg-white transition-all whitespace-nowrap">
-            Book Free Consultation
-            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-          </a>
-        </motion.div>
       </div>
     </section>
   )
 }
 
 /* ============================================================
-   CONTACT FORM
+   HOME
 ============================================================ */
-function ContactSection() {
-  const [form, setForm] = useState({ name: '', email: '', phone: '', business: '', message: '' })
-  const [status, setStatus] = useState({ loading: false, ok: false, err: '' })
-
-  async function submit(e) {
-    e.preventDefault()
-    setStatus({ loading: true, ok: false, err: '' })
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Something went wrong')
-      setStatus({ loading: false, ok: true, err: '' })
-      setForm({ name: '', email: '', phone: '', business: '', message: '' })
-    } catch (err) {
-      setStatus({ loading: false, ok: false, err: err.message })
-    }
-  }
-
+export default function Home() {
   return (
-    <section id="contact" className="relative bg-white py-28 px-6">
-      <div className="max-w-6xl mx-auto grid lg:grid-cols-5 gap-12">
-        <div className="lg:col-span-2">
-          <span className="text-xs font-bold tracking-widest text-[#E85D2C] uppercase mb-4 inline-block">
-            // Let&apos;s Build Together
-          </span>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-[#0E0E10] tracking-tight leading-[1.05] mb-6 text-balance">
-            Tell us about your business.
-          </h2>
-          <p className="text-zinc-600 mb-8 leading-relaxed">
-            Drop your details. We&apos;ll call within 12 hours — not next week. Free consultation, no obligations, no jargon.
-          </p>
-          <div className="space-y-4 text-sm text-zinc-700">
-            <div className="flex items-center gap-3"><MapPin size={16} className="text-[#E85D2C]" /> Valsad, Gujarat — India</div>
-            <div className="flex items-center gap-3"><Mail size={16} className="text-[#E85D2C]" /> hello@vayu.code</div>
-            <div className="flex items-center gap-3"><Phone size={16} className="text-[#E85D2C]" /> +91 — Available on WhatsApp</div>
-          </div>
-        </div>
-
-        <form onSubmit={submit} className="lg:col-span-3 bg-[#F4F1EA] rounded-3xl p-8 md:p-10 border border-zinc-100 space-y-5">
-          <div className="grid md:grid-cols-2 gap-5">
-            <Input label="Your Name" value={form.name} onChange={v => setForm({ ...form, name: v })} required />
-            <Input label="Email" type="email" value={form.email} onChange={v => setForm({ ...form, email: v })} required />
-            <Input label="Phone (optional)" value={form.phone} onChange={v => setForm({ ...form, phone: v })} />
-            <Input label="Business Name" value={form.business} onChange={v => setForm({ ...form, business: v })} />
-          </div>
-          <div>
-            <label className="text-xs font-semibold tracking-wider uppercase text-zinc-500 mb-2 block">
-              Tell us briefly what you need
-            </label>
-            <textarea
-              rows={4}
-              value={form.message}
-              onChange={e => setForm({ ...form, message: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl bg-white border border-zinc-200 focus:border-[#0E0E10] focus:outline-none focus:ring-2 focus:ring-[#E85D2C]/30 text-sm text-[#0E0E10] placeholder:text-zinc-400 resize-none"
-              placeholder="e.g. We run a textile shop in Surat — need a website and want to start running ads."
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={status.loading}
-            className="group w-full sm:w-auto flex items-center justify-center gap-3 bg-[#0E0E10] text-white font-semibold text-sm px-8 py-4 rounded-full shadow-md hover:bg-zinc-800 transition-all disabled:opacity-60"
-          >
-            {status.loading ? 'Sending…' : 'Send Inquiry'}
-            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-          </button>
-          {status.ok && (
-            <div className="flex items-center gap-2 text-sm text-[#E85D2C] font-medium">
-              <CheckCircle2 size={16} /> Got it! We&apos;ll call within 12 hours.
-            </div>
-          )}
-          {status.err && (
-            <div className="text-sm text-red-600 font-medium">{status.err}</div>
-          )}
-        </form>
-      </div>
-    </section>
-  )
-}
-
-function Input({ label, value, onChange, type = 'text', required = false }) {
-  return (
-    <div>
-      <label className="text-xs font-semibold tracking-wider uppercase text-zinc-500 mb-2 block">{label}</label>
-      <input
-        type={type}
-        required={required}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className="w-full px-4 py-3 rounded-xl bg-white border border-zinc-200 focus:border-[#0E0E10] focus:outline-none focus:ring-2 focus:ring-[#E85D2C]/30 text-sm text-[#0E0E10] placeholder:text-zinc-400"
+    <LandingFlow>
+      <Navbar darkHero={true} />
+      <EditorialHero />
+      <ServicesTeaser />
+      <WorkTeaser />
+      <TrustTeaser />
+      <CTABlock
+        kicker="Ready when you are"
+        title="Let's talk numbers, not jargon."
+        italicWord="numbers,"
       />
-    </div>
+      <Footer />
+    </LandingFlow>
   )
 }
-
-/* ============================================================
-   FOOTER
-============================================================ */
-function Footer() {
-  return (
-    <footer className="bg-[#F4F1EA] border-t border-zinc-100 px-6 py-12">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <span className="text-xl font-extrabold tracking-tight text-[#0E0E10]">
-            vayu<span className="text-[#E85D2C]">.code</span>
-          </span>
-          <span className="text-xs text-zinc-400">© 2025 — Built in Valsad, Gujarat 🇮🇳</span>
-        </div>
-        <div className="flex items-center gap-6 text-sm text-zinc-500">
-          <a href="#services" className="hover:text-[#0E0E10] transition-colors">Services</a>
-          <a href="#portfolio" className="hover:text-[#0E0E10] transition-colors">Work</a>
-          <a href="#contact" className="hover:text-[#0E0E10] transition-colors">Contact</a>
-        </div>
-      </div>
-    </footer>
-  )
-}
-
-/* ============================================================
-   APP — with cinematic intro state machine
-============================================================ */
-function App() {
-  const [mounted, setMounted] = useState(false)
-  const [stage, setStage] = useState('loading') // loading | intro | home
-  const [progress, setProgress] = useState(0)
-
-  // Mount guard — eliminates hydration mismatch by rendering client-only
-  useEffect(() => { setMounted(true) }, [])
-
-  // Preloader progress simulation
-  useEffect(() => {
-    if (!mounted || stage !== 'loading') return
-    let p = 0
-    const id = setInterval(() => {
-      p = Math.min(100, p + Math.random() * 10 + 3)
-      setProgress(Math.round(p))
-      if (p >= 100) {
-        clearInterval(id)
-        setTimeout(() => setStage('intro'), 600)
-      }
-    }, 110)
-    return () => clearInterval(id)
-  }, [stage, mounted])
-
-  // Lock scroll while intro is playing
-  useEffect(() => {
-    if (stage !== 'home') {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-    return () => { document.body.style.overflow = '' }
-  }, [stage])
-
-  if (!mounted) {
-    // Render solid black on server to match Preloader background = zero hydration mismatch
-    return <div className="fixed inset-0 bg-black" />
-  }
-
-  return (
-    <>
-      <AnimatePresence mode="wait">
-        {stage === 'loading' && <Preloader key="pre" progress={progress} />}
-        {stage === 'intro' && <VideoIntro key="vid" onEnd={() => setStage('home')} />}
-      </AnimatePresence>
-
-      <motion.main
-        initial={{ opacity: 0 }}
-        animate={{ opacity: stage === 'home' ? 1 : 0 }}
-        transition={{ duration: 0.9, ease: 'easeOut' }}
-        className="relative bg-[#F4F1EA]"
-      >
-        <Navbar />
-        <EditorialHero />
-        <ProblemSection />
-        <SplitPinnedSection />
-        <TiltedPortfolio />
-        <HorizontalCaseStudies />
-        <TrustSection />
-        <ContactSection />
-        <Footer />
-      </motion.main>
-    </>
-  )
-}
-
-export default App
