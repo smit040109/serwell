@@ -82,10 +82,10 @@ function LetterboxHero() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          className="uppercase leading-[0.92] tracking-[-0.01em]"
-          style={{ fontFamily: 'var(--font-bebas)', color: GOLD, fontSize: 'clamp(72px,12vw,200px)' }}
+          className="leading-[1.02] tracking-[-0.01em]"
+          style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, color: GOLD, fontSize: 'clamp(44px,6.5vw,92px)' }}
         >
-          vayucodes<br />reels
+          vayucodes <span className="italic opacity-90">reels</span>
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -136,8 +136,8 @@ function ReelGrid() {
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16">
           <div>
             <div className="text-[10px] tracking-[0.3em] uppercase mb-3" style={{ color: GOLD }}>· Reel grid</div>
-            <h2 className="text-white uppercase leading-none" style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(40px,6vw,80px)' }}>
-              Stop-the-thumb<br />creative
+            <h2 className="text-white leading-[1.02] tracking-[-0.01em]" style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(32px,4vw,56px)' }}>
+              Stop-the-thumb <span className="italic">creative.</span>
             </h2>
           </div>
           <p className="text-white/60 max-w-md" style={{ fontWeight: 300 }}>
@@ -226,7 +226,7 @@ function useCountUp(target, duration = 2200, inView = false) {
 function StatNumber({ target, suffix = '+', inView }) {
   const n = useCountUp(target, 2400, inView)
   return (
-    <span className="tabular-nums" style={{ color: GOLD, fontFamily: 'var(--font-bebas)' }}>
+    <span className="tabular-nums tracking-[-0.02em]" style={{ color: GOLD, fontFamily: 'var(--font-instrument)', fontWeight: 400 }}>
       {n.toLocaleString()}{suffix}
     </span>
   )
@@ -261,7 +261,7 @@ function StatsRow() {
             transition={{ duration: 0.8, delay: i * 0.1 }}
             className="text-center md:text-left"
           >
-            <div className="text-[clamp(64px,9vw,140px)] leading-none">
+            <div className="text-[clamp(48px,6vw,88px)] leading-none">
               {i === 1 ? <StatNumber target={s.num} suffix={s.suffix} inView={inView} /> :
                <StatNumber target={s.num} suffix={s.suffix} inView={inView} />}
             </div>
@@ -284,8 +284,8 @@ function GoldCTA() {
       }} />
       <div className="relative max-w-[1500px] mx-auto text-center">
         <div className="text-[10px] tracking-[0.4em] uppercase mb-6" style={{ color: GOLD }}>· Ready when you are</div>
-        <h2 className="text-white uppercase leading-[0.95] tracking-[-0.01em]" style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(60px,9vw,160px)' }}>
-          Let&apos;s make<br /><span style={{ color: GOLD }}>cinema.</span>
+        <h2 className="text-white leading-[1.02] tracking-[-0.01em]" style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(40px,5.5vw,84px)' }}>
+          Let&apos;s make <span className="italic" style={{ color: GOLD }}>cinema.</span>
         </h2>
         <Link
           href="/contact"

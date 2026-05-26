@@ -34,7 +34,7 @@ function TrustPillars() {
                     <div className="w-12 h-12 rounded-2xl bg-[#E85D2C]/10 border border-[#E85D2C]/20 flex items-center justify-center mb-8">
                       <p.icon size={20} className="text-[#E85D2C]" />
                     </div>
-                    <h3 className="text-2xl font-light text-[#0E0E10] mb-4 tracking-tight" style={{ fontFamily: 'var(--font-playfair)' }}>{p.title}</h3>
+                    <h3 className="text-xl text-[#0E0E10] mb-4 tracking-tight" style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400 }}>{p.title}</h3>
                     <p className="text-sm text-zinc-600 leading-relaxed">{p.body}</p>
                   </div>
                 </div>
@@ -66,7 +66,7 @@ function Comparison() {
       <div className="relative max-w-[1500px] mx-auto">
         <div className="max-w-3xl mb-16">
           <span className="text-[10px] font-bold tracking-[0.3em] text-[#E85D2C] uppercase mb-4 inline-block">· The honest comparison</span>
-          <h2 className="text-[clamp(40px,6vw,80px)] leading-[1] tracking-[-0.02em] font-light" style={{ fontFamily: 'var(--font-playfair)' }}>
+          <h2 className="leading-[1.02] tracking-[-0.01em]" style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(32px,4.5vw,60px)' }}>
             vayucodes vs.
             <br />
             <span className="italic text-[#FFD9B8]">the usual suspects.</span>

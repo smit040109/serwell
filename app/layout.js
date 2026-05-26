@@ -1,15 +1,24 @@
 import './globals.css'
-import { Inter, Playfair_Display, Bebas_Neue } from 'next/font/google'
+import { Inter, Instrument_Serif, Playfair_Display, Bebas_Neue } from 'next/font/google'
 
 const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800', '900'],
+  weight: ['300', '400', '500', '600', '700'],
   variable: '--font-inter'
 })
 
+// Primary editorial display — refined, modern, agency-grade
+const instrument = Instrument_Serif({
+  subsets: ['latin'],
+  weight: ['400'],
+  style: ['normal', 'italic'],
+  variable: '--font-instrument'
+})
+
+// Kept as secondary fallback (used in some legacy spots)
 const playfair = Playfair_Display({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800', '900'],
+  weight: ['400', '500', '600', '700'],
   style: ['normal', 'italic'],
   variable: '--font-playfair'
 })
@@ -27,7 +36,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable} ${bebas.variable}`}>
+    <html lang="en" className={`${inter.variable} ${instrument.variable} ${playfair.variable} ${bebas.variable}`}>
       <body className="font-sans antialiased bg-[#F4F1EA] text-[#0E0E10]">
         {children}
       </body>

@@ -51,7 +51,7 @@ function ContactForm() {
           <span className="text-[10px] font-bold tracking-[0.3em] text-[#E85D2C] uppercase mb-4 inline-block">
             · Let&apos;s build together
           </span>
-          <h2 className="text-[clamp(40px,5vw,72px)] leading-[1] text-[#0E0E10] tracking-[-0.02em] font-light mb-6" style={{ fontFamily: 'var(--font-playfair)' }}>
+          <h2 className="text-[#0E0E10] tracking-[-0.01em] mb-6" style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(32px,4vw,56px)', lineHeight: 1.05 }}>
             Tell us about
             <br />
             <span className="italic text-[#E85D2C]">your business.</span>

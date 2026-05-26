@@ -68,14 +68,14 @@ function EditorialHero() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                className="text-white text-[clamp(48px,8vw,128px)] leading-[0.95] tracking-[-0.02em] font-light"
-                style={{ fontFamily: 'var(--font-playfair)' }}
+                className="text-white leading-[0.98] tracking-[-0.01em]"
+                style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(40px,6vw,84px)' }}
               >
                 Art direction
                 <br />
-                with a <span className="italic text-[#FFD9B8]">Systems</span>
+                with a <span className="italic text-[#FFD9B8]">systems</span>
                 <br />
-                Brain.
+                brain.
               </motion.h1>
 
               <motion.p
@@ -121,13 +121,13 @@ function EditorialHero() {
             >
               <div className="ml-auto max-w-xs space-y-4 text-right">
                 <div className="text-[10px] tracking-[0.3em] uppercase text-white/40">Currently shipping</div>
-                <div className="text-white/90 text-sm leading-relaxed" style={{ fontFamily: 'var(--font-playfair)' }}>
+                <div className="text-white/90 text-sm leading-relaxed italic" style={{ fontFamily: 'var(--font-instrument)' }}>
                   Three local manufacturers · One D2C jewelry brand · Two retail chains · Custom CRM for a textile exporter.
                 </div>
                 <div className="flex justify-end gap-6 pt-4 border-t border-white/10">
-                  <div><div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Projects</div><div className="text-white text-xl font-light tabular-nums" style={{ fontFamily: 'var(--font-playfair)' }}>50+</div></div>
-                  <div><div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Avg. Lift</div><div className="text-white text-xl font-light tabular-nums" style={{ fontFamily: 'var(--font-playfair)' }}>3.2×</div></div>
-                  <div><div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Uptime</div><div className="text-white text-xl font-light tabular-nums" style={{ fontFamily: 'var(--font-playfair)' }}>99.9</div></div>
+                  <div><div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Projects</div><div className="text-white text-xl font-light tabular-nums" style={{ fontFamily: 'var(--font-instrument)' }}>50+</div></div>
+                  <div><div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Avg. Lift</div><div className="text-white text-xl font-light tabular-nums" style={{ fontFamily: 'var(--font-instrument)' }}>3.2×</div></div>
+                  <div><div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Uptime</div><div className="text-white text-xl font-light tabular-nums" style={{ fontFamily: 'var(--font-instrument)' }}>99.9</div></div>
                 </div>
               </div>
             </motion.div>
@@ -199,7 +199,7 @@ function ServicesTeaser() {
                       <span className="text-[10px] tracking-[0.3em] uppercase text-[#E85D2C] font-bold">{s.n}</span>
                       <div className="w-2 h-2 rounded-full" style={{ background: s.accent }} />
                     </div>
-                    <h3 className="text-[clamp(28px,3vw,44px)] leading-[1] text-[#0E0E10] tracking-[-0.02em] font-light mb-4" style={{ fontFamily: 'var(--font-playfair)' }}>
+                    <h3 className="text-[#0E0E10] tracking-[-0.01em] mb-4" style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(26px,2.4vw,36px)', lineHeight: 1.05 }}>
                       {s.title}
                     </h3>
                     <p className="text-zinc-600 text-sm leading-relaxed mb-12">{s.desc}</p>
@@ -258,7 +258,7 @@ function WorkTeaser() {
                       <span className="text-[10px] tracking-[0.25em] uppercase text-white/70">{p.tag}</span>
                     </div>
                     <div>
-                      <h3 className="text-white text-[clamp(28px,2.6vw,40px)] leading-[1] tracking-[-0.02em] font-light" style={{ fontFamily: 'var(--font-playfair)' }}>
+                      <h3 className="text-white tracking-[-0.01em]" style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(26px,2.2vw,34px)', lineHeight: 1.05 }}>
                         {p.title}
                       </h3>
                       <div className="mt-4 inline-flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase font-semibold text-white group-hover:text-[#FFD9B8] transition-colors">
@@ -295,7 +295,7 @@ function TrustTeaser() {
             <span className="text-[10px] font-bold tracking-[0.3em] text-[#E85D2C] uppercase mb-4 inline-block">
               · Why Gujarat trusts vayucodes
             </span>
-            <h2 className="text-[clamp(40px,6vw,88px)] leading-[1] tracking-[-0.02em] font-light max-w-[16ch]" style={{ fontFamily: 'var(--font-playfair)' }}>
+            <h2 className="text-white tracking-[-0.01em] max-w-[16ch]" style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(36px,5vw,72px)', lineHeight: 1.02 }}>
               You don&apos;t need Mumbai.
               <span className="italic text-[#FFD9B8]"> You need us.</span>
             </h2>
@@ -388,7 +388,7 @@ function BentoGrid() {
                       </div>
                     </div>
                     <div style={{ transform: 'translateZ(50px)' }} className="relative z-10">
-                      <h3 className={`${c.size === 'large' ? 'text-3xl lg:text-4xl' : 'text-lg'} font-light leading-tight mb-2`} style={{ fontFamily: 'var(--font-playfair)' }}>
+                      <h3 className={`${c.size === 'large' ? 'text-2xl lg:text-3xl' : 'text-lg'} leading-tight mb-2 tracking-[-0.01em]`} style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400 }}>
                         {c.title}
                       </h3>
                       <p className={`${c.size === 'large' ? 'text-base text-white/70' : 'text-sm text-zinc-600'} leading-relaxed max-w-md`}>
@@ -435,7 +435,7 @@ function StatCard({ target, suffix, label, inView, delay }) {
       transition={{ duration: 0.7, delay }}
       className="text-center md:text-left"
     >
-      <div className="text-[clamp(56px,7vw,110px)] leading-none text-[#0E0E10] tabular-nums" style={{ fontFamily: 'var(--font-bebas)' }}>
+      <div className="text-[clamp(40px,5vw,72px)] leading-none text-[#0E0E10] tabular-nums tracking-[-0.02em]" style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400 }}>
         {v.toLocaleString()}<span className="text-[#E85D2C]">{suffix}</span>
       </div>
       <div className="text-[10px] tracking-[0.3em] uppercase text-[#0E0E10]/60 mt-3">{label}</div>
@@ -489,7 +489,7 @@ function ClientMarquee() {
           style={{ width: 'max-content' }}
         >
           {[...brands, ...brands].map((b, i) => (
-            <div key={i} className="flex items-center gap-12 px-12 text-[clamp(28px,3.5vw,48px)] text-[#0E0E10]/70 leading-none" style={{ fontFamily: 'var(--font-playfair)' }}>
+            <div key={i} className="flex items-center gap-12 px-12 text-[clamp(22px,2.4vw,32px)] text-[#0E0E10]/65 leading-none tracking-[-0.01em]" style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400 }}>
               <span className="italic">{b}</span>
               <span className="text-[#E85D2C] text-base">●</span>
             </div>

@@ -215,10 +215,10 @@ export function Navbar({ darkHero = false }) {
                   key={l.href}
                   href={l.href}
                   onClick={() => setOpen(false)}
-                  className={`block text-2xl font-light tracking-tight ${
+                  className={`block text-xl tracking-tight ${
                     pathname === l.href ? 'text-[#E85D2C]' : 'text-white'
                   }`}
-                  style={{ fontFamily: 'var(--font-playfair)' }}
+                  style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400 }}
                 >
                   {l.label}
                 </Link>
@@ -248,8 +248,8 @@ export function Footer() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="text-[clamp(36px,6vw,96px)] leading-[0.95] tracking-[-0.02em] font-light"
-              style={{ fontFamily: 'var(--font-playfair)' }}
+              className="leading-[1.02] tracking-[-0.01em]"
+              style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(32px,5vw,72px)' }}
             >
               Let&apos;s build
               <br />
@@ -375,10 +375,10 @@ export function Preloader({ progress }) {
           </motion.div>
         </AnimatePresence>
 
-        {/* The massive wordmark \u2014 letter-by-letter mask reveal */}
+        {/* The wordmark — letter-by-letter mask reveal (restrained size) */}
         <div
-          className="text-[clamp(64px,12vw,180px)] leading-[0.9] tracking-[-0.04em] font-light text-white flex"
-          style={{ fontFamily: 'var(--font-playfair)' }}
+          className="leading-[0.95] tracking-[-0.02em] text-white flex"
+          style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(56px,9vw,120px)' }}
         >
           {letters.map((ch, i) => (
             <motion.span
@@ -414,8 +414,8 @@ export function Preloader({ progress }) {
         <motion.div
           animate={{ x: ['0%', '-50%'] }}
           transition={{ duration: 28, ease: 'linear', repeat: Infinity }}
-          className="flex whitespace-nowrap text-[clamp(28px,4vw,56px)] leading-none font-light text-white/8"
-          style={{ fontFamily: 'var(--font-playfair)' }}
+          className="flex whitespace-nowrap leading-none text-white/8"
+          style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(22px,3vw,42px)' }}
         >
           {Array(2).fill(0).flatMap((_, dup) =>
             ['Craft', 'Code', 'Cinema', 'Commerce', 'Systems', 'Stories', 'Strategy', 'Soul'].map((w, i) => (
@@ -706,8 +706,8 @@ export function VideoIntro({ onEnd, onColor }) {
           </motion.div>
 
           <h2
-            className="text-white text-[clamp(64px,12vw,200px)] font-light tracking-[-0.03em] leading-none inline-flex items-baseline"
-            style={{ fontFamily: 'var(--font-playfair)' }}
+            className="text-white tracking-[-0.01em] leading-none inline-flex items-baseline"
+            style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(56px,9vw,128px)' }}
           >
             <span style={{ filter: 'drop-shadow(0 4px 24px rgba(0,0,0,0.4))' }}>
               {displayed.split('').map((ch, i) => (
@@ -944,8 +944,8 @@ export function PageHero({ tag, title, italicWord, subtitle, accent = '#E85D2C' 
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35, duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-          className="text-white text-[clamp(56px,11vw,180px)] leading-[0.92] tracking-[-0.03em] font-light max-w-[18ch]"
-          style={{ fontFamily: 'var(--font-playfair)', transform: 'translateZ(60px)' }}
+          className="text-white leading-[1.0] tracking-[-0.01em] max-w-[20ch]"
+          style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(40px,5.5vw,84px)', transform: 'translateZ(60px)' }}
         >
           {renderTitle()}
         </motion.h1>
@@ -995,8 +995,8 @@ export function SectionHeading({ tag, title, italicWord, subtitle, align = 'left
         </span>
       )}
       <h2
-        className="text-[clamp(36px,6vw,80px)] leading-[1] text-[#0E0E10] tracking-[-0.02em] font-light"
-        style={{ fontFamily: 'var(--font-playfair)' }}
+        className="text-[#0E0E10] leading-[1.02] tracking-[-0.01em]"
+        style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(32px,4.5vw,60px)' }}
       >
         {renderTitle()}
       </h2>
@@ -1025,7 +1025,7 @@ export function CTABlock({ kicker = 'Ready when you are', title = 'Let&apos;s ta
               <div className="text-[10px] tracking-[0.3em] uppercase text-[#E85D2C] mb-6">
                 · {kicker}
               </div>
-              <h3 className="text-white text-[clamp(40px,5.5vw,80px)] leading-[1] tracking-[-0.02em] font-light" style={{ fontFamily: 'var(--font-playfair)' }}>
+              <h3 className="text-white leading-[1.02] tracking-[-0.01em]" style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(32px,4.5vw,64px)' }}>
                 {italicWord ? (
                   <>
                     {title.split(italicWord)[0]}

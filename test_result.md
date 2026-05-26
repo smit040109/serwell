@@ -101,3 +101,52 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  Build a highly immersive, premium agency website for "vayucodes" (Valsad, Gujarat) — a 6-page
+  cinematic editorial Next.js site (Tailwind + Framer Motion + GSAP). Latest iteration: user found
+  Bebas Neue display fonts (clamp 200px) too aggressive — wants restrained, professional editorial
+  typography. ScrollShowcase on /our-work needs continuous video playback (not scroll-scrubbed).
+
+frontend:
+  - task: "Typography downscale + Instrument Serif font system"
+    implemented: true
+    working: "NA"
+    file: "app/layout.js, app/page.js, app/digital-marketing/page.js, components/site/Shared.js, app/services/page.js, app/why-us/page.js, app/contact/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Replaced massive Playfair/Bebas (clamp 180-200px) with Instrument Serif at restrained sizes (clamp 32-84px). Bebas Neue retired from displays. Hero h1s capped at ~84px, section headings at ~60px. Visually verified across all 6 pages — refined editorial feel achieved."
+
+  - task: "ScrollShowcase refactor — continuous video playback"
+    implemented: true
+    working: "NA"
+    file: "components/site/ScrollShowcase.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Removed scroll-scrub video.currentTime updates. Videos now autoplay+loop continuously while in view (IO-style play/pause). Section height reduced from 400vh→180vh. Display fonts downscaled (product name clamp 40-72px). Dominant color sampling kept + re-samples every 2s for evolving tint. Cards-reveal style with bottom-pinned editorial content. Verified on /our-work and /digital-marketing."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.1"
+  test_sequence: 0
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Typography downscale + Instrument Serif font system"
+    - "ScrollShowcase refactor — continuous video playback"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Refined typography across all 6 pages — swapped Playfair/Bebas display fonts (max 200px) for Instrument Serif (max 84px). ScrollShowcase rebuilt to play videos continuously instead of scroll-scrubbing. Visually verified via screenshots on home, our-work, digital-marketing, services, contact, why-us — all pages look elegant, professional, restrained. Awaiting user verification."

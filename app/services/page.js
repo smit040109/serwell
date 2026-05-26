@@ -89,7 +89,7 @@ function ScrollSyncServices() {
             <div className="text-[10px] font-bold tracking-[0.3em] uppercase text-[#E85D2C] mb-4">
               · {current.tag}
             </div>
-            <h2 className="text-[clamp(36px,4.5vw,64px)] leading-[1] text-[#0E0E10] tracking-[-0.02em] font-light mb-6" style={{ fontFamily: 'var(--font-playfair)' }}>
+            <h2 className="text-[#0E0E10] tracking-[-0.01em] mb-6" style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(32px,4vw,56px)', lineHeight: 1.05 }}>
               {current.title}
             </h2>
             <p className="text-zinc-600 leading-relaxed mb-8">
@@ -116,7 +116,7 @@ function ScrollSyncServices() {
         {/* RIGHT — Scrolling list (60%) */}
         <div className="lg:w-[60%] lg:pl-16 py-20">
           <div className="text-[10px] font-bold tracking-[0.3em] text-[#E85D2C] uppercase mb-4">· Six core services</div>
-          <h3 className="text-[clamp(28px,3.5vw,52px)] leading-[1] text-[#0E0E10] tracking-[-0.02em] font-light mb-16" style={{ fontFamily: 'var(--font-playfair)' }}>
+          <h3 className="text-[#0E0E10] tracking-[-0.01em] mb-16" style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(26px,3vw,44px)', lineHeight: 1.05 }}>
             Everything we make,
             <br />
             <span className="italic text-[#E85D2C]">under one roof.</span>
@@ -161,7 +161,7 @@ function ScrollSyncServices() {
                           {s.tag}
                         </span>
                       </div>
-                      <h4 className="text-2xl font-light text-[#0E0E10] tracking-tight mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>
+                      <h4 className="text-xl text-[#0E0E10] tracking-tight mb-2" style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400 }}>
                         {s.title}
                       </h4>
                       <p className="text-sm text-zinc-600 leading-relaxed line-clamp-2">
