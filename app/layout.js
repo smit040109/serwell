@@ -1,5 +1,5 @@
 import './globals.css'
-import { Inter, Instrument_Serif, Playfair_Display, Bebas_Neue } from 'next/font/google'
+import { Inter, Instrument_Serif, Cormorant_Garamond, Syne, Playfair_Display, Bebas_Neue } from 'next/font/google'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -13,6 +13,21 @@ const instrument = Instrument_Serif({
   weight: ['400'],
   style: ['normal', 'italic'],
   variable: '--font-instrument'
+})
+
+// Editorial serif for stacked showcase
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant'
+})
+
+// Modern geometric sans for editorial captions
+const syne = Syne({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-syne'
 })
 
 // Kept as secondary fallback (used in some legacy spots)
@@ -36,7 +51,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} ${instrument.variable} ${playfair.variable} ${bebas.variable}`}>
+    <html lang="en" className={`${inter.variable} ${instrument.variable} ${cormorant.variable} ${syne.variable} ${playfair.variable} ${bebas.variable}`}>
       <body className="font-sans antialiased bg-[#F4F1EA] text-[#0E0E10]">
         {children}
       </body>

@@ -7,7 +7,7 @@ import { ArrowRight, Play, TrendingUp, Sparkles, Megaphone, Camera, Globe2, Mess
 import {
   PageWrapper, SectionHeading, CTABlock, Tilt3DCard
 } from '@/components/site/Shared'
-import ScrollShowcase from '@/components/site/ScrollShowcase'
+import MarketingCapabilities from '@/components/site/MarketingCapabilities'
 
 const GOLD = '#D4AF37'
 const NEAR_BLACK = '#080808'
@@ -306,13 +306,7 @@ export default function DigitalMarketingPage() {
   return (
     <PageWrapper darkHero={true}>
       <LetterboxHero />
-      <ScrollShowcase
-        products={MARKETING_PRODUCTS}
-        kicker="· Capabilities · Where attention meets revenue"
-        sectionTitle="Marketing OS"
-        showIntro={false}
-        showOutro={false}
-      />
+      <MarketingCapabilities />
       <ReelGrid />
       <StatsRow />
       <GoldCTA />
