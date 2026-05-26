@@ -303,52 +303,139 @@ export function Footer() {
 }
 
 /* ============================================================
-   PRELOADER
+   PRELOADER \u2014 Editorial wordmark reveal (no numbers, top 0.1% agency feel)
 ============================================================ */
+const LOADER_STATES = ['Designing', 'Compiling', 'Rendering', 'Almost there']
+
 export function Preloader({ progress }) {
+  const WORD = 'vayucodes'
+  const letters = WORD.split('')
+
+  // Cycle through status words
+  const statusIdx = Math.min(LOADER_STATES.length - 1, Math.floor(progress / (100 / LOADER_STATES.length)))
+  const status = LOADER_STATES[statusIdx]
+
   return (
     <motion.div
       key="preloader"
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.6, ease: 'easeInOut' } }}
-      className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center"
+      exit={{
+        opacity: 0,
+        transition: { duration: 0.8, ease: [0.7, 0, 0.3, 1] }
+      }}
+      className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center overflow-hidden"
     >
-      <div className="absolute inset-0 opacity-[0.04]" style={{
-        backgroundImage: 'radial-gradient(circle at center, rgba(255,255,255,0.6) 1px, transparent 1px)',
-        backgroundSize: '40px 40px',
+      {/* Subtle grain texture */}
+      <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay pointer-events-none" style={{
+        backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")"
       }} />
-      <div className="absolute top-8 left-8 text-white text-sm font-extrabold tracking-tight">
+      {/* Subtle radial vignette */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.6) 100%)'
+      }} />
+
+      {/* TOP-LEFT: small wordmark */}
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="absolute top-8 left-8 text-white text-sm font-extrabold tracking-tight"
+      >
         vayu<span className="text-[#E85D2C]">codes</span>
-      </div>
-      <div className="absolute top-8 right-8 text-[10px] tracking-[0.3em] uppercase text-white/40">
-        Loading Experience
-      </div>
-      <div className="relative flex flex-col items-center">
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6 }}
-          className="text-[clamp(80px,18vw,220px)] font-extralight text-white leading-none tabular-nums tracking-tight"
+      </motion.div>
+
+      {/* TOP-RIGHT: kicker + animated dot */}
+      <motion.div
+        initial={{ opacity: 0, x: 10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="absolute top-8 right-8 flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase text-white/40"
+      >
+        <span className="relative flex h-1.5 w-1.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E85D2C] opacity-70" />
+          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#E85D2C]" />
+        </span>
+        {'\u00a9 2025 \u00b7 Independent Studio'}
+      </motion.div>
+
+      {/* CENTER: Editorial reveal */}
+      <div className="relative flex flex-col items-center px-6">
+        {/* Tiny status label that cycles */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={status}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.4 }}
+            className="text-[10px] tracking-[0.5em] uppercase text-white/40 mb-8"
+          >
+            {status + '…'}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* The massive wordmark \u2014 letter-by-letter mask reveal */}
+        <div
+          className="text-[clamp(64px,12vw,180px)] leading-[0.9] tracking-[-0.04em] font-light text-white flex"
           style={{ fontFamily: 'var(--font-playfair)' }}
         >
-          {String(progress).padStart(2, '0')}
-          <span className="text-white/30">%</span>
-        </motion.div>
-        <div className="mt-6 w-[280px] h-px bg-white/10 overflow-hidden">
+          {letters.map((ch, i) => (
+            <motion.span
+              key={i}
+              initial={{ opacity: 0, y: '100%', filter: 'blur(8px)' }}
+              animate={{ opacity: 1, y: '0%', filter: 'blur(0px)' }}
+              transition={{
+                duration: 1,
+                delay: 0.4 + i * 0.08,
+                ease: [0.22, 1, 0.36, 1]
+              }}
+              className={`inline-block overflow-hidden ${i >= 4 ? 'italic text-[#FFD9B8]' : ''}`}
+              style={{ willChange: 'transform, opacity, filter' }}
+            >
+              {ch}
+            </motion.span>
+          ))}
+        </div>
+
+        {/* Thin animated underline (sole progress indicator, no numbers) */}
+        <div className="mt-10 w-[min(420px,80vw)] h-px bg-white/10 overflow-hidden">
           <motion.div
-            className="h-full bg-gradient-to-r from-[#E85D2C] via-white to-[#FF8A3D]"
+            className="h-full bg-gradient-to-r from-transparent via-[#E85D2C] to-[#FFD9B8]"
             initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ ease: 'easeOut', duration: 0.3 }}
+            animate={{ width: `${Math.min(100, progress)}%` }}
+            transition={{ ease: [0.22, 1, 0.36, 1], duration: 0.5 }}
           />
         </div>
-        <div className="mt-4 text-[10px] tracking-[0.3em] uppercase text-white/40">
-          Caching cinematic assets
-        </div>
       </div>
-      <div className="absolute bottom-8 inset-x-0 text-center text-[10px] tracking-[0.3em] uppercase text-white/30">
-        A studio based in Valsad, Gujarat
+
+      {/* BOTTOM: slow horizontal marquee \u2014 craft tags */}
+      <div className="absolute bottom-16 inset-x-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{ x: ['0%', '-50%'] }}
+          transition={{ duration: 28, ease: 'linear', repeat: Infinity }}
+          className="flex whitespace-nowrap text-[clamp(28px,4vw,56px)] leading-none font-light text-white/8"
+          style={{ fontFamily: 'var(--font-playfair)' }}
+        >
+          {Array(2).fill(0).flatMap((_, dup) =>
+            ['Craft', 'Code', 'Cinema', 'Commerce', 'Systems', 'Stories', 'Strategy', 'Soul'].map((w, i) => (
+              <span key={`${dup}-${i}`} className="px-8 flex items-center gap-8">
+                <span className="italic">{w}.</span>
+                <span className="text-[#E85D2C]/30">{'•'}</span>
+              </span>
+            ))
+          )}
+        </motion.div>
       </div>
+
+      {/* BOTTOM CREDIT */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5, duration: 0.8 }}
+        className="absolute bottom-6 inset-x-0 text-center text-[10px] tracking-[0.4em] uppercase text-white/30"
+      >
+        {'A studio in Valsad, Gujarat \u00b7 Shipping worldwide'}
+      </motion.div>
     </motion.div>
   )
 }
