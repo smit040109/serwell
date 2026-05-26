@@ -5,7 +5,7 @@ import { useRef, useState, useEffect, useCallback, createContext, useContext } f
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  ArrowRight, Menu, X, MapPin, Mail, Phone, CheckCircle2, Circle, Sparkles, Volume2
+  ArrowRight, Menu, X, MapPin, Mail, Phone, CheckCircle2, Circle, Sparkles, Volume2, VolumeX
 } from 'lucide-react'
 
 /* ============================================================
@@ -48,6 +48,7 @@ export const NAV_LINKS = [
   { href: '/', label: 'Home' },
   { href: '/services', label: 'Services' },
   { href: '/our-work', label: 'Our Work' },
+  { href: '/digital-marketing', label: 'Marketing' },
   { href: '/why-us', label: 'Why Us' },
   { href: '/contact', label: 'Contact' },
 ]
@@ -157,7 +158,7 @@ export function Navbar({ darkHero = false }) {
         <nav className={`hidden md:flex items-center space-x-8 text-[11px] font-medium tracking-[0.18em] uppercase transition-colors ${
           isDark ? 'text-white/70' : 'text-[#0E0E10]/70'
         }`}>
-          {NAV_LINKS.filter(l => l.href !== '/').slice(0, 4).map(l => {
+          {NAV_LINKS.filter(l => l.href !== '/').slice(0, 5).map(l => {
             const active = pathname === l.href
             return (
               <Link
@@ -552,6 +553,7 @@ export function VideoIntro({ onEnd, onColor }) {
   const [progress, setProgress] = useState(0)
   const [videoReady, setVideoReady] = useState(false)
   const [soundHint, setSoundHint] = useState(true)
+  const [muted, setMuted] = useState(true)
   const playClick = useTypingSound()
   const TARGET = 'vayucodes'
   const { displayed, done } = useTypewriter(TARGET, {
@@ -638,7 +640,7 @@ export function VideoIntro({ onEnd, onColor }) {
         src={CINEMATIC_VIDEO_URL}
         poster={CINEMATIC_VIDEO_POSTER}
         autoPlay
-        muted
+        muted={muted}
         playsInline
         loop
         preload="auto"
@@ -755,6 +757,24 @@ export function VideoIntro({ onEnd, onColor }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* UNMUTE BUTTON (always visible, bottom-right 32x32) */}
+      <button
+        onClick={() => {
+          const newMuted = !muted
+          setMuted(newMuted)
+          const v = videoRef.current
+          if (v) {
+            v.muted = newMuted
+            if (!newMuted) v.play().catch(() => {})
+          }
+          setSoundHint(false)
+        }}
+        aria-label={muted ? 'Unmute' : 'Mute'}
+        className="absolute bottom-12 right-8 w-9 h-9 rounded-full backdrop-blur-md bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all z-20"
+      >
+        {muted ? <VolumeX size={14} className="text-white/80" /> : <Volume2 size={14} className="text-white/80" />}
+      </button>
 
       {/* BOTTOM PROGRESS LINE */}
       <div className="absolute bottom-0 inset-x-0 h-[2px] bg-white/10 z-10">

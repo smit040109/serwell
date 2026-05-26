@@ -1,8 +1,9 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion'
+import { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowRight, MapPin, ShieldCheck, Zap, Users } from 'lucide-react'
+import { ArrowRight, MapPin, ShieldCheck, Zap, Users, Code2, Cpu, Megaphone, Sparkles, Globe2, Building2 } from 'lucide-react'
 import {
   LandingFlow, Navbar, Footer, SILHOUETTE_IMG, PORTFOLIO_IMAGES,
   Tilt3DCard, SectionHeading, CTABlock, useVideoColor
@@ -334,6 +335,175 @@ function TrustTeaser() {
 }
 
 /* ============================================================
+   BENTO GRID \u2014 asymmetric 2-large + 4-small with 3D tilt
+============================================================ */
+function BentoGrid() {
+  const cards = [
+    { size: 'large', icon: '🎬', title: 'Cinema for Business', body: 'Brand films & reels shot in 4K Apple Log. Not commercials — cinema.', accent: '#E85D2C' },
+    { size: 'small', icon: '⚡', title: 'Blazing-fast sites', body: 'Sub-second loads.' },
+    { size: 'small', icon: '🛠', title: 'Custom Software', body: 'Built for your floor.' },
+    { size: 'large', icon: '📈', title: 'Performance That Pays', body: 'Every rupee tracked to a rupee earned. Local-first growth.', accent: '#FFD9B8' },
+    { size: 'small', icon: '🇮🇳', title: 'Gujarati-first', body: 'We speak your buyer.' },
+    { size: 'small', icon: '🤝', title: 'One Partner', body: 'Predictable, monthly.' },
+  ]
+  return (
+    <section className="relative bg-[#F4F1EA] py-32 px-6 lg:px-10">
+      <div className="max-w-[1500px] mx-auto">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-16">
+          <SectionHeading
+            tag="· What we build"
+            title="One studio. Six superpowers."
+            italicWord="Six superpowers."
+          />
+          <Link href="/services" className="group inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase font-semibold text-[#0E0E10] hover:text-[#E85D2C] transition-colors">
+            All services
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-[200px]">
+          {cards.map((c, i) => {
+            const span = c.size === 'large' ? 'md:col-span-2 md:row-span-2' : ''
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 0.7, delay: i * 0.06 }}
+                className={span}
+              >
+                <Tilt3DCard intensity={c.size === 'large' ? 8 : 12} className="h-full">
+                  <div className={`group relative h-full rounded-3xl overflow-hidden border border-[#0E0E10]/8 transition-all p-7 lg:p-9 flex flex-col justify-between ${
+                    c.size === 'large' ? 'bg-[#0E0E10] text-white' : 'bg-white text-[#0E0E10]'
+                  }`} style={{
+                    boxShadow: c.size === 'large' ? '0 40px 80px -30px rgba(14,14,16,0.5)' : '0 20px 40px -20px rgba(14,14,16,0.12)'
+                  }}>
+                    {c.size === 'large' && c.accent && (
+                      <div className="pointer-events-none absolute -top-20 -right-20 w-[40vw] h-[40vw] rounded-full blur-3xl opacity-30" style={{ background: c.accent }} />
+                    )}
+                    <div style={{ transform: 'translateZ(30px)' }} className="flex items-start justify-between relative z-10">
+                      <div className={`text-4xl lg:text-5xl ${c.size === 'large' ? 'opacity-90' : ''}`}>
+                        {c.icon}
+                      </div>
+                    </div>
+                    <div style={{ transform: 'translateZ(50px)' }} className="relative z-10">
+                      <h3 className={`${c.size === 'large' ? 'text-3xl lg:text-4xl' : 'text-lg'} font-light leading-tight mb-2`} style={{ fontFamily: 'var(--font-playfair)' }}>
+                        {c.title}
+                      </h3>
+                      <p className={`${c.size === 'large' ? 'text-base text-white/70' : 'text-sm text-zinc-600'} leading-relaxed max-w-md`}>
+                        {c.body}
+                      </p>
+                    </div>
+                  </div>
+                </Tilt3DCard>
+              </motion.div>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
+   ANIMATED STATS COUNTERS
+============================================================ */
+function useCountUp(target, duration = 2200, inView = false) {
+  const [val, setVal] = useState(0)
+  useEffect(() => {
+    if (!inView) return
+    const start = Date.now()
+    const id = setInterval(() => {
+      const t = Math.min(1, (Date.now() - start) / duration)
+      const e = 1 - Math.pow(1 - t, 3)
+      setVal(Math.round(target * e))
+      if (t >= 1) clearInterval(id)
+    }, 30)
+    return () => clearInterval(id)
+  }, [target, duration, inView])
+  return val
+}
+
+function StatCard({ target, suffix, label, inView, delay }) {
+  const v = useCountUp(target, 2400, inView)
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.7, delay }}
+      className="text-center md:text-left"
+    >
+      <div className="text-[clamp(56px,7vw,110px)] leading-none text-[#0E0E10] tabular-nums" style={{ fontFamily: 'var(--font-bebas)' }}>
+        {v.toLocaleString()}<span className="text-[#E85D2C]">{suffix}</span>
+      </div>
+      <div className="text-[10px] tracking-[0.3em] uppercase text-[#0E0E10]/60 mt-3">{label}</div>
+    </motion.div>
+  )
+}
+
+function AnimatedStats() {
+  const ref = useRef(null)
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    if (!ref.current) return
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setInView(true); obs.disconnect() }
+    }, { threshold: 0.3 })
+    obs.observe(ref.current)
+    return () => obs.disconnect()
+  }, [])
+  const stats = [
+    { num: 150, suffix: '+', label: 'Projects Shipped' },
+    { num: 5, suffix: ' yrs', label: 'In the studio' },
+    { num: 99, suffix: '%', label: 'Client Satisfaction' },
+    { num: 50, suffix: '+', label: 'Brands Onboarded' },
+  ]
+  return (
+    <section ref={ref} className="relative bg-[#F4F1EA] py-24 px-6 lg:px-10 border-t border-[#0E0E10]/8">
+      <div className="max-w-[1500px] mx-auto grid md:grid-cols-4 gap-10 md:gap-6">
+        {stats.map((s, i) => (
+          <StatCard key={i} target={s.num} suffix={s.suffix} label={s.label} inView={inView} delay={i * 0.1} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
+   CLIENT LOGO MARQUEE \u2014 infinite horizontal scroll
+============================================================ */
+function ClientMarquee() {
+  const brands = ['Nirvana', 'Sutra', 'Anaya', 'Bandhan', 'ChaiSnap', 'Saurav Studios', 'Vayu Mills', 'Patel Co.', 'Lumière', 'Athena', 'Indigo Bay', 'Sahyadri Group']
+  return (
+    <section className="relative bg-[#F4F1EA] py-20 border-y border-[#0E0E10]/8 overflow-hidden">
+      <div className="max-w-[1500px] mx-auto px-6 lg:px-10 mb-10">
+        <div className="text-[10px] tracking-[0.3em] uppercase text-[#0E0E10]/50">· Trusted by independent businesses across India</div>
+      </div>
+      <div className="relative overflow-hidden group">
+        <motion.div
+          animate={{ x: ['0%', '-50%'] }}
+          transition={{ duration: 40, ease: 'linear', repeat: Infinity }}
+          className="flex whitespace-nowrap"
+          style={{ width: 'max-content' }}
+        >
+          {[...brands, ...brands].map((b, i) => (
+            <div key={i} className="flex items-center gap-12 px-12 text-[clamp(28px,3.5vw,48px)] text-[#0E0E10]/70 leading-none" style={{ fontFamily: 'var(--font-playfair)' }}>
+              <span className="italic">{b}</span>
+              <span className="text-[#E85D2C] text-base">●</span>
+            </div>
+          ))}
+        </motion.div>
+        {/* edge fade masks */}
+        <div className="pointer-events-none absolute left-0 inset-y-0 w-32 bg-gradient-to-r from-[#F4F1EA] to-transparent" />
+        <div className="pointer-events-none absolute right-0 inset-y-0 w-32 bg-gradient-to-l from-[#F4F1EA] to-transparent" />
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    HOME
 ============================================================ */
 export default function Home() {
@@ -341,6 +511,9 @@ export default function Home() {
     <LandingFlow>
       <Navbar darkHero={true} />
       <EditorialHero />
+      <ClientMarquee />
+      <BentoGrid />
+      <AnimatedStats />
       <ServicesTeaser />
       <WorkTeaser />
       <TrustTeaser />

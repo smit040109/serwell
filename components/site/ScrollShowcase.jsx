@@ -267,7 +267,11 @@ function ProductSection({ product, index, onActive }) {
   )
 }
 
-export default function ScrollShowcase() {
+export default function ScrollShowcase({
+  products = PRODUCTS,
+  kicker = '· The Showcase · 2024 — 2025',
+  sectionTitle = 'Selected Work',
+}) {
   const containerRef = useRef(null)
   const bgColors = useRef({})
   const [, force] = useState(0)
@@ -281,16 +285,14 @@ export default function ScrollShowcase() {
     }
     if (isActive) {
       setActiveIndex(index)
-      const c = bgColors.current[index] || hexToRgb(PRODUCTS[index].accentFallback)
+      const c = bgColors.current[index] || hexToRgb(products[index].accentFallback)
       const target = `rgb(${c.r}, ${c.g}, ${c.b})`
-      // Smooth GSAP transition of bg color
       const el = containerRef.current
       if (el) gsap.to(el, { backgroundColor: target, duration: 1.0, ease: 'power2.out' })
     }
-  }, [])
+  }, [products])
 
   useEffect(() => {
-    // Ensure ScrollTriggers re-measure after content settles
     const id = setTimeout(() => ScrollTrigger.refresh(), 600)
     return () => {
       clearTimeout(id)
@@ -300,30 +302,28 @@ export default function ScrollShowcase() {
 
   return (
     <div ref={containerRef} className="relative bg-black transition-colors" style={{ willChange: 'background-color' }}>
-      {/* Section header (sticky kicker) */}
       <div className="absolute top-0 inset-x-0 z-30 pt-28 px-6 lg:px-16 pointer-events-none">
         <div className="max-w-[1500px] mx-auto flex items-end justify-between">
           <div>
             <div className="text-[10px] tracking-[0.3em] uppercase text-white/50 mb-2">
-              {'· The Showcase · 2024 — 2025'}
+              {kicker}
             </div>
             <div className="text-white/90 uppercase leading-none" style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(28px,3vw,48px)' }}>
-              Selected Work
+              {sectionTitle}
             </div>
           </div>
           <div className="hidden md:flex items-center gap-6 text-[10px] tracking-[0.3em] uppercase text-white/50">
             <span className="tabular-nums">
               {String(activeIndex + 1).padStart(2, '0')}
-              <span className="opacity-40"> / {String(PRODUCTS.length).padStart(2, '0')}</span>
+              <span className="opacity-40"> / {String(products.length).padStart(2, '0')}</span>
             </span>
             <span className="opacity-60">{'↓ scroll to explore'}</span>
           </div>
         </div>
       </div>
 
-      {/* Right edge progress dots */}
       <div className="fixed right-6 lg:right-10 top-1/2 -translate-y-1/2 z-30 hidden lg:flex flex-col gap-3">
-        {PRODUCTS.map((p, i) => (
+        {products.map((p, i) => (
           <div
             key={p.id}
             className="w-[3px] rounded-full transition-all duration-500"
@@ -335,12 +335,14 @@ export default function ScrollShowcase() {
         ))}
       </div>
 
-      {PRODUCTS.map((p, i) => (
+      {products.map((p, i) => (
         <ProductSection key={p.id} product={p} index={i} onActive={onActive} />
       ))}
     </div>
   )
 }
+
+export { PRODUCTS }
 
 function hexToRgb(hex) {
   const m = hex.replace('#', '')
