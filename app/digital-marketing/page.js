@@ -310,6 +310,8 @@ export default function DigitalMarketingPage() {
         products={MARKETING_PRODUCTS}
         kicker="· Capabilities · Where attention meets revenue"
         sectionTitle="Marketing OS"
+        showIntro={false}
+        showOutro={false}
       />
       <ReelGrid />
       <StatsRow />

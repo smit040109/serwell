@@ -46,7 +46,7 @@ export default function OurWorkPage() {
         italicWord="Real receipts."
         subtitle="From textile manufacturers in Surat to retail chains across South Gujarat — these are the businesses we've helped trade Excel sheets for dashboards, pamphlets for funnels, and 'we'll think about it' for 'can you start tomorrow?'."
       />
-      <ScrollShowcase />
+      <ScrollShowcase showIntro={false} showOutro={true} />
       <MoreProjects />
       <CTABlock kicker="Want to be next?" title="Let's add your name to this list." italicWord="to this list." />
     </PageWrapper>
