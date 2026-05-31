@@ -115,12 +115,18 @@ export function LiveClock({ label, tz }) {
 }
 
 /* ============================================================
-   WORDMARK
+   WORDMARK — VayuCodes logo image
 ============================================================ */
 export function Wordmark({ className = '', light = false }) {
   return (
-    <Link href="/" className={`text-xl md:text-2xl font-extrabold tracking-tight ${light ? 'text-white' : 'text-[#0E0E10]'} ${className}`}>
-      vayu<span className="text-[#E85D2C]">codes</span>
+    <Link href="/" className={`inline-flex items-center ${className}`} aria-label="VayuCodes home">
+      <img
+        src="/brand/logo-lockup.png"
+        alt="VayuCodes"
+        className={`h-7 md:h-8 w-auto select-none ${light ? 'invert brightness-200' : ''}`}
+        style={{ filter: light ? 'invert(1) brightness(2)' : 'none' }}
+        draggable={false}
+      />
     </Link>
   )
 }
@@ -335,30 +341,6 @@ export function Preloader({ progress }) {
         background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.6) 100%)'
       }} />
 
-      {/* TOP-LEFT: small wordmark */}
-      <motion.div
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="absolute top-8 left-8 text-white text-sm font-extrabold tracking-tight"
-      >
-        vayu<span className="text-[#E85D2C]">codes</span>
-      </motion.div>
-
-      {/* TOP-RIGHT: kicker + animated dot */}
-      <motion.div
-        initial={{ opacity: 0, x: 10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="absolute top-8 right-8 flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase text-white/40"
-      >
-        <span className="relative flex h-1.5 w-1.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E85D2C] opacity-70" />
-          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#E85D2C]" />
-        </span>
-        {'\u00a9 2025 \u00b7 Independent Studio'}
-      </motion.div>
-
       {/* CENTER: Editorial reveal */}
       <div className="relative flex flex-col items-center px-6">
         {/* Tiny status label that cycles */}
@@ -375,28 +357,32 @@ export function Preloader({ progress }) {
           </motion.div>
         </AnimatePresence>
 
-        {/* The wordmark — letter-by-letter mask reveal (restrained size) */}
-        <div
-          className="leading-[0.95] tracking-[-0.02em] text-white flex"
-          style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(56px,9vw,120px)' }}
+        {/* The logo — cinematic reveal */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.85, filter: 'blur(20px)' }}
+          animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+          className="relative"
         >
-          {letters.map((ch, i) => (
-            <motion.span
-              key={i}
-              initial={{ opacity: 0, y: '100%', filter: 'blur(8px)' }}
-              animate={{ opacity: 1, y: '0%', filter: 'blur(0px)' }}
-              transition={{
-                duration: 1,
-                delay: 0.4 + i * 0.08,
-                ease: [0.22, 1, 0.36, 1]
-              }}
-              className={`inline-block overflow-hidden ${i >= 4 ? 'italic text-[#FFD9B8]' : ''}`}
-              style={{ willChange: 'transform, opacity, filter' }}
-            >
-              {ch}
-            </motion.span>
-          ))}
-        </div>
+          <img
+            src="/brand/logo-full.png"
+            alt="VayuCodes"
+            className="w-[min(340px,72vw)] h-auto select-none"
+            style={{ filter: 'invert(1) brightness(2)' }}
+            draggable={false}
+          />
+          {/* Subtle bloom behind */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 0.3, 0.18] }}
+            transition={{ duration: 2.2, ease: 'easeOut' }}
+            className="absolute inset-0 -z-10 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(232,93,44,0.35), transparent 60%)',
+              filter: 'blur(40px)',
+            }}
+          />
+        </motion.div>
 
         {/* Thin animated underline (sole progress indicator, no numbers) */}
         <div className="mt-10 w-[min(420px,80vw)] h-px bg-white/10 overflow-hidden">
@@ -407,25 +393,6 @@ export function Preloader({ progress }) {
             transition={{ ease: [0.22, 1, 0.36, 1], duration: 0.5 }}
           />
         </div>
-      </div>
-
-      {/* BOTTOM: slow horizontal marquee \u2014 craft tags */}
-      <div className="absolute bottom-16 inset-x-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{ x: ['0%', '-50%'] }}
-          transition={{ duration: 28, ease: 'linear', repeat: Infinity }}
-          className="flex whitespace-nowrap leading-none text-white/8"
-          style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(22px,3vw,42px)' }}
-        >
-          {Array(2).fill(0).flatMap((_, dup) =>
-            ['Craft', 'Code', 'Cinema', 'Commerce', 'Systems', 'Stories', 'Strategy', 'Soul'].map((w, i) => (
-              <span key={`${dup}-${i}`} className="px-8 flex items-center gap-8">
-                <span className="italic">{w}.</span>
-                <span className="text-[#E85D2C]/30">{'•'}</span>
-              </span>
-            ))
-          )}
-        </motion.div>
       </div>
 
       {/* BOTTOM CREDIT */}
@@ -552,16 +519,6 @@ export function VideoIntro({ onEnd, onColor }) {
   const videoRef = useRef(null)
   const [progress, setProgress] = useState(0)
   const [videoReady, setVideoReady] = useState(false)
-  const [soundHint, setSoundHint] = useState(true)
-  const [muted, setMuted] = useState(true)
-  const playClick = useTypingSound()
-  const TARGET = 'vayucodes'
-  const { displayed, done } = useTypewriter(TARGET, {
-    speed: 180,
-    startDelay: 1400,
-    jitter: 90,
-    onChar: () => playClick(),
-  })
 
   // Color sampling from video frames
   const sampledRef = useRef(false)
@@ -616,15 +573,6 @@ export function VideoIntro({ onEnd, onColor }) {
     return () => clearInterval(id)
   }, [sampleColor])
 
-  // Hide sound hint after any interaction or 3s
-  useEffect(() => {
-    const hide = () => setSoundHint(false)
-    const t = setTimeout(hide, 4500)
-    document.addEventListener('click', hide, { once: true })
-    document.addEventListener('touchstart', hide, { once: true })
-    return () => { clearTimeout(t); document.removeEventListener('click', hide); document.removeEventListener('touchstart', hide) }
-  }, [])
-
   return (
     <motion.div
       key="videointro"
@@ -640,7 +588,7 @@ export function VideoIntro({ onEnd, onColor }) {
         src={CINEMATIC_VIDEO_URL}
         poster={CINEMATIC_VIDEO_POSTER}
         autoPlay
-        muted={muted}
+        muted
         playsInline
         loop
         preload="auto"
@@ -667,28 +615,23 @@ export function VideoIntro({ onEnd, onColor }) {
         backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")"
       }} />
 
-      {/* TOP BAR */}
-      <div className="absolute top-0 inset-x-0 flex justify-between items-center p-8 z-10">
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="text-white text-sm font-extrabold tracking-tight"
-        >
-          vayu<span className="text-[#E85D2C]">codes</span>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="text-[10px] tracking-[0.3em] uppercase text-white/70 flex items-center gap-2"
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#E85D2C] animate-pulse" />
-          {'Cinematic Intro · 2025'}
-        </motion.div>
-      </div>
+      {/* TOP BAR — minimal logo only, top-left, premium */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.8 }}
+        className="absolute top-8 left-8 z-10"
+      >
+        <img
+          src="/brand/logo-lockup.png"
+          alt="VayuCodes"
+          className="h-7 w-auto select-none"
+          style={{ filter: 'invert(1) brightness(2)' }}
+          draggable={false}
+        />
+      </motion.div>
 
-      {/* TYPEWRITER CENTER */}
+      {/* HERO LOGO REVEAL — center */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 px-6">
         <motion.div
           initial={{ opacity: 0 }}
@@ -700,81 +643,48 @@ export function VideoIntro({ onEnd, onColor }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9, duration: 0.6 }}
-            className="text-[10px] tracking-[0.5em] uppercase text-white/70 mb-6"
+            className="text-[10px] tracking-[0.5em] uppercase text-white/70 mb-8"
           >
             {'— An independent studio —'}
           </motion.div>
 
-          <h2
-            className="text-white tracking-[-0.01em] leading-none inline-flex items-baseline"
-            style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(56px,9vw,128px)' }}
+          {/* Cinematic logo reveal */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, filter: 'blur(20px)' }}
+            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+            transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1], delay: 1.2 }}
+            className="relative inline-block"
           >
-            <span style={{ filter: 'drop-shadow(0 4px 24px rgba(0,0,0,0.4))' }}>
-              {displayed.split('').map((ch, i) => (
-                <motion.span
-                  key={i}
-                  initial={{ opacity: 0, y: 20, scale: 0.85 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 0.18, ease: 'easeOut' }}
-                  className={i >= 4 ? 'italic text-[#FFD9B8]' : ''}
-                >
-                  {ch}
-                </motion.span>
-              ))}
-            </span>
-            {/* Blinking caret */}
-            <motion.span
-              animate={{ opacity: done ? [1, 0, 1] : 1 }}
-              transition={{ duration: 1.0, repeat: Infinity, ease: 'linear' }}
-              className="inline-block w-[0.06em] h-[0.85em] ml-[0.04em] bg-[#FFD9B8]"
-              style={{ transform: 'translateY(0.05em)' }}
+            <img
+              src="/brand/logo-full.png"
+              alt="VayuCodes"
+              className="w-[min(420px,72vw)] h-auto select-none"
+              style={{ filter: 'invert(1) brightness(2) drop-shadow(0 4px 32px rgba(0,0,0,0.5))' }}
+              draggable={false}
             />
-          </h2>
+            {/* Glow bloom behind */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0.35, 0.2] }}
+              transition={{ duration: 2.5, ease: 'easeOut', delay: 1.5 }}
+              className="absolute inset-0 -z-10 pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse at center, rgba(255,217,184,0.35), transparent 65%)',
+                filter: 'blur(45px)',
+              }}
+            />
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: done ? 1 : 0, y: done ? 0 : 10 }}
-            transition={{ duration: 0.8, delay: done ? 0.4 : 0 }}
-            className="mt-8 text-[10px] tracking-[0.5em] uppercase text-white/70"
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 2.4 }}
+            className="mt-10 text-[10px] tracking-[0.5em] uppercase text-white/70"
           >
             {'Valsad, Gujarat · Worldwide'}
           </motion.div>
         </motion.div>
       </div>
-
-      {/* SOUND HINT (subtle, auto-hides) */}
-      <AnimatePresence>
-        {soundHint && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-            className="absolute bottom-12 left-8 flex items-center gap-3 backdrop-blur-md bg-white/8 border border-white/15 rounded-full px-4 py-2 z-20"
-          >
-            <Volume2 size={12} className="text-white/70" />
-            <span className="text-[10px] tracking-[0.25em] uppercase text-white/70">Tap for sound</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* UNMUTE BUTTON (always visible, bottom-right 32x32) */}
-      <button
-        onClick={() => {
-          const newMuted = !muted
-          setMuted(newMuted)
-          const v = videoRef.current
-          if (v) {
-            v.muted = newMuted
-            if (!newMuted) v.play().catch(() => {})
-          }
-          setSoundHint(false)
-        }}
-        aria-label={muted ? 'Unmute' : 'Mute'}
-        className="absolute bottom-12 right-8 w-9 h-9 rounded-full backdrop-blur-md bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all z-20"
-      >
-        {muted ? <VolumeX size={14} className="text-white/80" /> : <Volume2 size={14} className="text-white/80" />}
-      </button>
 
       {/* BOTTOM PROGRESS LINE */}
       <div className="absolute bottom-0 inset-x-0 h-[2px] bg-white/10 z-10">

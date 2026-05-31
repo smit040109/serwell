@@ -1,330 +1,278 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Play, ArrowUpRight, Sparkles, Target, Film, Users2, MapPin, MessageCircle } from 'lucide-react'
+import { useRef, useEffect, useState } from 'react'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
+import { Sparkles, Target, Cpu, Code2, Globe2 } from 'lucide-react'
 
 /* ============================================================
-   MARKETING CAPABILITIES — Sticky split-screen w/ tabs
-   Dramatically different from /our-work stacked cards.
-   - Left: Vertical numbered capability list (clickable tabs)
-   - Right: Large media preview + metric panel (sticky)
-   - Dark gold-tinted theme
+   MARKETING CAPABILITIES — Scroll-driven, NOT click-based
+   - Outer container 500vh tall
+   - Inside, sticky 100vh viewport with split layout
+   - Each capability transitions IN as user scrolls
+   - Cinematic blur/desaturate/zoom between sections
 ============================================================ */
 
 const GOLD = '#D4AF37'
 
-const CAPABILITIES = [
+const SECTIONS = [
   {
-    id: 1,
     no: '01',
-    icon: Film,
+    icon: Sparkles,
     label: 'Reels & Shorts',
     title: 'Stop-the-thumb creative.',
-    blurb: 'Vertical-first content engine. Hook-driven scripting, 60-second cuts, native-to-platform aesthetics.',
+    desc: 'Scroll-stopping short-form content designed to capture attention and generate engagement. We engineer hooks, frame rhythms, and platform-native edits that get watched, saved, and shared.',
     videoSrc: '/videos/p1.mp4',
-    metrics: [
-      { k: '40+', v: 'Variants per week' },
-      { k: '1.5s', v: 'Hook target' },
-      { k: '2.3×', v: 'CPM efficiency' },
-    ],
+    metric: '40+ variants / week',
   },
   {
-    id: 2,
     no: '02',
     icon: Target,
-    label: 'Paid Ads · Meta + Google',
-    title: 'Performance that compounds.',
-    blurb: 'Creative-led performance campaigns. We test 40 variants a week, kill losers fast, scale winners harder.',
+    label: 'Performance Marketing',
+    title: 'Turn clicks into customers.',
+    desc: 'Data-driven advertising focused on leads, conversions and measurable business growth. We test 40 variants a week, kill losers fast, and scale winners harder across Meta and Google.',
     videoSrc: '/videos/p2.mp4',
-    metrics: [
-      { k: '₹1.2 Cr', v: 'Festive GMV · 60 days' },
-      { k: '3.8 ROAS', v: 'Avg blended' },
-      { k: '−42%', v: 'CPL reduction' },
-    ],
+    metric: '3.8 ROAS · blended',
   },
   {
-    id: 3,
     no: '03',
-    icon: Sparkles,
-    label: 'Brand Films · Cinema',
-    title: 'Make cinema, not commercials.',
-    blurb: 'Anamorphic-grade brand films shot in 4K Apple Log. We don\u2019t make ads — we make cinema for your business.',
+    icon: Cpu,
+    label: 'AI Automation',
+    title: 'Work less. Scale faster.',
+    desc: 'Automate repetitive tasks and build workflows that run 24/7. From WhatsApp routing to invoice generation to lead enrichment — your operations on autopilot.',
     videoSrc: '/videos/p3.mp4',
-    metrics: [
-      { k: '4K Log', v: 'Apple-grade footage' },
-      { k: '24p', v: 'Cinema framerate' },
-      { k: '12+', v: 'Brand films · 2025' },
-    ],
+    metric: '24×7 · automated',
   },
   {
-    id: 4,
     no: '04',
-    icon: Users2,
-    label: 'Creators · UGC Network',
-    title: 'Authentic voices, scaled.',
-    blurb: 'A curated network of micro-influencers and UGC creators across Gujarat. We orchestrate the entire pipeline.',
+    icon: Code2,
+    label: 'Custom Software',
+    title: 'Built around your business.',
+    desc: 'Custom software solutions designed specifically for your workflows. ERPs, internal tools, multi-outlet dashboards — engineered for your edge cases, not someone else\u2019s template.',
     videoSrc: '/videos/p4.mp4',
-    metrics: [
-      { k: '180+', v: 'Vetted creators' },
-      { k: '8 cities', v: 'Active distribution' },
-      { k: '4.6×', v: 'Engagement vs paid' },
-    ],
+    metric: '50+ shipped',
   },
   {
-    id: 5,
     no: '05',
-    icon: MapPin,
-    label: 'Local SEO + GBP',
-    title: 'Win the map. Win the city.',
-    blurb: 'Google Business Profile optimization, hyperlocal SEO, review systems. Be the first result in your city.',
+    icon: Globe2,
+    label: 'Website Development',
+    title: 'Your digital first impression.',
+    desc: 'Fast, modern and conversion-focused websites built to grow your business. Built on Next.js, optimized for Core Web Vitals, instrumented for revenue from day one.',
     videoSrc: '/videos/p5.mp4',
-    metrics: [
-      { k: '#1', v: 'Map pack rankings' },
-      { k: '+220%', v: 'Direction requests' },
-      { k: '38 days', v: 'Avg time to rank' },
-    ],
-  },
-  {
-    id: 6,
-    no: '06',
-    icon: MessageCircle,
-    label: 'WhatsApp · CRM',
-    title: 'Where Indians actually buy.',
-    blurb: 'Automated WhatsApp funnels, broadcast lists, click-to-chat ads. We close the loop where the buyer is.',
-    videoSrc: '/videos/p6.mp4',
-    metrics: [
-      { k: '67%', v: 'Click-to-chat CVR' },
-      { k: '<2 min', v: 'Response SLA' },
-      { k: '24×7', v: 'Automated flows' },
-    ],
+    metric: '< 1.2s LCP',
   },
 ]
 
-export default function MarketingCapabilities() {
-  const [active, setActive] = useState(0)
-  const videoRef = useRef(null)
-  const current = CAPABILITIES[active]
+function CapabilityPanel({ section, isActive, prev }) {
+  const Icon = section.icon
+  return (
+    <motion.div
+      initial={false}
+      animate={{
+        opacity: isActive ? 1 : 0,
+        scale: isActive ? 1 : prev ? 0.96 : 1.04,
+        filter: isActive ? 'blur(0px)' : 'blur(8px)',
+      }}
+      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      className="absolute inset-0 flex items-center"
+      style={{ pointerEvents: isActive ? 'auto' : 'none' }}
+    >
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 w-full items-center px-6 lg:px-10">
+        {/* TEXT */}
+        <div className="lg:col-span-6 max-w-xl">
+          {/* Number */}
+          <motion.div
+            initial={false}
+            animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ duration: 0.7, delay: isActive ? 0.05 : 0 }}
+            className="flex items-center gap-3 mb-6"
+          >
+            <span
+              className="text-[11px] tracking-[0.35em] tabular-nums"
+              style={{ color: GOLD, fontFamily: 'var(--font-inter)', fontWeight: 600 }}
+            >
+              {section.no}
+            </span>
+            <span className="block w-10 h-px" style={{ background: GOLD, opacity: 0.4 }} />
+            <Icon size={14} style={{ color: GOLD, opacity: 0.7 }} />
+            <span
+              className="text-[10px] tracking-[0.3em] uppercase text-white/55"
+              style={{ fontFamily: 'var(--font-inter)', fontWeight: 500 }}
+            >
+              {section.label}
+            </span>
+          </motion.div>
 
-  // Play video on capability change
+          {/* Title */}
+          <motion.h3
+            initial={false}
+            animate={isActive ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 36, filter: 'blur(6px)' }}
+            transition={{ duration: 0.9, delay: isActive ? 0.1 : 0, ease: [0.22, 1, 0.36, 1] }}
+            className="text-white leading-[1.02] tracking-[-0.01em]"
+            style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(34px,4.5vw,68px)' }}
+          >
+            {section.title.split(' ').map((word, i) => {
+              const isLast = i === section.title.split(' ').length - 1
+              return (
+                <motion.span
+                  key={i}
+                  initial={false}
+                  animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                  transition={{ duration: 0.6, delay: isActive ? 0.2 + i * 0.05 : 0 }}
+                  className={isLast ? 'italic' : ''}
+                  style={isLast ? { color: GOLD } : {}}
+                >
+                  {word}{i < section.title.split(' ').length - 1 ? ' ' : ''}
+                </motion.span>
+              )
+            })}
+          </motion.h3>
+
+          {/* Description */}
+          <motion.p
+            initial={false}
+            animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+            transition={{ duration: 0.8, delay: isActive ? 0.4 : 0 }}
+            className="mt-7 text-white/65 max-w-md"
+            style={{ fontFamily: 'var(--font-inter)', fontWeight: 300, fontSize: 'clamp(13px,1vw,15px)', lineHeight: 1.75 }}
+          >
+            {section.desc}
+          </motion.p>
+
+          {/* Metric chip */}
+          <motion.div
+            initial={false}
+            animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+            transition={{ duration: 0.7, delay: isActive ? 0.55 : 0 }}
+            className="mt-8 inline-flex items-center gap-2.5 backdrop-blur-md border rounded-full px-4 py-2"
+            style={{ borderColor: 'rgba(212,175,55,0.3)', background: 'rgba(212,175,55,0.06)' }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: GOLD }} />
+            <span
+              className="text-[10px] tracking-[0.25em] uppercase font-medium"
+              style={{ color: GOLD, fontFamily: 'var(--font-inter)' }}
+            >
+              {section.metric}
+            </span>
+          </motion.div>
+        </div>
+
+        {/* MEDIA — video panel */}
+        <div className="lg:col-span-6">
+          <motion.div
+            initial={false}
+            animate={isActive ? { opacity: 1, scale: 1, filter: 'blur(0px)' } : { opacity: 0.15, scale: 0.97, filter: 'blur(12px) saturate(0.4)' }}
+            transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
+            className="relative aspect-[16/10] rounded-3xl overflow-hidden bg-gradient-to-br from-zinc-900 to-zinc-800 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.7)]"
+          >
+            <video
+              src={section.videoSrc}
+              muted
+              loop
+              autoPlay
+              playsInline
+              preload="metadata"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-tr from-black/30 via-transparent to-black/10 pointer-events-none" />
+            <div className="absolute inset-0 ring-1 ring-white/10 rounded-3xl pointer-events-none" />
+          </motion.div>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+export default function MarketingCapabilities() {
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end end'],
+  })
+  const [activeIdx, setActiveIdx] = useState(0)
+
+  // Update active section based on scroll progress
   useEffect(() => {
-    const v = videoRef.current
-    if (!v) return
-    v.load()
-    const p = v.play()
-    if (p && typeof p.catch === 'function') p.catch(() => {})
-  }, [active])
+    return scrollYProgress.on('change', (v) => {
+      const idx = Math.min(SECTIONS.length - 1, Math.floor(v * SECTIONS.length))
+      setActiveIdx(idx)
+    })
+  }, [scrollYProgress])
+
+  // Progress bar
+  const progressWidth = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
 
   return (
-    <section className="relative bg-[#080808] py-24 lg:py-32 overflow-hidden">
+    <section
+      ref={containerRef}
+      className="relative bg-[#080808]"
+      style={{ height: `${SECTIONS.length * 100}vh` }}
+    >
       {/* Ambient gold radial */}
-      <div className="pointer-events-none absolute -top-40 -right-40 w-[60vw] h-[60vw] rounded-full" style={{
+      <div className="pointer-events-none absolute top-0 right-0 w-[60vw] h-[60vw] rounded-full" style={{
         background: 'radial-gradient(circle, rgba(212,175,55,0.10), transparent 60%)',
         filter: 'blur(60px)',
       }} />
 
-      <div className="relative max-w-[1500px] mx-auto px-6 lg:px-10">
-        {/* Top kicker */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16 lg:mb-20">
-          <div>
-            <div
-              className="text-[10px] tracking-[0.4em] uppercase mb-3"
-              style={{ color: GOLD, fontFamily: 'var(--font-inter)', fontWeight: 500 }}
-            >
-              · Capabilities · Marketing OS
-            </div>
-            <h2
-              className="text-white leading-[1.02] tracking-[-0.01em]"
-              style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(34px,4.5vw,64px)' }}
-            >
-              Six engines. <span className="italic" style={{ color: GOLD }}>One growth system.</span>
-            </h2>
-          </div>
-          <div className="text-[10px] tracking-[0.3em] uppercase text-white/40 tabular-nums" style={{ fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
-            Click any capability →
-          </div>
-        </div>
-
-        {/* SPLIT — left vertical tabs, right media+metrics */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-          {/* LEFT — vertical capability list */}
-          <div className="lg:col-span-5">
-            <div className="space-y-2">
-              {CAPABILITIES.map((c, i) => {
-                const isActive = i === active
-                const Icon = c.icon
-                return (
-                  <button
-                    key={c.id}
-                    onClick={() => setActive(i)}
-                    className={`group w-full text-left rounded-2xl border transition-all duration-500 px-5 lg:px-7 py-5 lg:py-6 ${
-                      isActive
-                        ? 'border-white/15'
-                        : 'border-white/5 hover:border-white/10'
-                    }`}
-                    style={{
-                      background: isActive ? 'rgba(212,175,55,0.07)' : 'rgba(255,255,255,0.02)',
-                    }}
-                  >
-                    <div className="flex items-start gap-4 lg:gap-5">
-                      {/* Number */}
-                      <div
-                        className="text-[11px] tracking-[0.2em] tabular-nums mt-1.5 transition-colors"
-                        style={{
-                          fontFamily: 'var(--font-inter)',
-                          fontWeight: 500,
-                          color: isActive ? GOLD : 'rgba(255,255,255,0.35)',
-                        }}
-                      >
-                        {c.no}
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-1.5">
-                          <Icon size={14} style={{ color: isActive ? GOLD : 'rgba(255,255,255,0.55)' }} />
-                          <span
-                            className="text-[10px] tracking-[0.25em] uppercase font-medium transition-colors"
-                            style={{
-                              fontFamily: 'var(--font-inter)',
-                              color: isActive ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.5)',
-                            }}
-                          >
-                            {c.label}
-                          </span>
-                        </div>
-                        <div
-                          className={`leading-[1.15] tracking-[-0.01em] transition-colors`}
-                          style={{
-                            fontFamily: 'var(--font-instrument)',
-                            fontWeight: 400,
-                            fontSize: 'clamp(22px,2.2vw,32px)',
-                            color: isActive ? '#fff' : 'rgba(255,255,255,0.62)',
-                          }}
-                        >
-                          {c.title}
-                        </div>
-
-                        {/* Expanded blurb — only on active */}
-                        <AnimatePresence>
-                          {isActive && (
-                            <motion.p
-                              initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                              animate={{ opacity: 1, height: 'auto', marginTop: 14 }}
-                              exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                              className="text-sm text-white/55 leading-[1.65] overflow-hidden"
-                              style={{ fontFamily: 'var(--font-inter)', fontWeight: 300 }}
-                            >
-                              {c.blurb}
-                            </motion.p>
-                          )}
-                        </AnimatePresence>
-                      </div>
-
-                      {/* Arrow on active */}
-                      <div className="mt-1.5">
-                        <ArrowUpRight
-                          size={16}
-                          className="transition-all"
-                          style={{
-                            color: isActive ? GOLD : 'rgba(255,255,255,0.25)',
-                            transform: isActive ? 'translate(2px,-2px)' : 'translate(0,0)',
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* RIGHT — sticky media + metrics */}
-          <div className="lg:col-span-7">
-            <div className="lg:sticky lg:top-24">
-              {/* Media canvas */}
-              <div className="relative aspect-[16/10] rounded-3xl overflow-hidden bg-gradient-to-br from-zinc-900 to-zinc-800 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.7)]">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={current.id}
-                    initial={{ opacity: 0, scale: 1.02 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                    className="absolute inset-0"
-                  >
-                    <video
-                      ref={videoRef}
-                      src={current.videoSrc}
-                      muted
-                      loop
-                      autoPlay
-                      playsInline
-                      preload="auto"
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                  </motion.div>
-                </AnimatePresence>
-                {/* Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-black/30 via-transparent to-black/10 pointer-events-none" />
-                <div className="absolute inset-0 ring-1 ring-white/10 rounded-3xl pointer-events-none" />
-
-                {/* Active label chip */}
-                <div className="absolute top-5 left-5 flex items-center gap-2 backdrop-blur-md bg-black/40 border border-white/15 rounded-full px-3 py-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: GOLD }} />
-                  <span
-                    className="text-[10px] tracking-[0.25em] uppercase text-white/85 font-medium"
-                    style={{ fontFamily: 'var(--font-inter)' }}
-                  >
-                    Playing · {current.label}
-                  </span>
-                </div>
-
-                {/* Play badge */}
-                <div className="absolute bottom-5 right-5 w-11 h-11 rounded-full flex items-center justify-center" style={{ background: GOLD }}>
-                  <Play size={14} className="text-black ml-0.5" fill="black" />
-                </div>
+      {/* STICKY VIEWPORT */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden">
+        <div className="max-w-[1500px] mx-auto h-full relative pt-24">
+          {/* Header */}
+          <div className="absolute top-24 left-6 lg:left-10 right-6 lg:right-10 flex flex-wrap items-end justify-between gap-4 z-20 pointer-events-none">
+            <div>
+              <div
+                className="text-[10px] tracking-[0.4em] uppercase mb-2"
+                style={{ color: GOLD, fontFamily: 'var(--font-inter)', fontWeight: 500 }}
+              >
+                · Capabilities · Marketing OS
               </div>
-
-              {/* Metrics row */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={current.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                  className="mt-7 grid grid-cols-3 gap-3 lg:gap-5"
-                >
-                  {current.metrics.map((m, i) => (
-                    <div
-                      key={i}
-                      className="rounded-2xl border border-white/8 px-4 lg:px-6 py-5 lg:py-6"
-                      style={{ background: 'rgba(255,255,255,0.02)' }}
-                    >
-                      <div
-                        className="leading-none tracking-[-0.02em]"
-                        style={{
-                          fontFamily: 'var(--font-instrument)',
-                          fontWeight: 400,
-                          fontSize: 'clamp(24px,2.6vw,40px)',
-                          color: GOLD,
-                        }}
-                      >
-                        {m.k}
-                      </div>
-                      <div
-                        className="mt-2 text-[9px] tracking-[0.25em] uppercase text-white/45"
-                        style={{ fontFamily: 'var(--font-inter)', fontWeight: 500 }}
-                      >
-                        {m.v}
-                      </div>
-                    </div>
-                  ))}
-                </motion.div>
-              </AnimatePresence>
+              <div
+                className="text-white tracking-[-0.01em]"
+                style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(20px,2vw,30px)' }}
+              >
+                Five engines. <span className="italic" style={{ color: GOLD }}>One growth system.</span>
+              </div>
             </div>
+            <div
+              className="text-[10px] tracking-[0.3em] uppercase text-white/40 tabular-nums"
+              style={{ fontFamily: 'var(--font-inter)', fontWeight: 500 }}
+            >
+              {String(activeIdx + 1).padStart(2, '0')} <span className="opacity-50">/ {String(SECTIONS.length).padStart(2, '0')}</span> · scroll
+            </div>
+          </div>
+
+          {/* Panels stack */}
+          <div className="absolute inset-0 pt-20 lg:pt-24 pb-16">
+            {SECTIONS.map((s, i) => (
+              <CapabilityPanel
+                key={s.no}
+                section={s}
+                isActive={i === activeIdx}
+                prev={i < activeIdx}
+              />
+            ))}
+          </div>
+
+          {/* Vertical progress rail */}
+          <div className="absolute right-6 lg:right-10 top-1/2 -translate-y-1/2 z-30 hidden lg:flex flex-col items-center gap-3">
+            {SECTIONS.map((_, i) => (
+              <div
+                key={i}
+                className="rounded-full transition-all duration-500"
+                style={{
+                  width: 2,
+                  height: i === activeIdx ? 36 : 10,
+                  background: i === activeIdx ? GOLD : 'rgba(255,255,255,0.18)',
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Bottom progress line */}
+          <div className="absolute bottom-0 inset-x-0 h-px bg-white/8">
+            <motion.div
+              className="h-full"
+              style={{ width: progressWidth, background: GOLD, opacity: 0.7 }}
+            />
           </div>
         </div>
       </div>
@@ -332,4 +280,4 @@ export default function MarketingCapabilities() {
   )
 }
 
-export { CAPABILITIES }
+export { SECTIONS }
