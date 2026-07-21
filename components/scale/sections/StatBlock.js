@@ -40,11 +40,11 @@ export default function StatBlock() {
           className="relative rounded-panel overflow-hidden px-8 md:px-16 py-16 md:py-24"
           style={{ background: '#141418', border: '1px solid rgba(255,255,255,0.06)' }}
         >
-          {/* Ember gradient glow */}
+          {/* Soft white glow */}
           <div
             ref={glowRef}
             className="pointer-events-none absolute -top-1/2 -right-1/3 w-[80%] h-[160%] rounded-full blur-3xl"
-            style={{ background: 'radial-gradient(circle, rgba(232,93,44,0.25) 0%, transparent 60%)' }}
+            style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.10) 0%, transparent 60%)' }}
           />
 
           <div className="relative grid md:grid-cols-12 gap-10">

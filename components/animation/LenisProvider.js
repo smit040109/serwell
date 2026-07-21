@@ -5,11 +5,12 @@ import Lenis from 'lenis'
 import { gsap, ScrollTrigger } from '@/lib/gsap'
 
 /**
- * LenisProvider — Scale.com clone smooth-scroll foundation.
- *
- * - Lenis drives smooth scrolling.
- * - Every Lenis scroll event calls ScrollTrigger.update() so pinned/scrub timelines stay in sync.
- * - Respects prefers-reduced-motion: falls back to native scroll.
+ * LenisProvider — water-like buttery smooth scroll.
+ * Tuned for a very soft, cinematic feel:
+ *   - Long duration (1.8s inertia) — scroll feels weighted
+ *   - Custom quintic ease-out for the softest deceleration
+ *   - Wheel + touch multipliers dialed back so the page "flows" instead of snapping
+ *   - Synced with GSAP ticker so pinned/scrub timelines stay perfectly locked
  */
 export default function LenisProvider({ children }) {
   const lenisRef = useRef(null)
@@ -21,24 +22,24 @@ export default function LenisProvider({ children }) {
     if (prefersReduced) return
 
     const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      duration: 1.8,
+      // Quintic ease-out — the softest, most "liquid" deceleration
+      easing: (t) => 1 - Math.pow(1 - t, 5),
       smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 1.2,
+      wheelMultiplier: 0.85,
+      touchMultiplier: 1.4,
+      lerp: 0.08,
     })
     lenisRef.current = lenis
 
     lenis.on('scroll', ScrollTrigger.update)
 
-    // Drive Lenis with GSAP's ticker so both are perfectly synced
     const tick = (time) => {
       lenis.raf(time * 1000)
     }
     gsap.ticker.add(tick)
     gsap.ticker.lagSmoothing(0)
 
-    // Refresh ScrollTrigger after fonts + images ready to catch layout shifts
     const onReady = () => ScrollTrigger.refresh()
     if (document.readyState === 'complete') {
       onReady()

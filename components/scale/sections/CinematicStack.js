@@ -130,7 +130,7 @@ export default function CinematicStack() {
                 {/* Code-like lines */}
                 {Array.from({ length: 14 }).map((_, i) => {
                   const w = 60 + (i * 47) % 220
-                  const color = i % 4 === 0 ? '#E85D2C' : i % 3 === 0 ? '#79648c' : 'rgba(255,255,255,0.5)'
+                  const color = 'rgba(255,255,255,0.55)'
                   return (
                     <g key={`code-${i}`} opacity={0.85}>
                       <text x={30} y={40 + i * 28} fill={color} fontSize={11} fontFamily="var(--font-mono), monospace">
@@ -143,8 +143,8 @@ export default function CinematicStack() {
                 {/* Connection nodes on the right */}
                 {[80, 160, 240, 320, 400].map((y, i) => (
                   <g key={`node-${i}`}>
-                    <circle cx={310} cy={y} r={4} fill="#79648c" opacity={0.8} />
-                    <line x1={280} y1={y} x2={306} y2={y} stroke="#79648c" strokeWidth={0.6} opacity={0.5} />
+                    <circle cx={310} cy={y} r={4} fill="rgba(255,255,255,0.7)" />
+                    <line x1={280} y1={y} x2={306} y2={y} stroke="rgba(255,255,255,0.4)" strokeWidth={0.6} />
                   </g>
                 ))}
               </svg>
@@ -159,7 +159,7 @@ export default function CinematicStack() {
               <svg viewBox="0 0 340 480" className="w-full h-full">
                 {/* Header bar */}
                 <rect x={20} y={22} width={80} height={12} rx={3} fill="rgba(255,255,255,0.7)" />
-                <rect x={280} y={22} width={40} height={12} rx={3} fill="rgba(232,93,44,0.9)" />
+                <rect x={280} y={22} width={40} height={12} rx={3} fill="rgba(255,255,255,0.35)" />
                 {/* Content blocks */}
                 <rect x={20} y={60} width={300} height={90} rx={6} fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth={0.8} strokeDasharray="3 3" />
                 <rect x={20} y={170} width={140} height={100} rx={6} fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth={0.8} strokeDasharray="3 3" />
@@ -175,38 +175,38 @@ export default function CinematicStack() {
               className="absolute inset-14 rounded-[16px] overflow-hidden preserve-3d"
               style={{ boxShadow: '0 0 80px rgba(0,0,0,0.7), 0 0 0 1.5px rgba(255,255,255,0.08)' }}
             >
-              {/* Dashboard mockup: gradient bg + fake analytics */}
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0E0E10 0%, #1a1a24 55%, #2a1810 100%)' }} />
+              {/* Dashboard mockup: monochrome gradient + fake analytics */}
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a0c 0%, #17171b 55%, #0f0f13 100%)' }} />
               <div className="absolute inset-0 opacity-90">
                 <svg viewBox="0 0 300 420" className="w-full h-full">
                   {/* Top nav */}
                   <rect x={16} y={16} width={70} height={8} rx={2} fill="rgba(255,255,255,0.9)" />
-                  <circle cx={280} cy={20} r={4} fill="#E85D2C" />
+                  <circle cx={280} cy={20} r={4} fill="rgba(255,255,255,0.7)" />
                   {/* Big number */}
                   <text x={20} y={80} fill="#fff" fontSize={28} fontFamily="var(--font-aeonik), sans-serif" fontWeight="400" letterSpacing="-0.02em">$482,940</text>
-                  <text x={20} y={100} fill="#E85D2C" fontSize={10} fontFamily="var(--font-mono), monospace">↗ +18.4%</text>
+                  <text x={20} y={100} fill="rgba(255,255,255,0.55)" fontSize={10} fontFamily="var(--font-mono), monospace">↗ +18.4%</text>
                   {/* Growth chart line */}
                   <path
                     d="M 20,220 L 55,205 L 90,215 L 125,180 L 160,190 L 195,150 L 230,155 L 265,120 L 280,110"
                     fill="none"
-                    stroke="#E85D2C"
+                    stroke="rgba(255,255,255,0.85)"
                     strokeWidth={2}
                     strokeLinecap="round"
                   />
                   <path
                     d="M 20,220 L 55,205 L 90,215 L 125,180 L 160,190 L 195,150 L 230,155 L 265,120 L 280,110 L 280,240 L 20,240 Z"
-                    fill="url(#emberGradient)"
-                    opacity={0.3}
+                    fill="url(#whiteGradient)"
+                    opacity={0.25}
                   />
                   <defs>
-                    <linearGradient id="emberGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#E85D2C" stopOpacity="0.6" />
-                      <stop offset="100%" stopColor="#E85D2C" stopOpacity="0" />
+                    <linearGradient id="whiteGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.5" />
+                      <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
                     </linearGradient>
                   </defs>
                   {/* Bars */}
                   {[280, 300, 320, 340, 360, 380].map((y, i) => (
-                    <rect key={`bar-${i}`} x={20 + i * 45} y={y} width={30} height={400 - y} rx={2} fill={i === 3 ? '#E85D2C' : 'rgba(255,255,255,0.35)'} />
+                    <rect key={`bar-${i}`} x={20 + i * 45} y={y} width={30} height={400 - y} rx={2} fill={i === 3 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.35)'} />
                   ))}
                 </svg>
               </div>
@@ -260,10 +260,10 @@ export default function CinematicStack() {
         >
           <Eyebrow tone="light" className="text-pure-white/60">03 — GROWTH & SCALE</Eyebrow>
           <h2
-            className="mt-4 leading-[1.08]"
-            style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(30px, 3.8vw, 48px)', letterSpacing: '-0.01em', color: '#E85D2C' }}
+            className="mt-4 text-pure-white leading-[1.08]"
+            style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(30px, 3.8vw, 48px)', letterSpacing: '-0.01em' }}
           >
-            And we help them <span className="italic" style={{ color: '#FFD9B8' }}>grow</span>.
+            And we help them <span className="italic text-pure-white/60">grow</span>.
           </h2>
           <p className="mt-5 text-body text-pure-white/70">
             Performance marketing, analytics, iterative optimization. We stay with the product after launch — because building is only half the job.

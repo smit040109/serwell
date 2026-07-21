@@ -88,7 +88,7 @@ export default function ProvenIndustryCarousel() {
                 style={{ width: `calc((100% - ${(visible - 1) * 24}px) / ${visible})` }}
               >
                 <div className="flex items-center gap-3">
-                  <span className="eyebrow text-vc-ember">{s.n}</span>
+                  <span className="eyebrow text-graphite">{s.n}</span>
                   <span className="w-6 h-px bg-vc-ink/20" />
                   <Eyebrow tone="muted">{s.tag}</Eyebrow>
                 </div>

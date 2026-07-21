@@ -33,7 +33,7 @@ export default function ThreePillars() {
           {pillars.map(({ Icon, number, title, body }) => (
             <article key={title} className="rounded-card p-8 md:p-10 bg-soft-mist flex flex-col">
               <div className="flex items-center gap-3">
-                <span className="eyebrow text-vc-ember">{number}</span>
+                <span className="eyebrow text-graphite">{number}</span>
                 <span className="w-6 h-px bg-vc-ink/20" />
                 <div className="w-11 h-11 rounded-card-nest bg-pure-white flex items-center justify-center ml-auto">
                   <Icon size={20} strokeWidth={1.4} className="text-vc-ink" />

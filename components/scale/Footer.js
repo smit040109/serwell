@@ -36,7 +36,7 @@ const columns = [
 export default function Footer() {
   return (
     <footer className="bg-vc-ink text-pure-white pt-24 pb-10 overflow-hidden">
-      <div className="pointer-events-none absolute w-[60vw] h-[60vw] rounded-full bg-vc-ember/[0.04] blur-3xl" style={{ top: '10rem', right: '-15rem' }} />
+      <div className="pointer-events-none absolute w-[60vw] h-[60vw] rounded-full bg-white/[0.02] blur-3xl" style={{ top: '10rem', right: '-15rem' }} />
 
       <div className="relative max-w-page mx-auto px-6 md:px-8">
         {/* Top: brand + columns */}
@@ -53,7 +53,7 @@ export default function Footer() {
               An independent studio designing, engineering, and scaling the digital systems businesses run on.
             </p>
             <div className="mt-6 flex items-center gap-2 eyebrow text-pure-white/40">
-              <Circle size={6} className="fill-vc-ember text-vc-ember animate-pulse" />
+              <Circle size={6} className="fill-white text-white animate-pulse" />
               Available · Q3 2026
             </div>
           </div>
