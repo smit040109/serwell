@@ -3,26 +3,29 @@
 import { useEffect, useRef } from 'react'
 import { gsap, ScrollTrigger } from '@/lib/gsap'
 import WordReveal from '@/components/animation/WordReveal'
+import Eyebrow from '@/components/ui-scale/Eyebrow'
 
-// PLACEHOLDER — MRI/brain scan image
-const MRI_IMG = 'https://images.pexels.com/photos/7089020/pexels-photo-7089020.jpeg?auto=compress&cs=tinysrgb&w=800'
-
+/**
+ * VayuCodes signature statement (in place of the reference stat block).
+ * No fabricated statistics — an honest positioning statement instead.
+ * Panel uses VayuCodes ink + subtle ember gradient.
+ */
 export default function StatBlock() {
   const panelRef = useRef(null)
-  const imgRef = useRef(null)
+  const glowRef = useRef(null)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.set(panelRef.current, { scale: 0.92, opacity: 0 })
-      gsap.set(imgRef.current, { x: -30, opacity: 0 })
+      gsap.set(panelRef.current, { scale: 0.94, opacity: 0 })
+      gsap.set(glowRef.current, { opacity: 0 })
 
       ScrollTrigger.create({
         trigger: panelRef.current,
         start: 'top 78%',
         once: true,
         onEnter: () => {
-          gsap.to(panelRef.current, { scale: 1, opacity: 1, duration: 0.9, ease: 'power3.out' })
-          gsap.to(imgRef.current, { x: 0, opacity: 1, duration: 0.9, ease: 'power3.out', delay: 0.15 })
+          gsap.to(panelRef.current, { scale: 1, opacity: 1, duration: 1.0, ease: 'power3.out' })
+          gsap.to(glowRef.current, { opacity: 1, duration: 1.6, ease: 'power2.out', delay: 0.2 })
         },
       })
     })
@@ -30,44 +33,48 @@ export default function StatBlock() {
   }, [])
 
   return (
-    <section className="bg-obsidian py-24 md:py-32 px-6 md:px-8">
+    <section className="bg-vc-ink py-24 md:py-32 px-6 md:px-8">
       <div className="max-w-page mx-auto">
         <div
           ref={panelRef}
-          className="rounded-panel overflow-hidden grid md:grid-cols-5"
-          style={{ background: '#193a29' }}
+          className="relative rounded-panel overflow-hidden px-8 md:px-16 py-16 md:py-24"
+          style={{ background: '#141418', border: '1px solid rgba(255,255,255,0.06)' }}
         >
-          {/* Left: MRI image */}
-          <div ref={imgRef} className="md:col-span-2 relative aspect-[4/5] md:aspect-auto min-h-[280px] overflow-hidden">
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: `url(${MRI_IMG})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                filter: 'grayscale(0.15) brightness(0.9) contrast(1.05)',
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-forest-sovereignty/70" />
-          </div>
+          {/* Ember gradient glow */}
+          <div
+            ref={glowRef}
+            className="pointer-events-none absolute -top-1/2 -right-1/3 w-[80%] h-[160%] rounded-full blur-3xl"
+            style={{ background: 'radial-gradient(circle, rgba(232,93,44,0.25) 0%, transparent 60%)' }}
+          />
 
-          {/* Right: stat headline */}
-          <div className="md:col-span-3 p-8 md:p-14 lg:p-16 flex items-center">
-            <WordReveal
-              as="h2"
-              text="90% of the world's leading generative AI model builders are powered by Scale."
-              className="font-aeonik font-normal text-pure-white"
-              stagger={0.05}
-            />
+          <div className="relative grid md:grid-cols-12 gap-10">
+            {/* Left: eyebrow + small statement */}
+            <div className="md:col-span-4">
+              <Eyebrow tone="light" className="text-pure-white/60">Manifesto</Eyebrow>
+              <p className="mt-6 text-body text-pure-white/60 leading-relaxed">
+                We&apos;re not a marketing agency dressed up in code, and we&apos;re not a dev shop pretending to design. We are a studio built to do all of it — well.
+              </p>
+            </div>
+
+            {/* Right: massive statement */}
+            <div className="md:col-span-8">
+              <WordReveal
+                as="h2"
+                text="Design. Engineering. AI. Automation. Growth. Under one roof, from idea to scale."
+                className="text-pure-white leading-[1.08]"
+                stagger={0.05}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       <style jsx>{`
         section :global(h2) {
-          font-size: clamp(28px, 3.4vw, 42px);
-          line-height: 1.15;
-          letter-spacing: -0.01em;
+          font-family: var(--font-instrument);
+          font-weight: 400;
+          font-size: clamp(28px, 3.6vw, 46px);
+          letter-spacing: -0.012em;
         }
       `}</style>
     </section>

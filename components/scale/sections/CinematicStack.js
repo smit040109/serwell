@@ -5,16 +5,17 @@ import { gsap, ScrollTrigger } from '@/lib/gsap'
 import Eyebrow from '@/components/ui-scale/Eyebrow'
 import Button from '@/components/ui-scale/Button'
 
-// PLACEHOLDER hero image inside phone screen (replace later with Scale's real asset)
-const PHONE_SCREEN = 'https://images.pexels.com/photos/8913522/pexels-photo-8913522.jpeg?auto=compress&cs=tinysrgb&w=800'
-
 /**
- * CinematicStack — the signature pinned + scrubbed 3D scene.
+ * CinematicStack — pinned + scrubbed 3D scene telling the VayuCodes story.
  *
- * Structure:
- *  - A parent .pin-wrap (height 400vh) with an inner .sticky-viewport (100vh)
- *  - Inside sticky-viewport: perspective container + 4 layered planes forming a phone-like device
- *  - 3 text panels (SceneA, SceneB, SceneC) that fade in/out at different scroll progress
+ * Story arc: IDEA → DESIGN → ENGINEERING → AUTOMATION → SCALE
+ * Compressed into 3 revealed sub-scenes over 400vh:
+ *   Scene A  —  01 DESIGN
+ *   Scene B  —  02 ENGINEERING & AUTOMATION
+ *   Scene C  —  03 GROWTH & SCALE  (ember accent)
+ *
+ * Central visual: a stylized "product surface" — 4 stacked planes representing
+ * (from back to front): blueprint grid → code / architecture nodes → UI wireframe → polished product mockup.
  */
 export default function CinematicStack() {
   const wrapRef = useRef(null)
@@ -34,18 +35,13 @@ export default function CinematicStack() {
     if (!wrap) return
 
     const ctx = gsap.context(() => {
-      // Base layer positions (start states)
-      gsap.set(stageRef.current, { rotateY: -25, rotateX: 8, scale: 0.6, opacity: 0 })
+      gsap.set(stageRef.current, { rotateY: -25, rotateX: 8, scale: 0.62, opacity: 0 })
       gsap.set(layer1Ref.current, { z: 0 })
       gsap.set(layer2Ref.current, { z: 0, opacity: 0 })
       gsap.set(layer3Ref.current, { z: 0, opacity: 0 })
       gsap.set(layer4Ref.current, { z: 0, opacity: 0.3 })
+      gsap.set([sceneARef.current, sceneBRef.current, sceneCRef.current], { opacity: 0, y: 30 })
 
-      gsap.set(sceneARef.current, { opacity: 0, y: 30 })
-      gsap.set(sceneBRef.current, { opacity: 0, y: 30 })
-      gsap.set(sceneCRef.current, { opacity: 0, y: 30 })
-
-      // Main pinned + scrubbed timeline
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: wrap,
@@ -58,15 +54,13 @@ export default function CinematicStack() {
         },
       })
 
-      // 0% -> 25%  :  Phone rotates in + Scene A reveals
+      // 0 → 25% : Stage enters, Scene A (DESIGN)
       tl.to(stageRef.current, { rotateY: 0, rotateX: 0, scale: 1, opacity: 1, duration: 1, ease: 'power2.out' }, 0)
         .to(layer2Ref.current, { opacity: 1, duration: 0.6, ease: 'power2.out' }, 0.15)
         .to(layer3Ref.current, { opacity: 1, duration: 0.6, ease: 'power2.out' }, 0.2)
-        .to(sceneARef.current, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0.15)
+        .to(sceneARef.current, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0.2)
 
-      // 25% -> 45% : Sit still, Scene A stays
-
-      // 45% -> 55% : Scene A fades out, layers separate for Scene B
+      // 45% → 55% : Scene A exits, layers separate for Scene B
       tl.to(sceneARef.current, { opacity: 0, y: -20, duration: 0.6, ease: 'power2.in' }, 1.7)
         .to(layer1Ref.current, { z: 80, duration: 0.8, ease: 'power2.inOut' }, 1.7)
         .to(layer3Ref.current, { z: -120, duration: 0.8, ease: 'power2.inOut' }, 1.7)
@@ -74,9 +68,7 @@ export default function CinematicStack() {
         .to(stageRef.current, { rotateY: -12, rotateX: -3, duration: 0.8, ease: 'power2.inOut' }, 1.7)
         .to(sceneBRef.current, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 2.0)
 
-      // 55% -> 70% : Scene B holds
-
-      // 70% -> 82% : Transition to Scene C (Data — dusty iris headline)
+      // 70% → 82% : Scene B exits, Scene C (GROWTH — ember accent)
       tl.to(sceneBRef.current, { opacity: 0, y: -20, duration: 0.6, ease: 'power2.in' }, 2.9)
         .to(stageRef.current, { rotateY: 15, rotateX: 4, duration: 0.8, ease: 'power2.inOut' }, 2.9)
         .to(layer1Ref.current, { z: 40, duration: 0.8, ease: 'power2.inOut' }, 2.9)
@@ -84,7 +76,7 @@ export default function CinematicStack() {
         .to(gridRef.current, { opacity: 0.6, duration: 0.6, ease: 'power2.out' }, 2.9)
         .to(sceneCRef.current, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 3.2)
 
-      // 82% -> 100% : Exit — everything fades, phone scales down
+      // 90% → 100% : Exit
       tl.to(sceneCRef.current, { opacity: 0, y: -20, duration: 0.6, ease: 'power2.in' }, 4.1)
         .to(stageRef.current, { scale: 0.7, opacity: 0, rotateY: 0, rotateX: 0, duration: 0.8, ease: 'power2.in' }, 4.2)
     }, wrap)
@@ -93,9 +85,9 @@ export default function CinematicStack() {
   }, [])
 
   return (
-    <section ref={wrapRef} className="relative w-full bg-obsidian" style={{ height: '400vh' }}>
+    <section ref={wrapRef} className="relative w-full bg-vc-ink" style={{ height: '400vh' }}>
       <div ref={stickyRef} className="relative w-full h-screen overflow-hidden">
-        {/* Ambient technical grid background */}
+        {/* Ambient technical grid */}
         <div
           ref={gridRef}
           className="absolute inset-0 opacity-30 pointer-events-none"
@@ -106,135 +98,178 @@ export default function CinematicStack() {
           }}
         />
 
-        {/* Perspective stage */}
+        {/* Perspective stage — "the product surface" */}
         <div className="absolute inset-0 flex items-center justify-center perspective-scene">
-          <div ref={stageRef} className="relative preserve-3d will-animate" style={{ width: 320, height: 640 }}>
-            {/* Layer 4: back data grid (deepest) */}
+          <div ref={stageRef} className="relative preserve-3d will-animate" style={{ width: 380, height: 560 }}>
+            {/* Layer 4: deepest — blueprint grid */}
             <div
               ref={layer4Ref}
-              className="absolute inset-0 rounded-[40px] preserve-3d"
+              className="absolute inset-0 rounded-[28px] preserve-3d"
               style={{
-                background:
-                  'linear-gradient(180deg, rgba(30,42,50,0.9) 0%, rgba(10,15,20,0.9) 100%)',
+                background: 'linear-gradient(180deg, rgba(30,42,50,0.9) 0%, rgba(10,15,20,0.9) 100%)',
                 border: '1px solid rgba(255,255,255,0.08)',
               }}
             >
-              <svg viewBox="0 0 320 640" className="w-full h-full opacity-40">
-                {Array.from({ length: 20 }).map((_, i) => (
-                  <line key={`h${i}`} x1={0} y1={i * 32} x2={320} y2={i * 32} stroke="#5eead4" strokeWidth={0.3} />
+              <svg viewBox="0 0 380 560" className="w-full h-full opacity-40">
+                {Array.from({ length: 18 }).map((_, i) => (
+                  <line key={`h${i}`} x1={0} y1={i * 32} x2={380} y2={i * 32} stroke="#5eead4" strokeWidth={0.3} />
                 ))}
-                {Array.from({ length: 10 }).map((_, i) => (
-                  <line key={`v${i}`} x1={i * 32} y1={0} x2={i * 32} y2={640} stroke="#5eead4" strokeWidth={0.3} />
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <line key={`v${i}`} x1={i * 32} y1={0} x2={i * 32} y2={560} stroke="#5eead4" strokeWidth={0.3} />
                 ))}
               </svg>
             </div>
 
-            {/* Layer 3: annotation grid mid-back */}
+            {/* Layer 3: code / architecture nodes */}
             <div
               ref={layer3Ref}
-              className="absolute inset-4 rounded-[36px] preserve-3d overflow-hidden"
-              style={{
-                background: 'rgba(0,0,0,0.6)',
-                border: '1px solid rgba(255,255,255,0.12)',
-              }}
+              className="absolute inset-4 rounded-[24px] preserve-3d overflow-hidden"
+              style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}
             >
-              <svg viewBox="0 0 300 600" className="w-full h-full">
-                {/* fake data points */}
-                {Array.from({ length: 24 }).map((_, i) => {
-                  const x = 20 + (i * 37) % 260
-                  const y = 40 + Math.floor(i / 7) * 90
+              <svg viewBox="0 0 360 520" className="w-full h-full">
+                {/* Code-like lines */}
+                {Array.from({ length: 14 }).map((_, i) => {
+                  const w = 60 + (i * 47) % 220
+                  const color = i % 4 === 0 ? '#E85D2C' : i % 3 === 0 ? '#79648c' : 'rgba(255,255,255,0.5)'
                   return (
-                    <g key={`dp${i}`} opacity={0.7}>
-                      <circle cx={x} cy={y} r={2} fill="#79648c" />
-                      <text x={x + 6} y={y + 3} fill="#79648c" fontSize={7} fontFamily="monospace">
-                        {(0.4 + (i * 0.037) % 0.6).toFixed(2)}
+                    <g key={`code-${i}`} opacity={0.85}>
+                      <text x={30} y={40 + i * 28} fill={color} fontSize={11} fontFamily="var(--font-mono), monospace">
+                        {i % 4 === 0 ? 'export' : i % 3 === 0 ? 'const' : i % 2 === 0 ? 'return' : 'function'}
                       </text>
+                      <rect x={95} y={30 + i * 28} width={w} height={4} fill={color} opacity={0.4} />
                     </g>
                   )
                 })}
+                {/* Connection nodes on the right */}
+                {[80, 160, 240, 320, 400].map((y, i) => (
+                  <g key={`node-${i}`}>
+                    <circle cx={310} cy={y} r={4} fill="#79648c" opacity={0.8} />
+                    <line x1={280} y1={y} x2={306} y2={y} stroke="#79648c" strokeWidth={0.6} opacity={0.5} />
+                  </g>
+                ))}
               </svg>
             </div>
 
-            {/* Layer 2: mid — annotations + bounding boxes */}
+            {/* Layer 2: UI wireframe overlay */}
             <div
               ref={layer2Ref}
-              className="absolute inset-8 rounded-[30px] preserve-3d overflow-hidden"
-              style={{ background: 'rgba(0,0,0,0.35)' }}
+              className="absolute inset-10 rounded-[20px] preserve-3d overflow-hidden"
+              style={{ background: 'rgba(15,15,20,0.72)', border: '1px solid rgba(255,255,255,0.14)' }}
             >
-              <svg viewBox="0 0 100 200" className="w-full h-full" preserveAspectRatio="none">
-                <rect x="18" y="70" width="40" height="25" fill="none" stroke="#3B82F6" strokeWidth={0.5} />
-                <rect x="62" y="78" width="20" height="14" fill="none" stroke="#F97316" strokeWidth={0.5} />
-                <rect x="8"  y="80" width="14" height="10" fill="none" stroke="#F97316" strokeWidth={0.5} />
-                <rect x="70" y="55" width="12" height="9"  fill="none" stroke="#F97316" strokeWidth={0.5} />
+              <svg viewBox="0 0 340 480" className="w-full h-full">
+                {/* Header bar */}
+                <rect x={20} y={22} width={80} height={12} rx={3} fill="rgba(255,255,255,0.7)" />
+                <rect x={280} y={22} width={40} height={12} rx={3} fill="rgba(232,93,44,0.9)" />
+                {/* Content blocks */}
+                <rect x={20} y={60} width={300} height={90} rx={6} fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth={0.8} strokeDasharray="3 3" />
+                <rect x={20} y={170} width={140} height={100} rx={6} fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth={0.8} strokeDasharray="3 3" />
+                <rect x={180} y={170} width={140} height={100} rx={6} fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth={0.8} strokeDasharray="3 3" />
+                <rect x={20} y={290} width={300} height={60} rx={6} fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth={0.8} strokeDasharray="3 3" />
+                <rect x={20} y={370} width={200} height={22} rx={11} fill="rgba(255,255,255,0.9)" />
               </svg>
             </div>
 
-            {/* Layer 1: front — actual photo screen */}
+            {/* Layer 1: front — polished product surface (dashboard) */}
             <div
               ref={layer1Ref}
-              className="absolute inset-10 rounded-[26px] overflow-hidden preserve-3d"
-              style={{
-                boxShadow: '0 0 80px rgba(0,0,0,0.6), 0 0 0 2px rgba(255,255,255,0.06)',
-              }}
+              className="absolute inset-14 rounded-[16px] overflow-hidden preserve-3d"
+              style={{ boxShadow: '0 0 80px rgba(0,0,0,0.7), 0 0 0 1.5px rgba(255,255,255,0.08)' }}
             >
-              <div
-                className="absolute inset-0"
-                style={{
-                  backgroundImage: `url(${PHONE_SCREEN})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  filter: 'brightness(0.85) contrast(1.1) saturate(0.9)',
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40" />
+              {/* Dashboard mockup: gradient bg + fake analytics */}
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0E0E10 0%, #1a1a24 55%, #2a1810 100%)' }} />
+              <div className="absolute inset-0 opacity-90">
+                <svg viewBox="0 0 300 420" className="w-full h-full">
+                  {/* Top nav */}
+                  <rect x={16} y={16} width={70} height={8} rx={2} fill="rgba(255,255,255,0.9)" />
+                  <circle cx={280} cy={20} r={4} fill="#E85D2C" />
+                  {/* Big number */}
+                  <text x={20} y={80} fill="#fff" fontSize={28} fontFamily="var(--font-aeonik), sans-serif" fontWeight="400" letterSpacing="-0.02em">$482,940</text>
+                  <text x={20} y={100} fill="#E85D2C" fontSize={10} fontFamily="var(--font-mono), monospace">↗ +18.4%</text>
+                  {/* Growth chart line */}
+                  <path
+                    d="M 20,220 L 55,205 L 90,215 L 125,180 L 160,190 L 195,150 L 230,155 L 265,120 L 280,110"
+                    fill="none"
+                    stroke="#E85D2C"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M 20,220 L 55,205 L 90,215 L 125,180 L 160,190 L 195,150 L 230,155 L 265,120 L 280,110 L 280,240 L 20,240 Z"
+                    fill="url(#emberGradient)"
+                    opacity={0.3}
+                  />
+                  <defs>
+                    <linearGradient id="emberGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#E85D2C" stopOpacity="0.6" />
+                      <stop offset="100%" stopColor="#E85D2C" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  {/* Bars */}
+                  {[280, 300, 320, 340, 360, 380].map((y, i) => (
+                    <rect key={`bar-${i}`} x={20 + i * 45} y={y} width={30} height={400 - y} rx={2} fill={i === 3 ? '#E85D2C' : 'rgba(255,255,255,0.35)'} />
+                  ))}
+                </svg>
+              </div>
+              {/* Vignette */}
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30" />
             </div>
           </div>
         </div>
 
-        {/* Scene A: Reliable AI has no shortcuts (top-left) */}
+        {/* ---------------- Scene A: 01 DESIGN ---------------- */}
         <div
           ref={sceneARef}
           className="absolute z-10 top-1/2 -translate-y-1/2 left-6 md:left-16 max-w-[440px] px-4"
         >
-          <h2 className="font-aeonik font-normal text-pure-white" style={{ fontSize: 'clamp(28px, 3.6vw, 44px)', lineHeight: 1.1, letterSpacing: '-0.01em' }}>
-            Reliable AI has no shortcuts.
+          <Eyebrow tone="light" className="text-pure-white/60">01 — DESIGN</Eyebrow>
+          <h2
+            className="mt-4 text-pure-white leading-[1.08]"
+            style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(30px, 3.8vw, 48px)', letterSpacing: '-0.01em' }}
+          >
+            We shape the <span className="italic text-pure-white/75">interface</span>.
           </h2>
           <p className="mt-5 text-body text-pure-white/70">
-            Scale works across the AI stack, from the data that trains the models you rely on, to the systems that put them to work. Humans stay in the loop.
+            Every product starts as a rough idea. We turn it into pixel-tight interfaces, motion systems, and design decisions your users can actually feel.
           </p>
         </div>
 
-        {/* Scene B: Applications */}
+        {/* ---------------- Scene B: 02 ENGINEERING & AUTOMATION ---------------- */}
         <div
           ref={sceneBRef}
-          className="absolute z-10 top-1/2 -translate-y-1/2 left-6 md:left-16 max-w-[440px] px-4"
+          className="absolute z-10 top-1/2 -translate-y-1/2 left-6 md:left-16 max-w-[460px] px-4"
         >
-          <Eyebrow tone="light" className="text-pure-white/70">APPLICATIONS</Eyebrow>
-          <h2 className="mt-3 font-aeonik font-normal text-pure-white" style={{ fontSize: 'clamp(28px, 3.6vw, 44px)', lineHeight: 1.1, letterSpacing: '-0.01em' }}>
-            AI systems that actually work.
+          <Eyebrow tone="light" className="text-pure-white/60">02 — ENGINEERING & AUTOMATION</Eyebrow>
+          <h2
+            className="mt-4 text-pure-white leading-[1.08]"
+            style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(30px, 3.8vw, 48px)', letterSpacing: '-0.01em' }}
+          >
+            We turn design into <span className="italic text-pure-white/75">working systems</span>.
           </h2>
           <p className="mt-5 text-body text-pure-white/70">
-            Most AI deployments in enterprise and government fail. We find the right use case, build the system, and own the outcome.
+            Custom software, high-performance web, automated workflows, AI integrations. Whatever the stack, we ship production-grade systems that hold up in the real world.
           </p>
-          <div className="mt-6">
-            <Button variant="filled-light" href="#">For Enterprise</Button>
+          <div className="mt-7">
+            <Button variant="filled-light" href="/why-us">How we build</Button>
           </div>
         </div>
 
-        {/* Scene C: Data */}
+        {/* ---------------- Scene C: 03 GROWTH & SCALE (ember accent) ---------------- */}
         <div
           ref={sceneCRef}
-          className="absolute z-10 top-1/2 -translate-y-1/2 right-6 md:right-16 max-w-[440px] px-4 text-right"
+          className="absolute z-10 top-1/2 -translate-y-1/2 right-6 md:right-16 max-w-[460px] px-4 text-right"
         >
-          <Eyebrow tone="light" className="text-pure-white/70">DATA</Eyebrow>
-          <h2 className="mt-3 font-aeonik font-normal" style={{ fontSize: 'clamp(28px, 3.6vw, 44px)', lineHeight: 1.1, letterSpacing: '-0.01em', color: '#79648c' }}>
-            The data powering the world&apos;s best AI.
+          <Eyebrow tone="light" className="text-pure-white/60">03 — GROWTH & SCALE</Eyebrow>
+          <h2
+            className="mt-4 leading-[1.08]"
+            style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(30px, 3.8vw, 48px)', letterSpacing: '-0.01em', color: '#E85D2C' }}
+          >
+            And we help them <span className="italic" style={{ color: '#FFD9B8' }}>grow</span>.
           </h2>
           <p className="mt-5 text-body text-pure-white/70">
-            The models at the frontier run on Scale data. We source contributions from the world&apos;s most sophisticated experts across every domain.
+            Performance marketing, analytics, iterative optimization. We stay with the product after launch — because building is only half the job.
           </p>
-          <div className="mt-6 flex justify-end">
-            <Button variant="filled-light" href="#">For Data Teams</Button>
+          <div className="mt-7 flex justify-end">
+            <Button variant="filled-light" href="/digital-marketing">See growth work</Button>
           </div>
         </div>
       </div>

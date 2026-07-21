@@ -8,18 +8,23 @@ export default function BenchmarkStatement() {
       <div className="max-w-page mx-auto">
         <WordReveal
           as="h2"
-          text="We set the benchmark for what's possible with AI."
-          className="font-aeonik font-normal max-w-[1080px]"
+          text="We design, build and scale the systems businesses run on."
+          className="max-w-[1080px]"
           stagger={0.06}
         />
       </div>
 
       <style jsx>{`
         section :global(h2) {
+          font-family: var(--font-instrument);
+          font-weight: 400;
           font-size: clamp(36px, 5.5vw, 64px);
           line-height: 1.05;
-          letter-spacing: -0.01em;
-          color: #79648c;
+          letter-spacing: -0.012em;
+          color: #0E0E10;
+        }
+        section :global(h2 .wr-inner) {
+          /* nothing extra */
         }
       `}</style>
     </section>

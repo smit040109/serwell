@@ -2,136 +2,158 @@
 
 import { useEffect, useRef } from 'react'
 import { gsap, ScrollTrigger } from '@/lib/gsap'
-import WordReveal from '@/components/animation/WordReveal'
 import ScrollPrompt from '@/components/ui-scale/ScrollPrompt'
 
-// PLACEHOLDER — replace with Scale.com's original hero video/image if licensed later
-const HERO_BG = 'https://images.pexels.com/photos/8913522/pexels-photo-8913522.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop'
-
-// SVG bounding boxes with labels (simulating autonomous vehicle perception)
-const boxes = [
-  { id: 'primary', x: 32, y: 55, w: 30, h: 18, color: '#3B82F6', label: null }, // main car
-  { id: 'b1', x: 8,  y: 60, w: 14, h: 10, color: '#F97316', label: 'Sedan' },
-  { id: 'b2', x: 70, y: 62, w: 12, h: 10, color: '#F97316', label: 'Truck' },
-  { id: 'b3', x: 82, y: 45, w: 10, h: 8,  color: '#F97316', label: 'Van' },
-  { id: 'b4', x: 20, y: 45, w: 9,  h: 8,  color: '#F97316', label: 'Sedan' },
-]
-
+// VayuCodes hero — cinematic dark canvas with a technical grid + node overlay
+// (represents the "digital systems" VayuCodes builds, not a car street scene)
 export default function HeroFullBleed() {
   const rootRef = useRef(null)
   const bgRef = useRef(null)
   const svgRef = useRef(null)
+  const titleRef = useRef(null)
+  const italicRef = useRef(null)
+  const kickerRef = useRef(null)
+  const subRef = useRef(null)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Bounding boxes draw-in on load
-      const rects = svgRef.current?.querySelectorAll('.bb-rect')
-      const labels = svgRef.current?.querySelectorAll('.bb-label')
-      if (rects && rects.length) {
-        gsap.fromTo(rects,
-          { strokeDashoffset: 500, opacity: 0 },
-          { strokeDashoffset: 0, opacity: 1, duration: 1.1, ease: 'power2.out', stagger: 0.12, delay: 0.35 }
+      // Cinematic entrance for headline (Instrument Serif italic word matches VayuCodes brand)
+      gsap.set([kickerRef.current, titleRef.current, italicRef.current, subRef.current], { opacity: 0 })
+      gsap.set([titleRef.current, italicRef.current, subRef.current], { y: 40 })
+
+      const tl = gsap.timeline({ delay: 0.4 })
+      tl.to(kickerRef.current, { opacity: 1, duration: 0.8, ease: 'power2.out' })
+        .to(titleRef.current, { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' }, '-=0.4')
+        .to(italicRef.current, { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' }, '-=0.85')
+        .to(subRef.current, { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out' }, '-=0.5')
+
+      // Technical overlay draw-in
+      const lines = svgRef.current?.querySelectorAll('.tech-line')
+      const nodes = svgRef.current?.querySelectorAll('.tech-node')
+      const labels = svgRef.current?.querySelectorAll('.tech-label')
+      if (lines?.length) {
+        gsap.fromTo(lines,
+          { strokeDashoffset: 400, opacity: 0 },
+          { strokeDashoffset: 0, opacity: 1, duration: 1.3, ease: 'power2.out', stagger: 0.08, delay: 0.7 }
         )
       }
-      if (labels && labels.length) {
-        gsap.fromTo(labels,
-          { opacity: 0, y: -4 },
-          { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', stagger: 0.12, delay: 0.9 }
-        )
+      if (nodes?.length) {
+        gsap.fromTo(nodes, { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(2)', stagger: 0.06, delay: 1.2 })
+      }
+      if (labels?.length) {
+        gsap.fromTo(labels, { opacity: 0, y: -4 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, delay: 1.5 })
       }
 
-      // Parallax the background image as user scrolls
+      // Parallax the ambient bg on scroll
       gsap.to(bgRef.current, {
-        yPercent: 12,
+        yPercent: 15,
         ease: 'none',
-        scrollTrigger: {
-          trigger: rootRef.current,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: true,
-        },
+        scrollTrigger: { trigger: rootRef.current, start: 'top top', end: 'bottom top', scrub: true },
       })
     }, rootRef)
 
     return () => ctx.revert()
   }, [])
 
-  return (
-    <section ref={rootRef} className="relative w-full h-screen min-h-[640px] overflow-hidden bg-obsidian">
-      {/* Background photo */}
-      <div
-        ref={bgRef}
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `url(${HERO_BG})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          filter: 'saturate(0.75) brightness(0.55) contrast(1.05)',
-        }}
-      />
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/25 to-black/70" />
+  // Nodes representing DESIGN / ENGINEERING / AUTOMATION / GROWTH pillars
+  const techNodes = [
+    { id: 'design',     x: 22, y: 32, label: 'DESIGN' },
+    { id: 'engineering',x: 74, y: 28, label: 'ENGINEERING' },
+    { id: 'automation', x: 82, y: 68, label: 'AUTOMATION' },
+    { id: 'growth',     x: 18, y: 72, label: 'GROWTH' },
+  ]
+  // Central hub — idea
+  const hub = { x: 50, y: 50 }
 
-      {/* SVG bounding boxes overlay */}
+  return (
+    <section ref={rootRef} className="relative w-full h-screen min-h-[720px] overflow-hidden bg-vc-ink">
+      {/* Ambient gradient canvas — dark to slightly warm */}
+      <div ref={bgRef} className="absolute inset-0">
+        <div className="absolute inset-0" style={{
+          background: 'radial-gradient(ellipse 70% 55% at 50% 45%, rgba(232,93,44,0.14) 0%, rgba(232,93,44,0.05) 25%, transparent 60%)',
+        }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70" />
+        {/* Faint grid pattern */}
+        <div className="absolute inset-0 opacity-[0.06]" style={{
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)',
+          backgroundSize: '60px 60px',
+        }} />
+        {/* Film grain */}
+        <div className="absolute inset-0 opacity-[0.06] mix-blend-overlay pointer-events-none" style={{
+          backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")"
+        }} />
+      </div>
+
+      {/* Technical node network overlay — DESIGN / ENGINEERING / AUTOMATION / GROWTH */}
       <svg
         ref={svgRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
       >
-        {boxes.map(b => (
-          <g key={b.id}>
-            <rect
-              className="bb-rect"
-              x={b.x} y={b.y} width={b.w} height={b.h}
-              fill="none"
-              stroke={b.color}
-              strokeWidth={0.18}
-              strokeDasharray="500"
-              vectorEffect="non-scaling-stroke"
-              style={{ filter: 'drop-shadow(0 0 4px rgba(0,0,0,0.5))' }}
-            />
-            {b.label && (
-              <g className="bb-label">
-                <rect x={b.x} y={b.y - 2.5} width={b.label.length * 1.2 + 1} height={2.2} fill={b.color} vectorEffect="non-scaling-stroke" />
-                <text
-                  x={b.x + 0.5} y={b.y - 0.8}
-                  fill="#fff"
-                  fontSize={1.4}
-                  fontFamily="var(--font-mono)"
-                  letterSpacing="0.08em"
-                  style={{ textTransform: 'uppercase' }}
-                >
-                  {b.label}
-                </text>
-              </g>
-            )}
+        {/* Connective lines from hub to each node */}
+        {techNodes.map(n => (
+          <line
+            key={`l-${n.id}`}
+            className="tech-line"
+            x1={hub.x} y1={hub.y} x2={n.x} y2={n.y}
+            stroke="rgba(255,255,255,0.3)"
+            strokeWidth={0.12}
+            strokeDasharray="400"
+            vectorEffect="non-scaling-stroke"
+          />
+        ))}
+        {/* Hub */}
+        <circle className="tech-node" cx={hub.x} cy={hub.y} r={0.9} fill="#E85D2C" />
+        <circle className="tech-node" cx={hub.x} cy={hub.y} r={2.4} fill="none" stroke="rgba(232,93,44,0.5)" strokeWidth={0.15} vectorEffect="non-scaling-stroke" />
+        {/* Outer nodes + labels */}
+        {techNodes.map(n => (
+          <g key={`n-${n.id}`}>
+            <circle className="tech-node" cx={n.x} cy={n.y} r={0.6} fill="#fff" />
+            <g className="tech-label">
+              <text
+                x={n.x} y={n.y - 2}
+                fill="rgba(255,255,255,0.75)"
+                fontSize={1.4}
+                fontFamily="var(--font-mono)"
+                letterSpacing="0.12em"
+                textAnchor="middle"
+                style={{ textTransform: 'uppercase' }}
+              >
+                {n.label}
+              </text>
+            </g>
           </g>
         ))}
       </svg>
 
-      {/* Headline */}
-      <div className="relative z-10 h-full w-full flex items-center justify-center px-6">
-        <WordReveal
-          as="h1"
-          text="The world's most important decisions need reliable AI systems."
-          className="font-aeonik font-normal text-pure-white text-center max-w-[1000px]"
-          stagger={0.055}
-          delay={0.25}
-          trigger={false}
-        />
+      {/* Headline block */}
+      <div className="relative z-10 h-full w-full flex flex-col items-center justify-center px-6 text-center">
+        <div ref={kickerRef} className="eyebrow text-pure-white/60 mb-6">
+          <span className="inline-flex items-center gap-3">
+            <span className="w-8 h-px bg-pure-white/40" />
+            An independent studio
+            <span className="w-8 h-px bg-pure-white/40" />
+          </span>
+        </div>
+
+        <h1
+          className="text-pure-white leading-[1.02] max-w-[1100px]"
+          style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(36px, 5.8vw, 82px)', letterSpacing: '-0.012em' }}
+        >
+          <span ref={titleRef} className="block">Engineering digital systems for</span>
+          <span ref={italicRef} className="block italic text-pure-white/80">businesses built to move forward.</span>
+        </h1>
+
+        <p
+          ref={subRef}
+          className="mt-8 max-w-[620px] text-pure-white/65 text-body"
+        >
+          We design, build and scale premium digital products — combining design, engineering, AI and automation into systems your business can rely on.
+        </p>
       </div>
 
-      {/* Inline style for the H1 sizing */}
-      <style jsx>{`
-        section :global(h1) {
-          font-size: clamp(36px, 5.4vw, 64px);
-          line-height: 1.05;
-          letter-spacing: -0.01em;
-        }
-      `}</style>
-
-      {/* Scroll prompt */}
+      {/* Scroll prompt bottom-right */}
       <ScrollPrompt className="absolute bottom-8 right-8 z-10" />
     </section>
   )

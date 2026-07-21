@@ -1,35 +1,35 @@
 import Eyebrow from '@/components/ui-scale/Eyebrow'
 import RevealOnScroll from '@/components/animation/RevealOnScroll'
 
-// Text-based logo placeholders (mono, high-contrast)
-const partners = [
-  { name: 'META',          style: 'font-black tracking-tight' },
-  { name: 'Microsoft',     style: 'font-normal tracking-tight' },
-  { name: 'OpenAI',        style: 'font-medium tracking-tight' },
-  { name: 'Anthropic',     style: 'font-medium tracking-tight' },
-  { name: 'NVIDIA',        style: 'font-black tracking-widest' },
-  { name: 'Morgan Stanley',style: 'font-normal tracking-tight' },
-  { name: 'Toyota',        style: 'font-normal tracking-wider uppercase' },
-  { name: 'Deloitte',      style: 'font-medium tracking-tight' },
-  { name: 'US Army',       style: 'font-black tracking-widest uppercase' },
-  { name: 'Mayo Clinic',   style: 'font-normal tracking-tight' },
+// Tools / tech VayuCodes builds with. Honest — no fake clients.
+const tech = [
+  { name: 'React',      style: 'font-medium' },
+  { name: 'Next.js',    style: 'font-medium tracking-tight' },
+  { name: 'TypeScript', style: 'font-medium tracking-tight' },
+  { name: 'Node',       style: 'font-medium' },
+  { name: 'Python',     style: 'font-medium tracking-tight' },
+  { name: 'Tailwind',   style: 'font-medium tracking-tight' },
+  { name: 'GSAP',       style: 'font-black tracking-wide uppercase' },
+  { name: 'Framer',     style: 'font-medium tracking-tight' },
+  { name: 'Figma',      style: 'font-medium tracking-tight' },
+  { name: 'OpenAI',     style: 'font-medium tracking-tight' },
 ]
 
 export default function PartnerLogoGrid() {
   return (
-    <section className="bg-pure-white py-20 md:py-28 px-6 md:px-8">
+    <section className="bg-pure-white py-20 md:py-24 px-6 md:px-8">
       <div className="max-w-page mx-auto">
-        <div className="text-center mb-14">
-          <Eyebrow tone="muted">Trusted by the world&apos;s leaders</Eyebrow>
+        <div className="text-center mb-12">
+          <Eyebrow tone="muted">Built with tools we love</Eyebrow>
         </div>
 
-        <RevealOnScroll y={20} stagger={0.06} className="grid grid-cols-2 md:grid-cols-5 gap-x-8 gap-y-10 items-center justify-items-center">
-          {partners.map(p => (
+        <RevealOnScroll y={20} stagger={0.05} className="grid grid-cols-2 md:grid-cols-5 gap-x-8 gap-y-10 items-center justify-items-center">
+          {tech.map(t => (
             <div
-              key={p.name}
-              className={`text-graphite text-[20px] md:text-[22px] ${p.style} grayscale hover:text-obsidian transition-colors cursor-default`}
+              key={t.name}
+              className={`text-graphite text-[20px] md:text-[22px] ${t.style} hover:text-vc-ink transition-colors cursor-default select-none`}
             >
-              {p.name}
+              {t.name}
             </div>
           ))}
         </RevealOnScroll>

@@ -36,6 +36,15 @@ module.exports = {
         'dusty-iris': '#79648c',
         'slate-blue': '#839cb2',
 
+        // VayuCodes brand palette (from Shared.js COLORS)
+        'vc-ink': '#0E0E10',
+        'vc-bone': '#F4F1EA',
+        'vc-ember': '#E85D2C',
+        'vc-amber': '#FF8A3D',
+        'vc-cream': '#FFD9B8',
+        'vc-ash': '#3A3A3A',
+        'vc-mist': '#A8A29E',
+
         // Legacy shadcn tokens preserved for existing pages
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

@@ -1,3 +1,6 @@
+'use client'
+
+import { LandingFlow } from '@/components/site/Shared'
 import Navbar from '@/components/scale/Navbar'
 import Footer from '@/components/scale/Footer'
 import HeroFullBleed from '@/components/scale/sections/HeroFullBleed'
@@ -13,19 +16,21 @@ import LegacyCTA from '@/components/scale/sections/LegacyCTA'
 
 export default function Home() {
   return (
-    <main className="relative bg-pure-white text-obsidian overflow-x-hidden">
-      <Navbar />
-      <HeroFullBleed />
-      <CinematicStack />
-      <StatBlock />
-      <RealAutonomyGrid />
-      <PartnerLogoGrid />
-      <ProvenIndustryCarousel />
-      <BenchmarkStatement />
-      <ThreePillars />
-      <NewsGrid />
-      <LegacyCTA />
-      <Footer />
-    </main>
+    <LandingFlow>
+      <div className="relative bg-pure-white text-vc-ink overflow-x-hidden">
+        <Navbar />
+        <HeroFullBleed />
+        <CinematicStack />
+        <StatBlock />
+        <RealAutonomyGrid />
+        <PartnerLogoGrid />
+        <ProvenIndustryCarousel />
+        <BenchmarkStatement />
+        <ThreePillars />
+        <NewsGrid />
+        <LegacyCTA />
+        <Footer />
+      </div>
+    </LandingFlow>
   )
 }
