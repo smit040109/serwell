@@ -65,6 +65,39 @@ export default function HeroFullBleed() {
       ref={rootRef}
       className="relative w-full min-h-screen h-screen min-h-[720px] overflow-hidden bg-vc-ink text-pure-white"
     >
+      {/* --- Cinematic video background --- */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{
+          filter: 'grayscale(1) brightness(0.85) contrast(1.2)',
+        }}
+      >
+        <source src="/videos/p1.mp4" type="video/mp4" />
+        <source src="/videos/p2.mp4" type="video/mp4" />
+      </video>
+
+      {/* Dark vignette \u2014 lighter around the video, darker at edges + behind text */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(ellipse 90% 70% at 50% 50%, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.85) 100%)',
+        }}
+      />
+      {/* Center focus behind headline for max legibility */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(ellipse 45% 40% at 50% 50%, rgba(0,0,0,0.55) 0%, transparent 70%)',
+        }}
+      />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/45 via-transparent to-black/70" />
       {/* --- Soft monochrome nebula blobs --- */}
       <motion.div
         className="pointer-events-none absolute rounded-full blur-[110px] opacity-[0.10]"
@@ -141,44 +174,50 @@ export default function HeroFullBleed() {
           style={{ rotateX: tiltX, rotateY: tiltY, transformStyle: 'preserve-3d' }}
           className="max-w-[1180px]"
         >
-          {/* Kicker — minimal, no icon color */}
+          {/* Kicker — prominent, backdrop panel to survive over video */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35, duration: 0.9 }}
-            className="inline-flex items-center gap-3 mb-8 px-4 py-1.5 rounded-full border border-white/15 bg-white/[0.04] backdrop-blur"
-            style={{ transform: 'translateZ(60px)' }}
+            className="inline-flex items-center gap-3 mb-8 px-5 py-2 rounded-full border border-white/30 bg-black/45 backdrop-blur-md"
+            style={{ transform: 'translateZ(60px)', boxShadow: '0 8px 32px rgba(0,0,0,0.35)' }}
           >
-            <span className="w-1 h-1 rounded-full bg-white/60" />
-            <span className="eyebrow text-pure-white/70">An independent studio · Available Q3 2026</span>
-            <span className="w-1 h-1 rounded-full bg-white/60" />
+            <span className="w-1.5 h-1.5 rounded-full bg-white" />
+            <span className="eyebrow text-pure-white">An independent studio · Available Q3 2026</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-white" />
           </motion.div>
 
-          {/* Headline — word-by-word 3D flip reveal */}
+          {/* Headline — bright, sharp, with subtle glow so it stays crisp over video */}
           <h1
             className="text-pure-white leading-[1.02] max-w-[1180px] mx-auto"
             style={{
               fontFamily: 'var(--font-instrument)',
               fontWeight: 400,
-              fontSize: 'clamp(38px, 6.4vw, 96px)',
-              letterSpacing: '-0.015em',
+              fontSize: 'clamp(42px, 6.8vw, 104px)',
+              letterSpacing: '-0.018em',
               transform: 'translateZ(80px)',
+              textShadow: '0 4px 40px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4)',
             }}
           >
             <WordFlip words={['We', 'design,', 'engineer', '&', 'scale']} delay={0.55} />
-            <span className="italic text-pure-white/70 block mt-1">
+            <span className="italic block mt-1 text-pure-white">
               digital&nbsp;
               <AccentSwap words={HEADLINE_ACCENT_WORDS} index={accentIdx} />
             </span>
           </h1>
 
-          {/* Sub */}
+          {/* Sub — stronger contrast + text-shadow for legibility */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.55, duration: 0.9 }}
-            className="mt-8 max-w-[640px] mx-auto text-pure-white/55 text-body"
-            style={{ transform: 'translateZ(40px)' }}
+            className="mt-8 max-w-[680px] mx-auto text-pure-white/90"
+            style={{
+              transform: 'translateZ(40px)',
+              textShadow: '0 2px 20px rgba(0,0,0,0.7)',
+              fontSize: '18px',
+              lineHeight: 1.55,
+            }}
           >
             An independent studio combining design, engineering, AI and automation into digital systems your business can rely on.
           </motion.p>
