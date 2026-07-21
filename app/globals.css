@@ -24,20 +24,20 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #F4F1EA;
+  background: #F7F6F3;
 }
 
 body {
   font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   letter-spacing: -0.011em;
-  background: #F4F1EA;
+  background: #F7F6F3;
 }
 
 /* Refined editorial scrollbar */
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #F4F1EA; }
-::-webkit-scrollbar-thumb { background: #0E0E10; border-radius: 8px; }
-::-webkit-scrollbar-thumb:hover { background: #E85D2C; }
+::-webkit-scrollbar-track { background: #F7F6F3; }
+::-webkit-scrollbar-thumb { background: #111111; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #333333; }
 
 .text-balance { text-wrap: balance; }
 
@@ -74,12 +74,12 @@ iframe[src*="emergent" i]:not([src*="preview.emergentagent" i]):not([src*="custo
 
 /* Selection color */
 ::selection {
-  background: #E85D2C;
-  color: #F4F1EA;
+  background: #111111;
+  color: #F7F6F3;
 }
 
 /* Refined focus rings */
 *:focus-visible {
-  outline: 2px solid #E85D2C;
+  outline: 2px solid #111111;
   outline-offset: 2px;
 }

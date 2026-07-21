@@ -1,0 +1,30 @@
+{
+  "page": "home",
+  "type": "animatedStats",
+  "order": 5,
+  "isVisible": true,
+  "content": {
+    "stats": [
+      {
+        "num": 150,
+        "suffix": "+",
+        "label": "Projects Shipped"
+      },
+      {
+        "num": 5,
+        "suffix": " yrs",
+        "label": "In the studio"
+      },
+      {
+        "num": 99,
+        "suffix": "%",
+        "label": "Client Satisfaction"
+      },
+      {
+        "num": 50,
+        "suffix": "+",
+        "label": "Brands Onboarded"
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "page": "home",
+  "type": "clientMarquee",
+  "order": 6,
+  "isVisible": true,
+  "content": {
+    "tag": "· Trusted by independent businesses across India",
+    "brands": [
+      "Nirvana",
+      "Sutra",
+      "Anaya",
+      "Bandhan",
+      "ChaiSnap",
+      "Saurav Studios",
+      "Vayu Mills",
+      "Patel Co.",
+      "Lumière",
+      "Athena",
+      "Indigo Bay",
+      "Sahyadri Group"
+    ]
+  }
+}

@@ -108,6 +108,13 @@ export default function StackedShowcase({ projects = PROJECTS }) {
   }, [])
 
   const scrollToCard = (idx) => {
+    if (idx === 0) {
+      const section = sectionRef.current
+      if (section) {
+        window.scrollTo({ top: section.offsetTop, behavior: 'smooth' })
+      }
+      return
+    }
     const spacer = spacerRefs.current[idx]
     if (spacer) {
       const top = spacer.offsetTop - NAV_HEIGHT
@@ -163,12 +170,14 @@ export default function StackedShowcase({ projects = PROJECTS }) {
       <div className="relative">
         {projects.map((p, i) => (
           <Fragment key={p.id}>
-            {/* Spacer — provides scroll room before this card */}
-            <div
-              ref={(el) => { spacerRefs.current[i] = el }}
-              className="h-screen w-full"
-              aria-hidden="true"
-            />
+            {/* Spacer — provides scroll room before this card (skip for first card, no gap after hero) */}
+            {i > 0 && (
+              <div
+                ref={(el) => { spacerRefs.current[i] = el }}
+                className="h-screen w-full"
+                aria-hidden="true"
+              />
+            )}
             {/* Card — sticky stack */}
             <div
               ref={(el) => { cardRefs.current[i] = el }}
@@ -280,8 +289,6 @@ export default function StackedShowcase({ projects = PROJECTS }) {
             </div>
           </Fragment>
         ))}
-        {/* Final spacer so last card can fully reveal */}
-        <div className="h-screen w-full" aria-hidden="true" />
       </div>
     </section>
   )

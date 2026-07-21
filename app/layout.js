@@ -1,4 +1,5 @@
 import './globals.css'
+import SmoothScroll from '@/components/site/SmoothScroll'
 import { Inter, Instrument_Serif, Cormorant_Garamond, Syne, Playfair_Display, Bebas_Neue } from 'next/font/google'
 
 const inter = Inter({
@@ -53,7 +54,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} ${instrument.variable} ${cormorant.variable} ${syne.variable} ${playfair.variable} ${bebas.variable}`}>
       <body className="font-sans antialiased bg-[#F4F1EA] text-[#0E0E10]">
-        {children}
+        <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>
   )

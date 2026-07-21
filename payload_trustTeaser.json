@@ -1,0 +1,30 @@
+{
+  "page": "home",
+  "type": "trustTeaser",
+  "order": 3,
+  "isVisible": true,
+  "content": {
+    "tag": "· Why Gujarat trusts vayucodes",
+    "titleLine1": "You don't need Mumbai.",
+    "titleItalic": "You need us.",
+    "linkText": "Read full story",
+    "linkHref": "/why-us",
+    "points": [
+      {
+        "icon": "MapPin",
+        "k": "Local Partners",
+        "v": "Right here in Valsad. Call us in Gujarati."
+      },
+      {
+        "icon": "Users",
+        "k": "Gujarat-Native",
+        "v": "We know your festive cycle, your customer."
+      },
+      {
+        "icon": "ShieldCheck",
+        "k": "One Partner",
+        "v": "No five vendors fighting each other."
+      }
+    ]
+  }
+}

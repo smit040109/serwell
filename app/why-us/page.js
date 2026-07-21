@@ -151,9 +151,9 @@ export default function WhyUsPage() {
     <PageWrapper darkHero={true}>
       <PageHero
         tag="· Why us"
-        title="You don't need Mumbai. You need a partner who picks up."
-        italicWord="who picks up."
-        subtitle="We're not a vendor. We're not an outsourced shop. We're the studio that sits across the table from you, drinks your chai, and treats your business growth like a personal commitment."
+        title="We're the partner you can count on."
+        italicWord="count on."
+        subtitle="Reliable, fast, and always by your side."
       />
       <TrustPillars />
       <Comparison />

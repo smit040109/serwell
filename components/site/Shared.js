@@ -46,7 +46,6 @@ export const PORTFOLIO_IMAGES = [
 
 export const NAV_LINKS = [
   { href: '/', label: 'Home' },
-  { href: '/services', label: 'Services' },
   { href: '/our-work', label: 'Our Work' },
   { href: '/digital-marketing', label: 'Marketing' },
   { href: '/why-us', label: 'Why Us' },
@@ -82,6 +81,20 @@ export function Tilt3DCard({ children, className = '', intensity = 12, perspecti
       {children}
     </motion.div>
   )
+}
+
+/* ============================================================
+   RESPONSIVE HELPER — detect mobile viewport for reduced 3D intensity
+============================================================ */
+export function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < breakpoint)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [breakpoint])
+  return isMobile
 }
 
 /* ============================================================
@@ -135,50 +148,34 @@ export function Wordmark({ className = '', light = false }) {
    NAVBAR — adaptive, route-aware
 ============================================================ */
 export function Navbar({ darkHero = false }) {
-  const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 80)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  const isDark = darkHero && !scrolled
 
   return (
     <motion.header
       initial={{ y: -30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
-      className={`fixed top-0 inset-x-0 z-40 transition-all duration-500 ${
-        scrolled
-          ? 'bg-[#F4F1EA]/85 backdrop-blur-xl border-b border-[#0E0E10]/8'
-          : darkHero ? 'bg-transparent' : 'bg-[#F4F1EA]/70 backdrop-blur-md'
-      }`}
+      className="fixed top-0 inset-x-0 z-40 bg-transparent"
+      style={{ mixBlendMode: 'difference' }}
     >
       <div className="max-w-[1500px] mx-auto flex justify-between items-center py-5 px-6 lg:px-10">
-        <Wordmark light={isDark} />
+        <Wordmark light={true} />
 
-        <nav className={`hidden md:flex items-center space-x-8 text-[11px] font-medium tracking-[0.18em] uppercase transition-colors ${
-          isDark ? 'text-white/70' : 'text-[#0E0E10]/70'
-        }`}>
+        <nav className="hidden md:flex items-center space-x-8 text-[11px] font-medium tracking-[0.18em] uppercase text-white/70">
           {NAV_LINKS.filter(l => l.href !== '/').slice(0, 5).map(l => {
             const active = pathname === l.href
             return (
               <Link
                 key={l.href}
                 href={l.href}
-                className={`relative transition-colors ${
-                  active ? (isDark ? 'text-white' : 'text-[#0E0E10]') : (isDark ? 'hover:text-white' : 'hover:text-[#0E0E10]')
-                }`}
+                className={`relative transition-colors ${active ? 'text-white' : 'hover:text-white'}`}
               >
                 {l.label}
                 {active && (
                   <motion.span
                     layoutId="nav-underline"
-                    className="absolute -bottom-1.5 left-0 right-0 h-px bg-[#E85D2C]"
+                    className="absolute -bottom-1.5 left-0 right-0 h-px bg-white"
                   />
                 )}
               </Link>
@@ -189,16 +186,12 @@ export function Navbar({ darkHero = false }) {
         <div className="flex items-center gap-4">
           <Link
             href="/contact"
-            className={`hidden sm:inline-flex text-[11px] font-semibold tracking-[0.18em] uppercase px-5 py-2.5 rounded-full transition-all border ${
-              isDark
-                ? 'bg-white text-[#0E0E10] border-white hover:bg-[#FFD9B8]'
-                : 'bg-[#0E0E10] text-white border-[#0E0E10] hover:bg-[#E85D2C] hover:border-[#E85D2C]'
-            }`}
+            className="hidden sm:inline-flex text-[11px] font-semibold tracking-[0.18em] uppercase px-5 py-2.5 rounded-full transition-all border bg-white text-[#111111] border-white hover:bg-[#E5E5E5]"
           >
             Start Project
           </Link>
           <button
-            className={`md:hidden p-2 ${isDark ? 'text-white' : 'text-[#0E0E10]'}`}
+            className="md:hidden p-2 text-white"
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
           >
@@ -213,7 +206,7 @@ export function Navbar({ darkHero = false }) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-[#0E0E10] border-t border-white/10 overflow-hidden"
+            className="md:hidden bg-[#111111] border-t border-white/10 overflow-hidden"
           >
             <div className="px-6 py-6 space-y-4">
               {NAV_LINKS.map(l => (
@@ -222,7 +215,7 @@ export function Navbar({ darkHero = false }) {
                   href={l.href}
                   onClick={() => setOpen(false)}
                   className={`block text-xl tracking-tight ${
-                    pathname === l.href ? 'text-[#E85D2C]' : 'text-white'
+                    pathname === l.href ? 'text-white/60' : 'text-white'
                   }`}
                   style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400 }}
                 >
@@ -242,9 +235,9 @@ export function Navbar({ darkHero = false }) {
 ============================================================ */
 export function Footer() {
   return (
-    <footer className="relative bg-[#0E0E10] text-white overflow-hidden">
-      <div className="pointer-events-none absolute -top-40 -right-40 w-[60vw] h-[60vw] rounded-full bg-[#E85D2C]/8 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -left-40 w-[60vw] h-[60vw] rounded-full bg-[#FF8A3D]/5 blur-3xl" />
+    <footer className="relative bg-[#111111] text-white overflow-hidden">
+      <div className="pointer-events-none absolute -top-40 -right-40 w-[60vw] h-[60vw] rounded-full bg-white/5 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 -left-40 w-[60vw] h-[60vw] rounded-full bg-white/[0.03] blur-3xl" />
 
       <div className="relative max-w-[1500px] mx-auto px-6 lg:px-10 py-20">
         <div className="grid lg:grid-cols-12 gap-12">
@@ -259,11 +252,11 @@ export function Footer() {
             >
               Let&apos;s build
               <br />
-              <span className="italic text-[#FFD9B8]">something honest.</span>
+              <span className="italic text-white/70">something you can rely on.</span>
             </motion.h2>
             <Link
               href="/contact"
-              className="group inline-flex items-center gap-3 mt-10 bg-white text-[#0E0E10] font-semibold text-xs tracking-[0.2em] uppercase px-7 py-3.5 rounded-full hover:bg-[#E85D2C] hover:text-white transition-all"
+              className="group inline-flex items-center gap-3 mt-10 bg-white text-[#111111] font-semibold text-xs tracking-[0.2em] uppercase px-7 py-3.5 rounded-full hover:bg-[#E5E5E5] transition-all"
             >
               Start a project
               <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -276,7 +269,7 @@ export function Footer() {
               <ul className="space-y-2">
                 {NAV_LINKS.map(l => (
                   <li key={l.href}>
-                    <Link href={l.href} className="text-sm text-white/80 hover:text-[#E85D2C] transition-colors">
+                    <Link href={l.href} className="text-sm text-white/80 hover:text-white transition-colors">
                       {l.label}
                     </Link>
                   </li>
@@ -289,7 +282,7 @@ export function Footer() {
               <div className="text-sm text-white/80 space-y-1">
                 <div>Valsad, Gujarat</div>
                 <div>India · 396001</div>
-                <a href="mailto:hello@vayucodes.com" className="block hover:text-[#E85D2C] transition-colors">hello@vayucodes.com</a>
+                <a href="mailto:hello@vayucodes.com" className="block hover:text-white transition-colors">hello@vayucodes.com</a>
               </div>
             </div>
           </div>
@@ -297,11 +290,11 @@ export function Footer() {
 
         <div className="mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-[10px] tracking-[0.25em] uppercase text-white/40">
-            © 2025 vayucodes · An independent studio
+            © 2026 vayucodes · An independent studio
           </div>
           <div className="text-[10px] tracking-[0.25em] uppercase text-white/40 flex items-center gap-2">
-            <Circle size={6} className="fill-[#E85D2C] text-[#E85D2C] animate-pulse" />
-            Available · Q3 2025
+            <Circle size={6} className="fill-white/60 text-white/60 animate-pulse" />
+            Available · Q3 2026
           </div>
         </div>
       </div>
@@ -451,37 +444,37 @@ function useTypingSound() {
     try {
       const t = ctx.currentTime
       // OSC layer \u2014 main click pitch
-      const osc = ctx.createOscillator()
-      const filter = ctx.createBiquadFilter()
-      const gain = ctx.createGain()
-      osc.type = 'square'
-      const baseFreq = isSpace ? 320 : 1100 + Math.random() * 700
-      osc.frequency.setValueAtTime(baseFreq, t)
-      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.4, t + 0.04)
-      filter.type = 'bandpass'
-      filter.frequency.value = isSpace ? 600 : 2400
-      filter.Q.value = 6
-      osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination)
-      gain.gain.setValueAtTime(0, t)
-      gain.gain.linearRampToValueAtTime(0.09, t + 0.002)
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.045)
-      osc.start(t); osc.stop(t + 0.06)
+      // Layer 1 \u2014 ABS keycap clack: short filtered noise transient (the sharp top strike)
+      const clackDur = 0.018
+      const clackBuffer = ctx.createBuffer(1, clackDur * ctx.sampleRate, ctx.sampleRate)
+      const clackData = clackBuffer.getChannelData(0)
+      for (let i = 0; i < clackData.length; i++) {
+        clackData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (clackData.length * 0.22))
+      }
+      const clackSrc = ctx.createBufferSource()
+      clackSrc.buffer = clackBuffer
+      const clackFilter = ctx.createBiquadFilter()
+      clackFilter.type = 'bandpass'
+      clackFilter.frequency.value = isSpace ? 1900 : 3100 + Math.random() * 500
+      clackFilter.Q.value = 1.4
+      const clackGain = ctx.createGain()
+      clackGain.gain.setValueAtTime(isSpace ? 0.05 : 0.065, t)
+      clackGain.gain.exponentialRampToValueAtTime(0.0001, t + clackDur)
+      clackSrc.connect(clackFilter); clackFilter.connect(clackGain); clackGain.connect(ctx.destination)
+      clackSrc.start(t)
 
-      // Noise burst layer \u2014 mechanical attack
-      const bufferSize = 0.02 * ctx.sampleRate
-      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
-      const data = noiseBuffer.getChannelData(0)
-      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.4))
-      const noise = ctx.createBufferSource()
-      noise.buffer = noiseBuffer
-      const noiseFilter = ctx.createBiquadFilter()
-      noiseFilter.type = 'highpass'
-      noiseFilter.frequency.value = 1800
-      const noiseGain = ctx.createGain()
-      noiseGain.gain.value = 0.05
-      noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(ctx.destination)
-      noise.start(t)
-      noise.stop(t + 0.02)
+      // Layer 2 \u2014 switch bottom-out: brief low body resonance (linear MX Red thock, no click bump)
+      const bodyOsc = ctx.createOscillator()
+      const bodyGain = ctx.createGain()
+      bodyOsc.type = 'triangle'
+      const bodyFreq = isSpace ? 150 : 210 + Math.random() * 60
+      bodyOsc.frequency.setValueAtTime(bodyFreq, t)
+      bodyOsc.frequency.exponentialRampToValueAtTime(bodyFreq * 0.7, t + 0.03)
+      bodyOsc.connect(bodyGain); bodyGain.connect(ctx.destination)
+      bodyGain.gain.setValueAtTime(0, t)
+      bodyGain.gain.linearRampToValueAtTime(isSpace ? 0.04 : 0.028, t + 0.003)
+      bodyGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.045)
+      bodyOsc.start(t + 0.002); bodyOsc.stop(t + 0.05)
     } catch (e) { /* silently fail */ }
   }, [])
 }
@@ -513,6 +506,58 @@ function useTypewriter(text, { speed = 180, startDelay = 1200, jitter = 80, onCh
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text])
   return { displayed, done }
+}
+
+// Cinematic welcome text — fade-in kicker/subtitle + typewriter main line with sound
+function CinematicWelcomeText() {
+  const { displayed, done } = useTypewriter('Welcome to the VayuCodes World', {
+    speed: 110,
+    startDelay: 900,
+    jitter: 20,
+  })
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.96, filter: 'blur(14px)' }}
+      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+      transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+      className="text-center"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.8 }}
+        className="text-[10px] tracking-[0.5em] uppercase text-white/60 mb-8"
+      >
+        {'— An independent studio —'}
+      </motion.div>
+
+      <h1
+        className="text-white leading-[1.05] tracking-[-0.01em] min-h-[1.2em]"
+        style={{
+          fontFamily: 'var(--font-instrument)',
+          fontWeight: 400,
+          fontSize: 'clamp(30px,5vw,64px)',
+        }}
+      >
+        {displayed}
+        <motion.span
+          animate={{ opacity: done ? 0 : [1, 0] }}
+          transition={{ duration: 0.6, repeat: done ? 0 : Infinity }}
+          className="inline-block w-[3px] h-[0.9em] bg-[#FFD9B8] ml-1 align-middle"
+        />
+      </h1>
+
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: done ? 1 : 0, y: done ? 0 : 10 }}
+        transition={{ duration: 0.8 }}
+        className="mt-8 text-[10px] tracking-[0.5em] uppercase text-white/70"
+      >
+        {'Valsad, Gujarat · Worldwide'}
+      </motion.div>
+    </motion.div>
+  )
 }
 
 export function VideoIntro({ onEnd, onColor }) {
@@ -625,65 +670,15 @@ export function VideoIntro({ onEnd, onColor }) {
         <img
           src="/brand/logo-lockup.png"
           alt="VayuCodes"
-          className="h-7 w-auto select-none"
+          className="h-14 md:h-16 w-auto select-none"
           style={{ filter: 'invert(1) brightness(2)' }}
           draggable={false}
         />
       </motion.div>
 
-      {/* HERO LOGO REVEAL — center */}
+      {/* CINEMATIC WELCOME TEXT — center */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 px-6">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="text-center"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9, duration: 0.6 }}
-            className="text-[10px] tracking-[0.5em] uppercase text-white/70 mb-8"
-          >
-            {'— An independent studio —'}
-          </motion.div>
-
-          {/* Cinematic logo reveal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, filter: 'blur(20px)' }}
-            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1], delay: 1.2 }}
-            className="relative inline-block"
-          >
-            <img
-              src="/brand/logo-full.png"
-              alt="VayuCodes"
-              className="w-[min(420px,72vw)] h-auto select-none"
-              style={{ filter: 'invert(1) brightness(2) drop-shadow(0 4px 32px rgba(0,0,0,0.5))' }}
-              draggable={false}
-            />
-            {/* Glow bloom behind */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 0.35, 0.2] }}
-              transition={{ duration: 2.5, ease: 'easeOut', delay: 1.5 }}
-              className="absolute inset-0 -z-10 pointer-events-none"
-              style={{
-                background: 'radial-gradient(ellipse at center, rgba(255,217,184,0.35), transparent 65%)',
-                filter: 'blur(45px)',
-              }}
-            />
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 2.4 }}
-            className="mt-10 text-[10px] tracking-[0.5em] uppercase text-white/70"
-          >
-            {'Valsad, Gujarat · Worldwide'}
-          </motion.div>
-        </motion.div>
+        <CinematicWelcomeText />
       </div>
 
       {/* BOTTOM PROGRESS LINE */}
@@ -697,6 +692,45 @@ export function VideoIntro({ onEnd, onColor }) {
 /* ============================================================
    LANDING FLOW \u2014 cinematic intro + color context
 ============================================================ */
+function EnterGate({ onEnter }) {
+  return (
+    <motion.div
+      key="entergate"
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.6, ease: 'easeInOut' } }}
+      className="fixed inset-0 z-[110] bg-black flex flex-col items-center justify-center cursor-pointer select-none"
+      onClick={onEnter}
+    >
+      <motion.img
+        src="/brand/logo-lockup.png"
+        alt="VayuCodes"
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.8 }}
+        className="h-16 md:h-20 w-auto select-none mb-16"
+        style={{ filter: 'invert(1) brightness(2) drop-shadow(0 2px 12px rgba(0,0,0,0.4))' }}
+        draggable={false}
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.5, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+        className="relative flex flex-col items-center gap-6"
+      >
+        <div className="relative w-24 h-24 rounded-full border border-white/25 flex items-center justify-center">
+          <motion.div
+            className="absolute inset-0 rounded-full border border-white/40"
+            animate={{ scale: [1, 1.25, 1], opacity: [0.5, 0, 0.5] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <span className="text-[10px] tracking-[0.3em] uppercase text-white/90">Enter</span>
+        </div>
+        <span className="text-[9px] tracking-[0.4em] uppercase text-white/40">Tap anywhere</span>
+      </motion.div>
+    </motion.div>
+  )
+}
+
 export function LandingFlow({ children }) {
   const [mounted, setMounted] = useState(false)
   const [stage, setStage] = useState('home')
@@ -742,7 +776,10 @@ export function LandingFlow({ children }) {
 
   return (
     <VideoColorContext.Provider value={videoColor}>
+      <CustomCursor />
+      <GrainOverlay />
       <AnimatePresence mode="wait">
+        {stage === 'gate' && <EnterGate key="gate" onEnter={() => setStage('loading')} />}
         {stage === 'loading' && <Preloader key="pre" progress={progress} />}
         {stage === 'intro' && (
           <VideoIntro
@@ -771,15 +808,17 @@ export function PageWrapper({ children, darkHero = true }) {
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
 
-  if (!mounted) return <div className="fixed inset-0 bg-[#0E0E10]" />
+  if (!mounted) return <div className="fixed inset-0 bg-[#111111]" />
 
   return (
     <motion.main
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      className="relative bg-[#F4F1EA]"
+      className="relative bg-[#F7F6F3]"
     >
+      <CustomCursor />
+      <GrainOverlay />
       <Navbar darkHero={darkHero} />
       {children}
       <Footer />
@@ -790,7 +829,7 @@ export function PageWrapper({ children, darkHero = true }) {
 /* ============================================================
    PAGE HERO — reusable dark editorial hero with 3D parallax
 ============================================================ */
-export function PageHero({ tag, title, italicWord, subtitle, accent = '#E85D2C' }) {
+export function PageHero({ tag, title, italicWord, subtitle, accent = '#8A8A8A' }) {
   const ref = useRef(null)
   const mx = useMotionValue(0)
   const my = useMotionValue(0)
@@ -811,7 +850,7 @@ export function PageHero({ tag, title, italicWord, subtitle, accent = '#E85D2C' 
     return (
       <>
         {parts[0]}
-        <span className="italic text-[#FFD9B8]">{italicWord}</span>
+        <span className="italic text-white/70">{italicWord}</span>
         {parts[1]}
       </>
     )
@@ -821,7 +860,7 @@ export function PageHero({ tag, title, italicWord, subtitle, accent = '#E85D2C' 
     <section
       ref={ref}
       onMouseMove={onMove}
-      className="relative w-full min-h-[90vh] bg-[#0E0E10] overflow-hidden flex items-end pb-20 pt-32"
+      className="relative w-full min-h-[90vh] bg-[#111111] overflow-hidden flex items-end pb-20 pt-32"
     >
       {/* Ambient gradients */}
       <div className="absolute inset-0">
@@ -886,7 +925,7 @@ export function SectionHeading({ tag, title, italicWord, subtitle, align = 'left
     return (
       <>
         {parts[0]}
-        <span className="italic text-[#E85D2C]">{italicWord}</span>
+        <span className="italic text-[#111111]/60">{italicWord}</span>
         {parts[1]}
       </>
     )
@@ -900,12 +939,12 @@ export function SectionHeading({ tag, title, italicWord, subtitle, align = 'left
       className={`max-w-3xl ${align === 'center' ? 'mx-auto text-center' : ''}`}
     >
       {tag && (
-        <span className="text-[10px] font-bold tracking-[0.3em] text-[#E85D2C] uppercase mb-4 inline-block">
+        <span className="text-[10px] font-bold tracking-[0.3em] text-[#111111]/50 uppercase mb-4 inline-block">
           {tag}
         </span>
       )}
       <h2
-        className="text-[#0E0E10] leading-[1.02] tracking-[-0.01em]"
+        className="text-[#111111] leading-[1.02] tracking-[-0.01em]"
         style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(32px,4.5vw,60px)' }}
       >
         {renderTitle()}
@@ -924,22 +963,22 @@ export function SectionHeading({ tag, title, italicWord, subtitle, align = 'left
 ============================================================ */
 export function CTABlock({ kicker = 'Ready when you are', title = 'Let&apos;s talk numbers, not jargon.', italicWord = 'numbers,' }) {
   return (
-    <section className="relative bg-[#F4F1EA] py-28 px-6 lg:px-10 overflow-hidden">
+    <section className="relative bg-[#F7F6F3] py-28 px-6 lg:px-10 overflow-hidden">
       <div className="max-w-[1500px] mx-auto">
-        <Tilt3DCard intensity={6} className="relative bg-[#0E0E10] rounded-[32px] p-12 lg:p-20 overflow-hidden">
-          <div className="absolute -top-32 -right-32 w-[60vw] h-[60vw] rounded-full bg-[#E85D2C]/15 blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-32 -left-32 w-[50vw] h-[50vw] rounded-full bg-[#FF8A3D]/10 blur-3xl pointer-events-none" />
+        <Tilt3DCard intensity={6} className="relative bg-[#111111] rounded-[32px] p-12 lg:p-20 overflow-hidden">
+          <div className="absolute -top-32 -right-32 w-[60vw] h-[60vw] rounded-full bg-white/[0.06] blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-32 -left-32 w-[50vw] h-[50vw] rounded-full bg-white/[0.04] blur-3xl pointer-events-none" />
 
           <div className="relative grid lg:grid-cols-12 gap-8 items-end">
             <div className="lg:col-span-8" style={{ transform: 'translateZ(40px)' }}>
-              <div className="text-[10px] tracking-[0.3em] uppercase text-[#E85D2C] mb-6">
+              <div className="text-[10px] tracking-[0.3em] uppercase text-white/50 mb-6">
                 · {kicker}
               </div>
               <h3 className="text-white leading-[1.02] tracking-[-0.01em]" style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(32px,4.5vw,64px)' }}>
                 {italicWord ? (
                   <>
                     {title.split(italicWord)[0]}
-                    <span className="italic text-[#FFD9B8]">{italicWord}</span>
+                    <span className="italic text-white/70">{italicWord}</span>
                     {title.split(italicWord)[1]}
                   </>
                 ) : title}
@@ -948,7 +987,7 @@ export function CTABlock({ kicker = 'Ready when you are', title = 'Let&apos;s ta
             <div className="lg:col-span-4 flex lg:justify-end" style={{ transform: 'translateZ(60px)' }}>
               <Link
                 href="/contact"
-                className="group inline-flex items-center gap-3 bg-white text-[#0E0E10] font-semibold text-xs tracking-[0.2em] uppercase px-8 py-4 rounded-full hover:bg-[#E85D2C] hover:text-white transition-all"
+                className="group inline-flex items-center gap-3 bg-white text-[#111111] font-semibold text-xs tracking-[0.2em] uppercase px-8 py-4 rounded-full hover:bg-[#E5E5E5] transition-all"
               >
                 Book a call
                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -958,5 +997,103 @@ export function CTABlock({ kicker = 'Ready when you are', title = 'Let&apos;s ta
         </Tilt3DCard>
       </div>
     </section>
+  )
+}
+
+/* ============================================================
+   CUSTOM CURSOR — dot + trailing ring, mix-blend-difference
+============================================================ */
+export function CustomCursor() {
+  const [visible, setVisible] = useState(false)
+  const [hoverState, setHoverState] = useState('default')
+  const dotX = useMotionValue(-100)
+  const dotY = useMotionValue(-100)
+  const ringX = useSpring(dotX, { stiffness: 300, damping: 30 })
+  const ringY = useSpring(dotY, { stiffness: 300, damping: 30 })
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (window.matchMedia('(pointer: coarse)').matches) return // skip on touch
+    setVisible(true)
+    const move = (e) => {
+      dotX.set(e.clientX)
+      dotY.set(e.clientY)
+      const el = e.target.closest('a, button, [data-cursor]')
+      if (el) setHoverState(el.getAttribute('data-cursor') || 'link')
+      else setHoverState('default')
+    }
+    window.addEventListener('mousemove', move)
+    return () => window.removeEventListener('mousemove', move)
+  }, [dotX, dotY])
+
+  if (!visible) return null
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[200] hidden md:block" style={{ mixBlendMode: 'difference' }}>
+      <motion.div
+        style={{ left: dotX, top: dotY, translateX: '-50%', translateY: '-50%' }}
+        className="fixed w-2 h-2 rounded-full bg-white"
+      />
+      <motion.div
+        style={{ left: ringX, top: ringY, translateX: '-50%', translateY: '-50%' }}
+        animate={{
+          width: hoverState === 'view' ? 90 : hoverState !== 'default' ? 56 : 32,
+          height: hoverState === 'view' ? 90 : hoverState !== 'default' ? 56 : 32,
+        }}
+        transition={{ type: 'spring', stiffness: 200, damping: 22 }}
+        className="fixed rounded-full border border-white flex items-center justify-center"
+      >
+        {hoverState === 'view' && (
+          <span className="text-[9px] tracking-[0.15em] uppercase text-white font-semibold">View</span>
+        )}
+      </motion.div>
+    </div>
+  )
+}
+
+/* ============================================================
+   FILM GRAIN — global subtle texture overlay
+============================================================ */
+export function GrainOverlay() {
+  return (
+    <div
+      className="fixed inset-0 pointer-events-none z-[150] opacity-[0.035] mix-blend-overlay"
+      style={{
+        backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+      }}
+    />
+  )
+}
+
+/* ============================================================
+   MAGNETIC BUTTON — pulls toward cursor within radius
+============================================================ */
+export function Magnetic({ children, className = '', strength = 0.35 }) {
+  const ref = useRef(null)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const sx = useSpring(x, { stiffness: 150, damping: 15, mass: 0.3 })
+  const sy = useSpring(y, { stiffness: 150, damping: 15, mass: 0.3 })
+
+  function onMove(e) {
+    const r = ref.current?.getBoundingClientRect()
+    if (!r) return
+    const cx = e.clientX - (r.left + r.width / 2)
+    const cy = e.clientY - (r.top + r.height / 2)
+    x.set(cx * strength)
+    y.set(cy * strength)
+  }
+  function onLeave() { x.set(0); y.set(0) }
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      style={{ x: sx, y: sy }}
+      className={className}
+    >
+      {children}
+    </motion.div>
   )
 }

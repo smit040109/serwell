@@ -1,0 +1,57 @@
+{
+  "page": "home",
+  "type": "bentoGrid",
+  "order": 4,
+  "isVisible": true,
+  "content": {
+    "tag": "· What we build",
+    "title": "One studio. Six superpowers.",
+    "italicWord": "Six superpowers.",
+    "linkText": "All services",
+    "linkHref": "/services",
+    "cards": [
+      {
+        "size": "large",
+        "icon": "🎬",
+        "title": "Cinema for Business",
+        "body": "Brand films & reels shot in 4K Apple Log. Not commercials — cinema.",
+        "accent": "#E85D2C"
+      },
+      {
+        "size": "small",
+        "icon": "⚡",
+        "title": "Blazing-fast sites",
+        "body": "Sub-second loads.",
+        "accent": ""
+      },
+      {
+        "size": "small",
+        "icon": "🛠",
+        "title": "Custom Software",
+        "body": "Built for your floor.",
+        "accent": ""
+      },
+      {
+        "size": "large",
+        "icon": "📈",
+        "title": "Performance That Pays",
+        "body": "Every rupee tracked to a rupee earned. Local-first growth.",
+        "accent": "#FFD9B8"
+      },
+      {
+        "size": "small",
+        "icon": "🇮🇳",
+        "title": "Gujarati-first",
+        "body": "We speak your buyer.",
+        "accent": ""
+      },
+      {
+        "size": "small",
+        "icon": "🤝",
+        "title": "One Partner",
+        "body": "Predictable, monthly.",
+        "accent": ""
+      }
+    ]
+  }
+}
