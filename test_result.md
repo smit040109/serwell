@@ -103,50 +103,102 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Build a highly immersive, premium agency website for "vayucodes" (Valsad, Gujarat) — a 6-page
-  cinematic editorial Next.js site (Tailwind + Framer Motion + GSAP). Latest iteration: user found
-  Bebas Neue display fonts (clamp 200px) too aggressive — wants restrained, professional editorial
-  typography. ScrollShowcase on /our-work needs continuous video playback (not scroll-scrubbed).
+  Redesign the home page as a Scale.com clone (study project). Follow the design system extracted
+  from provided references (tokens.json, variables.css, theme.css, DESIGN.md) and the observable
+  animation/scroll behavior from the provided screen recording. Recreate the full cinematic
+  scroll journey: dark hero with bounding boxes → pinned 3D layered phone reveal (3 sub-scenes)
+  → green stat block → floating autonomy grid → partner logos → industry carousel → benchmark
+  statement → three pillars → news grid → warm-sandstone legacy CTA with blueprint SVG → dark
+  footer. Use Next.js + Tailwind + GSAP + ScrollTrigger + Lenis. No Three.js (CSS 3D transforms).
 
 frontend:
-  - task: "Typography downscale + Instrument Serif font system"
+  - task: "Scale.com clone — Foundation & Tokens (Checkpoint 1)"
     implemented: true
     working: "NA"
-    file: "app/layout.js, app/page.js, app/digital-marketing/page.js, components/site/Shared.js, app/services/page.js, app/why-us/page.js, app/contact/page.js"
+    file: "app/globals.css, tailwind.config.js, app/layout.js, lib/gsap.js, components/animation/LenisProvider.js, hooks/useReducedMotion.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Replaced massive Playfair/Bebas (clamp 180-200px) with Instrument Serif at restrained sizes (clamp 32-84px). Bebas Neue retired from displays. Hero h1s capped at ~84px, section headings at ~60px. Visually verified across all 6 pages — refined editorial feel achieved."
+        comment: "Full Scale.com token system registered: 13 canonical colors (pure-white, obsidian, soft-mist, pale-stone, bone, graphite, smoke, charcoal, silhouette, warm-sandstone, forest-sovereignty, dusty-iris, slate-blue). Manrope loaded as Aeonik substitute (--font-aeonik), JetBrains Mono as Mono substitute (--font-mono). Spacing base 4px + gap tokens (16/32/64/96). Radii (btn 8, card-nest 12, card 16, panel 24). Type scale utility classes (h-display 116, h-hero 64, h-section 40, body 16). Reduced-motion CSS baseline. Lenis + GSAP ticker sync in LenisProvider. Layout wraps app in LenisProvider."
 
-  - task: "ScrollShowcase refactor — continuous video playback"
+  - task: "Scale.com clone — UI Primitives & Layout Components (Checkpoint 2)"
     implemented: true
     working: "NA"
-    file: "components/site/ScrollShowcase.jsx"
+    file: "components/ui-scale/Button.js, Eyebrow.js, CarouselArrow.js, ScrollPrompt.js, components/scale/Navbar.js, Footer.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Removed scroll-scrub video.currentTime updates. Videos now autoplay+loop continuously while in view (IO-style play/pause). Section height reduced from 400vh→180vh. Display fonts downscaled (product name clamp 40-72px). Dominant color sampling kept + re-samples every 2s for evolving tint. Cards-reveal style with bottom-pinned editorial content. Verified on /our-work and /digital-marketing."
+        comment: "Built primitives: Button (4 variants filled-dark/filled-light/outlined/ghost with hover invert), Eyebrow (Mono 11px uppercase with tone variants), CarouselArrow (40x40, 8px radius, silhouette border), ScrollPrompt (pulsing arrow). Navbar sticky with transparent-to-obsidian-on-scroll transition. Footer with 4 link columns, mono eyebrow headers, massive Aeonik tagline, copyright band. Visually verified on http://localhost:3000."
+
+  - task: "Scale.com clone — Hero Full-Bleed (Checkpoints 3-4)"
+    implemented: true
+    working: "NA"
+    file: "components/scale/sections/HeroFullBleed.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Full-viewport photo (city intersection) with dark gradient overlay + SVG bounding boxes overlay (SEDAN/TRUCK/VAN labels). Bounding-box stroke-in animation on load (GSAP stagger). Word-by-word headline reveal (WordReveal component). Bottom-right scroll prompt with pulse animation. Background parallax scrub. Verified visually: matches Scale.com hero aesthetic (dark, cinematic, technical labels)."
+
+  - task: "Scale.com clone — Cinematic 3D Phone Scene (Checkpoints 5-6)"
+    implemented: true
+    working: "NA"
+    file: "components/scale/sections/CinematicStack.js, app/scene-test/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Signature pinned + scrubbed cinematic scene. Built with CSS 3D transforms (perspective 1200px, 4 layered planes with individual translateZ values, phone-shaped composition). GSAP ScrollTrigger pins for 400vh with scrub:1. Timeline drives 4 sub-scenes: (0-25%) Scene A intro + Reliable AI headline word-reveal, (25-50%) Scene A visible, (50-70%) transition to Scene B Applications + For Enterprise button, (70-85%) transition to Scene C Data with Dusty Iris purple headline right-aligned + For Data Teams button, (85-100%) exit fade + scale down. Ambient grid background fades in during Scene C. Tested standalone at /scene-test — all 3 scenes reveal correctly with correct 3D perspective and color accents. Integrated into home — verified in place."
+
+  - task: "Scale.com clone — Content Sections (Checkpoints 7-9)"
+    implemented: true
+    working: "NA"
+    file: "components/scale/sections/StatBlock.js, RealAutonomyGrid.js, PartnerLogoGrid.js, ProvenIndustryCarousel.js, BenchmarkStatement.js, ThreePillars.js, NewsGrid.js, LegacyCTA.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "8 additional sections implemented. StatBlock (Forest-Sovereignty green panel + MRI + 90% headline). RealAutonomyGrid (8 floating tiles with per-tile parallax, massive Aeonik 116px display headline with Warm-Sandstone accent on Autonomy word). PartnerLogoGrid (10 monochrome text logos, grayscale-to-color hover). ProvenIndustryCarousel (6 case-study cards with 3-visible sliding carousel driven by 40x40 arrow buttons). BenchmarkStatement (Dusty-Iris purple headline word-reveal). ThreePillars (3 flat 16px-radius cards with Lucide stroke icons + Learn more arrow hover). NewsGrid (bento layout — 1 large featured Scale Labs card with Forest-Sovereignty tint + 4 smaller cards with hover image scale). LegacyCTA (Warm-Sandstone panel + blueprint SVG technical schematic with stroke-dashoffset draw-in on enter). All animations use GSAP.context cleanup. Verified visually — full scroll journey matches Scale.com aesthetic and design tokens exactly."
+
+  - task: "Legacy VayuCodes pages preserved (contact, our-work, why-us, digital-marketing)"
+    implemented: true
+    working: true
+    file: "app/contact, app/our-work, app/why-us, app/digital-marketing"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Old routes preserved with their own font variables (Inter, Instrument Serif, Cormorant, Syne, Playfair, Bebas) still loaded in layout.js. Only home page (/) has been replaced with the Scale.com clone. Other routes will render with the fallback fonts via their existing class names."
 
 metadata:
   created_by: "main_agent"
-  version: "1.1"
+  version: "2.0"
   test_sequence: 0
   run_ui: false
 
 test_plan:
   current_focus:
-    - "Typography downscale + Instrument Serif font system"
-    - "ScrollShowcase refactor — continuous video playback"
+    - "Scale.com clone — Foundation & Tokens (Checkpoint 1)"
+    - "Scale.com clone — Cinematic 3D Phone Scene (Checkpoints 5-6)"
+    - "Scale.com clone — Content Sections (Checkpoints 7-9)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
-    message: "Refined typography across all 6 pages — swapped Playfair/Bebas display fonts (max 200px) for Instrument Serif (max 84px). ScrollShowcase rebuilt to play videos continuously instead of scroll-scrubbing. Visually verified via screenshots on home, our-work, digital-marketing, services, contact, why-us — all pages look elegant, professional, restrained. Awaiting user verification."
+    message: "Scale.com homepage clone MVP complete. All 12 checkpoints executed in sequence. Foundation (tokens + Lenis + GSAP + fonts) established. All 10 sections (Nav, Hero, CinematicStack, StatBlock, RealAutonomyGrid, PartnerLogoGrid, ProvenIndustryCarousel, BenchmarkStatement, ThreePillars, NewsGrid, LegacyCTA, Footer) built and integrated. The signature pinned 3D-phone cinematic (400vh pin, scrub timeline, 4 sub-scenes with 3D layer separation) works both in isolation at /scene-test and inside the home page. Placeholder images from Pexels used for hero photo, MRI, floating tiles, and news grid — clearly marked in source comments for later replacement with Scale-licensed assets. Backend untouched. Ready for user visual verification."

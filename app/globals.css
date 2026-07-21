@@ -2,9 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   SCALE.COM DESIGN TOKENS
+   Source of truth: tokens.json + variables.css from references
+============================================================ */
 :root {
-  --background: 40 27% 92%;       /* bone */
-  --foreground: 240 5% 6%;        /* ink */
+  /* --- Scale.com color tokens --- */
+  --color-pure-white: #ffffff;
+  --color-obsidian: #000000;
+  --color-soft-mist: #f2f2f2;
+  --color-pale-stone: #eaeaea;
+  --color-bone: #e5e5e5;
+  --color-graphite: #575757;
+  --color-smoke: #929292;
+  --color-charcoal: #212121;
+  --color-silhouette: #c7c7c7;
+  --color-warm-sandstone: #a8927c;
+  --color-forest-sovereignty: #193a29;
+  --color-dusty-iris: #79648c;
+  --color-slate-blue: #839cb2;
+
+  /* --- Spacing (4px base) --- */
+  --space-unit: 4px;
+  --gap-el: 16px;
+  --gap-card: 32px;
+  --gap-section: 64px;
+  --gap-band: 96px;
+
+  /* --- Radii --- */
+  --radius-tag: 8px;
+  --radius-btn: 8px;
+  --radius-card-nest: 12px;
+  --radius-card: 16px;
+  --radius-panel: 24px;
+
+  /* --- Legacy shadcn tokens preserved for other routes --- */
+  --background: 40 27% 92%;
+  --foreground: 240 5% 6%;
   --card: 0 0% 100%;
   --card-foreground: 240 5% 6%;
   --primary: 240 5% 6%;
@@ -13,7 +47,7 @@
   --secondary-foreground: 240 5% 6%;
   --muted: 40 27% 92%;
   --muted-foreground: 215 16% 47%;
-  --accent: 16 79% 54%;           /* ember orange */
+  --accent: 16 79% 54%;
   --accent-foreground: 0 0% 100%;
   --border: 40 15% 85%;
   --ring: 240 5% 6%;
@@ -21,38 +55,73 @@
 }
 
 html {
-  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #F7F6F3;
+  scroll-behavior: auto; /* Lenis will handle */
 }
 
 body {
-  font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-aeonik), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   letter-spacing: -0.011em;
   background: #F7F6F3;
+  color: #000;
+  font-feature-settings: "ss02" on;
 }
 
-/* Refined editorial scrollbar */
+/* ============================================================
+   SCALE.COM UTILITY CLASSES
+============================================================ */
+.font-aeonik { font-family: var(--font-aeonik), ui-sans-serif, system-ui, sans-serif; font-feature-settings: "ss02" on; }
+.font-mono   { font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+.eyebrow {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+.tracking-hero { letter-spacing: -0.01em; }
+.tracking-display { letter-spacing: -0.025em; }
+
+/* Scale.com signature: headings use weight 400 (anti-convention) */
+.h-display  { font-family: var(--font-aeonik); font-weight: 400; font-size: clamp(56px, 9vw, 116px); line-height: 1; letter-spacing: -0.025em; }
+.h-hero     { font-family: var(--font-aeonik); font-weight: 400; font-size: clamp(40px, 5.5vw, 64px); line-height: 1.05; letter-spacing: -0.01em; }
+.h-section  { font-family: var(--font-aeonik); font-weight: 400; font-size: clamp(32px, 4vw, 40px); line-height: 1.1;  letter-spacing: -0.01em; }
+.h-feature  { font-family: var(--font-aeonik); font-weight: 400; font-size: clamp(24px, 2.6vw, 32px); line-height: 1.2; letter-spacing: -0.01em; }
+.h-sub      { font-family: var(--font-aeonik); font-weight: 400; font-size: 24px; line-height: 1.3;  letter-spacing: -0.01em; }
+.body-lg    { font-family: var(--font-aeonik); font-weight: 400; font-size: 20px; line-height: 1.4; letter-spacing: -0.01em; }
+.body       { font-family: var(--font-aeonik); font-weight: 400; font-size: 16px; line-height: 1.5; letter-spacing: -0.01em; }
+
+/* ============================================================
+   MOTION-SAFE UTILITIES
+============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   SCROLLBAR
+============================================================ */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: #F7F6F3; }
-::-webkit-scrollbar-thumb { background: #111111; border-radius: 8px; }
-::-webkit-scrollbar-thumb:hover { background: #333333; }
+::-webkit-scrollbar-thumb { background: #111; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #333; }
+
+::selection { background: #000; color: #fff; }
+
+*:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
 
 .text-balance { text-wrap: balance; }
-
-/* Tabular numerals for clocks/stats */
 .tabular-nums { font-variant-numeric: tabular-nums; }
-
-/* Ambient wind streams */
-@keyframes wind-flow {
-  0% { transform: translateX(-100%) translateY(0); opacity: 0; }
-  50% { opacity: 0.6; }
-  100% { transform: translateX(100%) translateY(-20px); opacity: 0; }
-}
-.wind-stream {
-  animation: wind-flow 8s ease-in-out infinite;
-}
 
 /* Hide platform-injected branding badges */
 [id*="emergent" i],
@@ -72,14 +141,28 @@ iframe[src*="emergent" i]:not([src*="preview.emergentagent" i]):not([src*="custo
   left: -9999px !important;
 }
 
-/* Selection color */
-::selection {
-  background: #111111;
-  color: #F7F6F3;
+/* ============================================================
+   3D PERSPECTIVE HELPERS (Cinematic Phone Scene)
+============================================================ */
+.perspective-scene {
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
 }
+.preserve-3d { transform-style: preserve-3d; }
+.backface-hidden { backface-visibility: hidden; }
 
-/* Refined focus rings */
-*:focus-visible {
-  outline: 2px solid #111111;
-  outline-offset: 2px;
+/* GPU nudge for animated elements (added/removed by JS) */
+.will-animate { will-change: transform, opacity; }
+
+/* Word-reveal helper (used by WordReveal component) */
+.word-reveal-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+.word-reveal-word > span {
+  display: inline-block;
+  transform: translateY(110%);
+  opacity: 0;
 }
