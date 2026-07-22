@@ -172,6 +172,18 @@ frontend:
         agent: "main"
         comment: "8 additional sections implemented. StatBlock (Forest-Sovereignty green panel + MRI + 90% headline). RealAutonomyGrid (8 floating tiles with per-tile parallax, massive Aeonik 116px display headline with Warm-Sandstone accent on Autonomy word). PartnerLogoGrid (10 monochrome text logos, grayscale-to-color hover). ProvenIndustryCarousel (6 case-study cards with 3-visible sliding carousel driven by 40x40 arrow buttons). BenchmarkStatement (Dusty-Iris purple headline word-reveal). ThreePillars (3 flat 16px-radius cards with Lucide stroke icons + Learn more arrow hover). NewsGrid (bento layout — 1 large featured Scale Labs card with Forest-Sovereignty tint + 4 smaller cards with hover image scale). LegacyCTA (Warm-Sandstone panel + blueprint SVG technical schematic with stroke-dashoffset draw-in on enter). All animations use GSAP.context cleanup. Verified visually — full scroll journey matches Scale.com aesthetic and design tokens exactly."
 
+  - task: "Why Us page redesigned — B&W monochrome (Uday & Smit co-founders)"
+    implemented: true
+    working: true
+    file: "app/why-us/page.js, public/team/uday.webp, public/team/smit.webp"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Full redesign of /why-us per user spec (light off-white bg, pure B&W palette, marketing-grade copy). Six sections: 1) Hero with glassmorphism pill badge, serif headline 'The minds behind the machine', dual CTAs, and cascading tilted profile cards for Uday Tailor + Smit Patel with floating pulse badges (Building / Shipping). 2) Impact Stats — 4-card grid with animate() count-up on scroll (20+ projects, 15+ clients, 6+ industries, 100% founder-led). 3) Vision & Mission zig-zag split — mock dashboard SVG chart card (Vision: Software that thinks) + mock mobile phone UI with animated progress bars (Mission: Ship faster than agencies). 4) Core Values 3×2 grid — 6 values (Speed, Transparency, Precision, Founder empathy, Craft, Compound trust) with icon squares that invert to black on hover + top border reveal. 5) Co-Founders leadership showcase — 2 large 4:5 portrait cards with real photos, gradient overlay, floating Co-Founder pill, and Valsad location tag. 6) Newsletter/CTA — pill-shaped email capture with dark Subscribe button embedded, subtle radial glow, and discovery-call fallback link. All animations via framer-motion (staggered fade-ups, whileInView reveals, floating y-loops on cards, hover lifts). Photos downloaded to /public/team/. Lint clean. Verified visually at 1440px."
+
   - task: "Legacy VayuCodes pages preserved (contact, our-work, why-us, digital-marketing)"
     implemented: true
     working: true
