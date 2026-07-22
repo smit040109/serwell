@@ -1,57 +1,236 @@
 import { NextResponse } from 'next/server'
-import { MongoClient } from 'mongodb'
+import { writeFile, mkdir } from 'fs/promises'
+import path from 'path'
+import { connectDb } from '@/lib/mongoose'
+import {
+  Admin, SiteSettings, Page, Section, Media, Portfolio, Service,
+  TeamMember, Testimonial, ContactSettings, Navigation, Footer, SeoSettings,
+  COLLECTION_MODELS, SINGLETON_COLLECTIONS,
+} from '@/lib/models'
+import { hashPassword, verifyPassword, signToken, requireAdmin } from '@/lib/auth'
 import { v4 as uuidv4 } from 'uuid'
 
-const MONGO_URL = process.env.MONGO_URL
-const DB_NAME = process.env.DB_NAME || 'vayucodes'
+const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads')
 
-let cachedClient = null
-async function getDb() {
-  if (cachedClient) return cachedClient.db(DB_NAME)
-  const client = new MongoClient(MONGO_URL)
-  await client.connect()
-  cachedClient = client
-  return client.db(DB_NAME)
+function json(data, status = 200) {
+  return NextResponse.json(data, { status })
 }
 
+/* ============================================================
+   ADMIN AUTH ENDPOINTS
+============================================================ */
+async function handleLogin(request) {
+  const { email, password } = await request.json()
+  if (!email || !password) return json({ error: 'email and password required' }, 400)
+  await connectDb()
+  const admin = await Admin.findOne({ email: email.toLowerCase().trim() })
+  if (!admin) return json({ error: 'Invalid credentials' }, 401)
+  const ok = await verifyPassword(password, admin.passwordHash)
+  if (!ok) return json({ error: 'Invalid credentials' }, 401)
+  admin.lastLoginAt = new Date()
+  await admin.save()
+  const token = signToken({ id: admin._id, email: admin.email, role: admin.role, name: admin.name })
+  return json({ token, admin: { id: admin._id, email: admin.email, name: admin.name, role: admin.role } })
+}
+
+async function handleMe(request) {
+  const auth = requireAdmin(request)
+  if (!auth.ok) return json({ error: auth.error }, auth.status)
+  return json({ admin: auth.admin })
+}
+
+/* ============================================================
+   MEDIA UPLOAD
+============================================================ */
+async function handleUpload(request) {
+  const auth = requireAdmin(request)
+  if (!auth.ok) return json({ error: auth.error }, auth.status)
+
+  const formData = await request.formData()
+  const file = formData.get('file')
+  const alt = formData.get('alt') || ''
+  if (!file || typeof file === 'string') return json({ error: 'No file' }, 400)
+
+  const buffer = Buffer.from(await file.arrayBuffer())
+  const ext = path.extname(file.name).toLowerCase() || ''
+  const filename = `${Date.now()}-${uuidv4().slice(0, 8)}${ext}`
+  await mkdir(UPLOAD_DIR, { recursive: true })
+  const filepath = path.join(UPLOAD_DIR, filename)
+  await writeFile(filepath, buffer)
+
+  const mime = file.type || ''
+  const type = mime.startsWith('video/') ? 'video' : mime.startsWith('image/') ? 'image' : 'other'
+  const url = `/uploads/${filename}`
+
+  await connectDb()
+  const media = await Media.create({
+    filename,
+    url,
+    type,
+    mime,
+    size: buffer.length,
+    alt,
+    uploadedBy: auth.admin?.email || 'admin',
+  })
+  return json({ media })
+}
+
+/* ============================================================
+   GENERIC CRUD DISPATCHER
+============================================================ */
+async function handleCollectionGet(collection, request) {
+  const Model = COLLECTION_MODELS[collection]
+  if (!Model) return json({ error: 'Unknown collection' }, 404)
+  await connectDb()
+  const { searchParams } = new URL(request.url)
+  const filter = {}
+  // published-only filter for public reads (no auth)
+  const auth = requireAdmin(request)
+  if (!auth.ok && Model.schema.paths.published) filter.published = true
+  const query = Model.find(filter).sort({ order: 1, createdAt: -1 })
+  const limit = parseInt(searchParams.get('limit') || '0', 10)
+  if (limit > 0) query.limit(limit)
+  const docs = await query.lean()
+  if (SINGLETON_COLLECTIONS.has(collection)) {
+    let doc = docs[0]
+    if (!doc) {
+      doc = await Model.create({ _id: 'main' })
+    }
+    return json({ data: doc })
+  }
+  return json({ data: docs })
+}
+
+async function handleCollectionCreate(collection, request) {
+  const auth = requireAdmin(request)
+  if (!auth.ok) return json({ error: auth.error }, auth.status)
+  const Model = COLLECTION_MODELS[collection]
+  if (!Model) return json({ error: 'Unknown collection' }, 404)
+  await connectDb()
+  const body = await request.json()
+  if (collection === 'admins') {
+    if (!body.password) return json({ error: 'password required' }, 400)
+    body.passwordHash = await hashPassword(body.password)
+    delete body.password
+  }
+  if (SINGLETON_COLLECTIONS.has(collection)) {
+    // upsert singleton
+    body._id = 'main'
+    const doc = await Model.findOneAndUpdate({ _id: 'main' }, body, { new: true, upsert: true, setDefaultsOnInsert: true })
+    return json({ data: doc })
+  }
+  const doc = await Model.create(body)
+  return json({ data: doc })
+}
+
+async function handleCollectionUpdate(collection, id, request) {
+  const auth = requireAdmin(request)
+  if (!auth.ok) return json({ error: auth.error }, auth.status)
+  const Model = COLLECTION_MODELS[collection]
+  if (!Model) return json({ error: 'Unknown collection' }, 404)
+  await connectDb()
+  const body = await request.json()
+  if (collection === 'admins' && body.password) {
+    body.passwordHash = await hashPassword(body.password)
+    delete body.password
+  }
+  delete body._id
+  const targetId = SINGLETON_COLLECTIONS.has(collection) ? 'main' : id
+  const doc = await Model.findByIdAndUpdate(targetId, body, { new: true, upsert: SINGLETON_COLLECTIONS.has(collection), setDefaultsOnInsert: true })
+  if (!doc) return json({ error: 'Not found' }, 404)
+  return json({ data: doc })
+}
+
+async function handleCollectionDelete(collection, id, request) {
+  const auth = requireAdmin(request)
+  if (!auth.ok) return json({ error: auth.error }, auth.status)
+  if (SINGLETON_COLLECTIONS.has(collection)) return json({ error: 'Cannot delete singleton' }, 400)
+  const Model = COLLECTION_MODELS[collection]
+  if (!Model) return json({ error: 'Unknown collection' }, 404)
+  await connectDb()
+  const doc = await Model.findByIdAndDelete(id)
+  if (!doc) return json({ error: 'Not found' }, 404)
+  return json({ ok: true })
+}
+
+/* ============================================================
+   PUBLIC CONTACT LEAD (existing behavior preserved)
+============================================================ */
+async function handleContactLead(request) {
+  const body = await request.json()
+  const { name, email, phone, business, message } = body || {}
+  if (!name || !email) return json({ error: 'name and email are required' }, 400)
+  await connectDb()
+  const mongoose = (await import('mongoose')).default
+  const LeadSchema = new mongoose.Schema({
+    _id: { type: String, default: () => uuidv4() },
+    name: String, email: String, phone: String, business: String, message: String,
+    createdAt: { type: Date, default: Date.now },
+  }, { _id: false })
+  const Lead = mongoose.models.Lead || mongoose.model('Lead', LeadSchema, 'leads')
+  const doc = await Lead.create({ name, email, phone: phone || '', business: business || '', message: message || '' })
+  return json({ ok: true, id: doc._id })
+}
+
+/* ============================================================
+   MAIN HANDLER
+============================================================ */
 async function handler(request, { params }) {
-  const path = params?.path?.join('/') || ''
+  const segs = params?.path || []
   const method = request.method
 
   try {
-    if (path === '' || path === 'health') {
-      return NextResponse.json({ status: 'ok', app: 'vayu.code' })
+    // health
+    if (segs.length === 0 || segs[0] === 'health') {
+      return json({ status: 'ok', app: 'vayucodes-cms', time: new Date().toISOString() })
     }
 
-    if (path === 'contact' && method === 'POST') {
-      const body = await request.json()
-      const { name, email, phone, business, message } = body || {}
-      if (!name || !email) {
-        return NextResponse.json({ error: 'name and email are required' }, { status: 400 })
+    // AUTH
+    if (segs[0] === 'admin' && segs[1] === 'login' && method === 'POST') return handleLogin(request)
+    if (segs[0] === 'admin' && segs[1] === 'me' && method === 'GET') return handleMe(request)
+
+    // MEDIA upload
+    if (segs[0] === 'admin' && segs[1] === 'upload' && method === 'POST') return handleUpload(request)
+
+    // Legacy public contact lead (kept for backwards-compat)
+    if (segs[0] === 'contact' && method === 'POST') return handleContactLead(request)
+
+    // CMS collections
+    // /api/cms/{collection} (GET all, POST create)
+    // /api/cms/{collection}/{id} (GET one, PUT update, DELETE)
+    if (segs[0] === 'cms' && segs[1]) {
+      const collection = segs[1]
+      const id = segs[2]
+      if (!id) {
+        if (method === 'GET') return handleCollectionGet(collection, request)
+        if (method === 'POST') return handleCollectionCreate(collection, request)
+      } else {
+        if (method === 'GET') {
+          const Model = COLLECTION_MODELS[collection]
+          if (!Model) return json({ error: 'Unknown collection' }, 404)
+          await connectDb()
+          const doc = await Model.findById(id).lean()
+          if (!doc) return json({ error: 'Not found' }, 404)
+          return json({ data: doc })
+        }
+        if (method === 'PUT' || method === 'PATCH') return handleCollectionUpdate(collection, id, request)
+        if (method === 'DELETE') return handleCollectionDelete(collection, id, request)
       }
-      const db = await getDb()
-      const doc = {
-        id: uuidv4(),
-        name, email, phone: phone || '', business: business || '', message: message || '',
-        createdAt: new Date().toISOString(),
-      }
-      await db.collection('leads').insertOne(doc)
-      return NextResponse.json({ ok: true, id: doc.id })
     }
 
-    if (path === 'contact' && method === 'GET') {
-      const db = await getDb()
-      const leads = await db.collection('leads').find({}, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(100).toArray()
-      return NextResponse.json({ leads })
-    }
-
-    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    return json({ error: 'Not found', path: segs.join('/') }, 404)
   } catch (e) {
-    return NextResponse.json({ error: e.message }, { status: 500 })
+    console.error('[api]', e)
+    return json({ error: e.message || 'Server error' }, 500)
   }
 }
 
 export const GET = handler
 export const POST = handler
 export const PUT = handler
+export const PATCH = handler
 export const DELETE = handler
+
+// force node runtime (needed for fs, mongoose)
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
