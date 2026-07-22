@@ -330,6 +330,24 @@ export function Preloader({ progress }) {
   const WORD = 'vayucodes'
   const letters = WORD.split('')
 
+  // Wait for the logo bitmap to be fully decoded before revealing.
+  // This prevents the top-to-bottom progressive-paint stutter the user reported.
+  const [logoReady, setLogoReady] = useState(false)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const img = new window.Image()
+    img.src = '/brand/logo-full.png'
+    // decode() returns a Promise that resolves when the bitmap is decoded
+    // and ready to paint in a single go (no progressive rendering).
+    const done = () => setLogoReady(true)
+    if (typeof img.decode === 'function') {
+      img.decode().then(done).catch(done)
+    } else {
+      img.onload = done
+      img.onerror = done
+    }
+  }, [])
+
   // Cycle through status words
   const statusIdx = Math.min(LOADER_STATES.length - 1, Math.floor(progress / (100 / LOADER_STATES.length)))
   const status = LOADER_STATES[statusIdx]
@@ -369,24 +387,28 @@ export function Preloader({ progress }) {
           </motion.div>
         </AnimatePresence>
 
-        {/* The logo — cinematic reveal */}
+        {/* The logo — cinematic reveal (only animates once bitmap is fully decoded to prevent progressive paint) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.85, filter: 'blur(20px)' }}
-          animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+          animate={logoReady ? { opacity: 1, scale: 1, filter: 'blur(0px)' } : { opacity: 0, scale: 0.85, filter: 'blur(20px)' }}
+          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
           className="relative"
         >
           <img
             src="/brand/logo-full.png"
             alt="VayuCodes"
             className="w-[min(340px,72vw)] h-auto select-none"
-            style={{ filter: 'invert(1) brightness(2)' }}
+            style={{
+              filter: 'invert(1) brightness(2)',
+              // Prevent partial paint; image is only drawn when fully decoded above.
+              visibility: logoReady ? 'visible' : 'hidden',
+            }}
             draggable={false}
           />
           {/* Subtle bloom behind */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 0.3, 0.18] }}
+            animate={{ opacity: logoReady ? [0, 0.3, 0.18] : 0 }}
             transition={{ duration: 2.2, ease: 'easeOut' }}
             className="absolute inset-0 -z-10 pointer-events-none"
             style={{
@@ -672,7 +694,7 @@ export function VideoIntro({ onEnd, onColor }) {
       transition={{ duration: 0.6 }}
       className="fixed inset-0 z-[90] bg-black overflow-hidden"
     >
-      {/* THE CINEMATIC VIDEO \u2014 same-origin H.264 for universal playback */}
+      {/* THE CINEMATIC VIDEO — same-origin H.264 for universal playback */}
       <video
         ref={videoRef}
         src={CINEMATIC_VIDEO_URL}
@@ -682,6 +704,7 @@ export function VideoIntro({ onEnd, onColor }) {
         playsInline
         loop
         preload="auto"
+        onCanPlayThrough={() => setVideoReady(true)}
         onLoadedData={() => setVideoReady(true)}
         onCanPlay={() => setVideoReady(true)}
         className="absolute inset-0 w-full h-full object-cover"
