@@ -6,7 +6,7 @@ import Link from 'next/link'
 import {
   ArrowRight, ArrowUpRight, MessageSquare, Search, PenTool, RefreshCw, Rocket, ChevronRight,
 } from 'lucide-react'
-import { PageWrapper } from '@/components/site/Shared'
+import { PageWrapper, LandingFlow } from '@/components/site/Shared'
 
 /* ============================================================
    1 · HERO — white bg, rotating word, ambient video, subtle 3D scroll
@@ -456,11 +456,13 @@ function ClosingStatement() {
 
 export default function Home() {
   return (
-    <PageWrapper darkHero={false}>
-      <Hero />
-      <HowWeWork />
-      <SelectedWork />
-      <ClosingStatement />
-    </PageWrapper>
+    <LandingFlow>
+      <PageWrapper darkHero={false}>
+        <Hero />
+        <HowWeWork />
+        <SelectedWork />
+        <ClosingStatement />
+      </PageWrapper>
+    </LandingFlow>
   )
 }
