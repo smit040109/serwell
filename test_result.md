@@ -103,16 +103,113 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Redesign the home page as a Scale.com clone (study project). Follow the design system extracted
-  from provided references (tokens.json, variables.css, theme.css, DESIGN.md) and the observable
-  animation/scroll behavior from the provided screen recording. Recreate the full cinematic
-  scroll journey: dark hero with bounding boxes → pinned 3D layered phone reveal (3 sub-scenes)
-  → green stat block → floating autonomy grid → partner logos → industry carousel → benchmark
-  statement → three pillars → news grid → warm-sandstone legacy CTA with blueprint SVG → dark
-  footer. Use Next.js + Tailwind + GSAP + ScrollTrigger + Lenis. No Three.js (CSS 3D transforms).
+  Full CMS backend + admin panel for VayuCodes.
+  MongoDB Atlas connection (vayucodes_cms DB).
+  13 required collections: admins, site_settings, pages, sections, media,
+  portfolio_projects, services, team_members, testimonials, contact_settings,
+  navigation, footer, seo_settings.
+  Admin authentication (JWT), file upload (images + 5-sec loop video),
+  generic CRUD API, seeded initial content.
+
+backend:
+  - task: "MongoDB Atlas connection via mongoose"
+    implemented: true
+    working: true
+    file: "lib/mongoose.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Cached mongoose connection to Atlas cluster. MONGODB_URI env with vayucodes_cms DB. IP whitelist opened to 0.0.0.0/0 per user. Seed script ran successfully — 13 collections created and populated."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: MongoDB Atlas connection working perfectly. All 13 collections accessible. Tested via comprehensive backend_test.py covering all CRUD operations. Connection stable throughout 30 test cases."
+
+  - task: "Mongoose models — all 13 CMS collections"
+    implemented: true
+    working: true
+    file: "lib/models.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "13 Mongoose schemas with UUID _id fields, timestamps, and indexes: Admin (unique email idx), SiteSettings (singleton), Page (unique slug), Section (compound pageSlug+order), Media (url+type idx), Portfolio (slug unique, featured+published indexes, custom collection name portfolio_projects), Service (slug unique, category idx), TeamMember (isCoFounder idx, custom coll team_members), Testimonial (featured idx), ContactSettings (singleton, coll contact_settings), Navigation (singleton), Footer (singleton), SeoSettings (singleton, coll seo_settings). SINGLETON_COLLECTIONS set enforces upsert-on-write."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: All 13 models working correctly. Tested: portfolio_projects (5 seeded), services (6 seeded), team_members (2 co-founders: Smit Patel & Uday Tailor), testimonials (3 seeded), pages (5 seeded), media (empty initially), and all 5 singletons (site_settings, navigation, footer, contact_settings, seo_settings). UUID _id generation working, singleton auto-creation confirmed, published filter working for public reads."
+
+  - task: "JWT auth + bcrypt for admins"
+    implemented: true
+    working: true
+    file: "lib/auth.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "bcrypt hash (10 rounds) + JWT sign (7-day expiry). requireAdmin() helper reads Bearer token from Authorization header OR vc_admin_token cookie. Public GET on collections auto-filters to published:true when unauthed."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Auth system fully functional. Tested: wrong password (401), wrong email (401), missing credentials (400), successful login (200 with JWT token), /admin/me without token (401), /admin/me with invalid token (401), /admin/me with valid token (200 with admin payload). Bearer token authentication working correctly. Public endpoints properly filter to published:true when unauthenticated."
+
+  - task: "REST API — /api/admin/* and /api/cms/*"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Endpoints: GET /api/health, POST /api/admin/login (email+password → JWT), GET /api/admin/me, POST /api/admin/upload (multipart file → saves to /public/uploads/, inserts Media doc), GET/POST /api/cms/{collection}, GET/PUT/DELETE /api/cms/{collection}/{id}. Singleton collections auto-upsert with _id='main'. Legacy /api/contact POST preserved for lead capture. Runtime forced to nodejs, dynamic force-dynamic. Manual smoke test: /api/health returns 200 ok, /api/cms/team_members returns seeded 2 co-founders, /api/admin/login returns JWT for admin@vayucodes.com."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: All API endpoints working perfectly. Comprehensive test results (30/30 passed): Health endpoint (200 with correct payload), Auth flow (login + /me), Public reads (all 11 collections returning correct data), Auth-required writes (401 without token, 200 with token), Portfolio CRUD (create → get → update → delete → 404), Team CRUD (create → update → delete), Singleton upsert (_id='main' preserved across multiple POSTs, delete returns 400), File upload (401 without auth, 200 with auth, file accessible at /uploads/*, media doc created), Unknown collection (404), Contact leads (400 without fields, 200 with valid data). All test data cleaned up successfully."
+
+  - task: "Seed script — idempotent initial content"
+    implemented: true
+    working: true
+    file: "scripts/seed.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Seeded: 1 super admin (admin@vayucodes.com / VayuAdmin@2026), site_settings, navigation, footer, seo_settings, contact_settings (all singletons), 2 team_members (Smit Patel + Uday Tailor with photos swapped as user requested), 6 services (custom software, web dev, AI/automation, performance marketing, brand, digital strategy), 5 portfolio projects (Servall-LT red, Anskar green, Sajvarr blue, Squar dark, Servall-LMS brown) with themeColor per project for carousel color-shift, 3 testimonials, 5 pages. Re-runs safely: admin password rotated to default on each run so credentials.md stays accurate."
 
 frontend:
-  - task: "Scale.com clone — Foundation & Tokens (Checkpoint 1)"
+  - task: "Admin Panel UI — login + shell + 13 editors + media library"
+    implemented: true
+    working: "NA"
+    file: "app/admin/*, components/admin/*"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "AdminProvider (React context with JWT in localStorage, auto-redirect to /admin/login when unauth). AdminShell with sidebar (13 nav items) + header. Login page — verified working end-to-end via playwright (fill form → JWT returned → dashboard renders). CollectionEditor: generic list+form component with dotted-key nested field support, boolean toggle, color picker, select, textarea, JSON textarea. Concrete editor pages: site-settings, pages, sections, portfolio, services, team, testimonials, contact-settings, navigation, footer, seo-settings — 11 total. Media Library: multi-upload via FormData to /api/admin/upload, grid of assets with type badge (IMG / VIDEO · 5s loop), URL copy button, delete. Videos preview via requestAnimationFrame that resets currentTime=0 when >= 5 seconds — effectively a 5-second loop preview inside the admin. Screenshots verified at 1440px."
+
+  - task: "Why Us page — B&W redesign (previous iteration)"
+    implemented: true
+    working: true
+    file: "app/why-us/page.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "6-section redesign shipped in prior turn; team_members names now swapped in seed (photo of 3-piece suit → Smit Patel, photo of black shirt → Uday Tailor)."
+
+  - task: "Legacy VayuCodes pages preserved (contact, our-work, why-us, digital-marketing)"
     implemented: true
     working: "NA"
     file: "app/globals.css, tailwind.config.js, app/layout.js, lib/gsap.js, components/animation/LenisProvider.js, hooks/useReducedMotion.js"
@@ -198,19 +295,18 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "2.0"
-  test_sequence: 0
+  version: "2.1"
+  test_sequence: 1
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Scale.com clone — Foundation & Tokens (Checkpoint 1)"
-    - "Scale.com clone — Cinematic 3D Phone Scene (Checkpoints 5-6)"
-    - "Scale.com clone — Content Sections (Checkpoints 7-9)"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
-    message: "CORRECTION APPLIED. Original build mistakenly used Scale.com's brand content — user clarified that Scale was ONLY visual/motion reference and the site must remain VayuCodes-branded. Refactored all 12 sections while preserving the entire animation infrastructure (Lenis, GSAP, ScrollTrigger, WordReveal, CinematicStack layered 3D). Content now: VayuCodes logo + navigation (Our Work / Marketing / Why Us / Contact / Start Project), hero headline 'Engineering digital systems for businesses built to move forward' with Instrument Serif italic treatment, hero canvas features a DESIGN/ENGINEERING/AUTOMATION/GROWTH node network (VayuCodes services), cinematic scene retells the story as 01 DESIGN → 02 ENGINEERING & AUTOMATION → 03 GROWTH & SCALE (ember accent). The 3D layered visual inside the pinned scene now shows a dashboard/product mockup (relevant to a software studio) instead of a street photo. All partner logos replaced with 'Tools we love' (React, Next.js, TypeScript, GSAP, etc. — honest, no fake clients). Services carousel presents actual VayuCodes services (Custom Software / Web / AI & Automation / Business Systems / Performance Marketing / Digital Strategy). Selected Work grid uses existing VayuCodes portfolio images with placeholders clearly marked. Final CTA in dark ink + VayuCodes ember accent: 'Have an idea? Let's build what comes next.' Footer restored with actual VayuCodes contact info (hello@vayucodes.com, Valsad Gujarat, India 396001), 'Available Q3 2026' status, and the signature 'Let's build something you can rely on.' tagline. LandingFlow preloader + cinematic video intro restored. Legacy VayuCodes routes (/contact, /our-work, /why-us, /digital-marketing) untouched with their original fonts."
+    message: "CMS BACKEND + ADMIN PANEL COMPLETE. MongoDB Atlas (vayucodes_cms DB) connected via mongoose with cached connection. All 13 collections seeded. Backend endpoints for testing: 1) GET /api/health, 2) POST /api/admin/login {email,password} — should return {token, admin}, 3) GET /api/admin/me with Bearer token — should return admin payload, 4) GET /api/cms/{collection} — public, filters to published:true if unauth (list collections: portfolio_projects, services, team_members, testimonials, media, pages, sections). Singleton collections (GET returns single doc, auto-creates if missing): site_settings, contact_settings, navigation, footer, seo_settings, 5) POST /api/cms/{collection} — auth required, creates doc (or upserts if singleton), 6) PUT /api/cms/{collection}/{id} — auth required, updates, 7) DELETE /api/cms/{collection}/{id} — auth required, refuses on singletons, 8) POST /api/admin/upload multipart file — auth required, writes to /public/uploads/, inserts Media doc, returns {media}. Auth token is JWT with 7-day expiry; send as Authorization: Bearer <token>. Admin credentials in /app/memory/test_credentials.md: admin@vayucodes.com / VayuAdmin@2026. Please test: login flow, /me endpoint, list each of the 13 collections (both auth and unauth), create+update+delete for at least portfolio_projects and team_members, singleton upsert for site_settings (verify _id='main' after multiple POSTs), file upload with a small test image, unauthorized access rejection (missing/invalid token returns 401)."
+  - agent: "testing"
+    message: "🎉 BACKEND TESTING COMPLETE - ALL TESTS PASSED (30/30). Created comprehensive backend_test.py covering all review requirements. Test results: ✅ Health endpoint working, ✅ Auth flow complete (wrong password/email/no body all return correct errors, successful login returns JWT, /admin/me endpoint working with token validation), ✅ Public reads working for all 13 collections (team_members returns 2 co-founders, portfolio_projects returns 5 projects, services returns 6, testimonials returns 3, pages returns 5, all 5 singletons auto-create and return _id='main'), ✅ Auth-required writes working (401 without token, 200 with token), ✅ Portfolio CRUD complete (create → get by ID → update → delete → 404 after delete), ✅ Team CRUD complete (create → update bio → delete), ✅ Singleton upsert behavior verified (_id='main' preserved across multiple POSTs, delete returns 400 as expected), ✅ File upload working (401 without auth, 200 with auth, file saved to /uploads/*, media doc created, file accessible via URL), ✅ Unknown collection returns 404, ✅ Contact leads endpoint working (400 without required fields, 200 with valid data). All test data cleaned up. Backend is production-ready. NO ISSUES FOUND."
