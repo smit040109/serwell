@@ -757,7 +757,7 @@ export function LandingFlow({ children }) {
       const saved = sessionStorage.getItem('vc_video_color')
       if (saved) setVideoColor(JSON.parse(saved))
     } catch {}
-    const seen = sessionStorage.getItem('vc_intro_seen')
+    const seen = sessionStorage.getItem('vc_intro_seen_v2')
     if (!seen) setStage('loading')
   }, [])
 
@@ -779,7 +779,7 @@ export function LandingFlow({ children }) {
     if (stage !== 'home') document.body.style.overflow = 'hidden'
     else {
       document.body.style.overflow = ''
-      if (mounted) sessionStorage.setItem('vc_intro_seen', '1')
+      if (mounted) sessionStorage.setItem('vc_intro_seen_v2', '1')
     }
     return () => { document.body.style.overflow = '' }
   }, [stage, mounted])
