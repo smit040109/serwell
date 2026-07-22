@@ -19,44 +19,87 @@ const ROTATING_WORDS = [
   'future products',
 ]
 
-// Ambient stock video (Pexels CDN — abstract flowing patterns). Falls back gracefully.
-const HERO_VIDEO_SRC = 'https://videos.pexels.com/video-files/3129769/3129769-uhd_2560_1440_30fps.mp4'
+// Local cinematic hero video (shot on Canon EOS250D — cinematic 1080p loop)
+const HERO_VIDEO_SRC = '/videos/hero-cinematic.mp4'
 
 function Hero() {
   const [idx, setIdx] = useState(0)
+  const [videoReady, setVideoReady] = useState(false)
+  const videoRef = useRef(null)
   const ref = useRef(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
   const y = useTransform(scrollYProgress, [0, 1], [0, 180])
   const scale = useTransform(scrollYProgress, [0, 1], [1, 0.92])
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+  // Subtle parallax on the video itself for cinematic depth
+  const videoY = useTransform(scrollYProgress, [0, 1], [0, 80])
+  const videoScale = useTransform(scrollYProgress, [0, 1], [1.06, 1.14])
 
   useEffect(() => {
     const id = setInterval(() => setIdx(v => (v + 1) % ROTATING_WORDS.length), 2600)
     return () => clearInterval(id)
   }, [])
 
+  // Force-play on mount for some mobile browsers
+  useEffect(() => {
+    const v = videoRef.current
+    if (!v) return
+    const tryPlay = () => v.play().catch(() => {})
+    tryPlay()
+    v.addEventListener('canplay', tryPlay)
+    return () => v.removeEventListener('canplay', tryPlay)
+  }, [])
+
   return (
-    <section ref={ref} className="relative min-h-[100vh] bg-white overflow-hidden flex items-center justify-center px-4">
-      {/* Ambient video background */}
-      <div className="absolute inset-0 pointer-events-none">
+    <section ref={ref} className="relative min-h-[100vh] bg-black overflow-hidden flex items-center justify-center px-4">
+      {/* Cinematic video background — full bleed */}
+      <motion.div
+        style={{ y: videoY, scale: videoScale }}
+        className="absolute inset-0 pointer-events-none will-change-transform"
+      >
         <video
+          ref={videoRef}
           autoPlay muted loop playsInline preload="auto"
+          onCanPlay={() => setVideoReady(true)}
+          onLoadedData={() => setVideoReady(true)}
           className="w-full h-full object-cover"
-          style={{ filter: 'grayscale(100%) brightness(1.15) contrast(0.9)', opacity: 0.28 }}
+          style={{
+            filter: 'contrast(1.08) saturate(0.85) brightness(0.92)',
+            opacity: videoReady ? 1 : 0,
+            transition: 'opacity 900ms ease-out',
+          }}
         >
           <source src={HERO_VIDEO_SRC} type="video/mp4" />
         </video>
-        {/* White veil to keep it airy */}
+
+        {/* Cinematic legibility overlays — very subtle so video is clearly visible */}
+        {/* 1. Soft vignette so edges deepen, center stays vivid */}
         <div className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.55), rgba(255,255,255,0.85) 50%, rgba(255,255,255,1))',
+          background: 'radial-gradient(ellipse at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.35) 65%, rgba(0,0,0,0.75) 100%)',
         }} />
-        {/* Faint animated grain */}
-        <div className="absolute inset-0 opacity-[0.04] mix-blend-multiply" style={{
-          backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.7'/%3E%3C/svg%3E\")"
+        {/* 2. Bottom-heavy gradient to anchor headline crisply */}
+        <div className="absolute inset-0" style={{
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 30%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.55) 100%)',
+        }} />
+        {/* 3. Film grain for that cinema feel */}
+        <div className="absolute inset-0 opacity-[0.08] mix-blend-overlay pointer-events-none" style={{
+          backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.7'/%3E%3C/svg%3E\")",
         }} />
 
-        {/* Floating decorative particles — 3D-ish scroll parallax */}
+        {/* Floating decorative particles — subtle white spec */}
         <FloatingParticles />
+      </motion.div>
+
+      {/* Top-left cinematic marker */}
+      <div className="absolute top-24 left-6 md:left-10 z-10 flex items-center gap-3 text-white/70 text-[10px] tracking-[0.3em] uppercase pointer-events-none">
+        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+        <span>Rec · Studio Live</span>
+      </div>
+
+      {/* Top-right meta */}
+      <div className="absolute top-24 right-6 md:right-10 z-10 text-white/60 text-[10px] tracking-[0.3em] uppercase pointer-events-none hidden md:block">
+        <div className="text-right">Independent Studio</div>
+        <div className="text-right text-white/40 mt-1">India · Worldwide</div>
       </div>
 
       {/* Headline */}
@@ -68,8 +111,13 @@ function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          className="text-[#0A0A0A] leading-[0.95] tracking-[-0.02em]"
-          style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(42px,8.5vw,140px)' }}
+          className="text-white leading-[0.95] tracking-[-0.02em]"
+          style={{
+            fontFamily: 'var(--font-instrument)',
+            fontWeight: 400,
+            fontSize: 'clamp(42px,8.5vw,140px)',
+            textShadow: '0 2px 30px rgba(0,0,0,0.35)',
+          }}
         >
           <span className="block">We design, engineer</span>
           <span className="block whitespace-nowrap">
@@ -82,7 +130,7 @@ function Hero() {
                   animate={{ opacity: 1, y: '0em', filter: 'blur(0px)' }}
                   exit={{ opacity: 0, y: '-0.35em', filter: 'blur(6px)' }}
                   transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                  className="italic text-[#0A0A0A]/70 inline-block"
+                  className="italic text-white/85 inline-block"
                 >
                   {ROTATING_WORDS[idx]}.
                 </motion.span>
@@ -90,6 +138,33 @@ function Hero() {
             </span>
           </span>
         </motion.h1>
+
+        {/* Subtle underline meta-tag */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-10 flex items-center justify-center gap-4 text-white/70 text-[11px] tracking-[0.32em] uppercase"
+        >
+          <span className="h-px w-10 bg-white/30" />
+          <span>Design · Engineering · AI · Growth</span>
+          <span className="h-px w-10 bg-white/30" />
+        </motion.div>
+      </motion.div>
+
+      {/* Bottom scroll cue */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.2, delay: 1.4 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/50 text-[10px] tracking-[0.3em] uppercase pointer-events-none"
+      >
+        <span>Scroll</span>
+        <motion.span
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+          className="block h-6 w-px bg-white/40"
+        />
       </motion.div>
     </section>
   )
@@ -113,20 +188,20 @@ function FloatingParticles() {
           animate={{ y: [-14, 14, -14], x: [-6, 6, -6] }}
           transition={{ duration: p.d, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
           className="absolute rounded-full"
-          style={{ left: p.x, top: p.y, width: p.s * 2, height: p.s * 2, background: '#0A0A0A', opacity: 0.16 }}
+          style={{ left: p.x, top: p.y, width: p.s * 2, height: p.s * 2, background: '#ffffff', opacity: 0.35, boxShadow: '0 0 12px rgba(255,255,255,0.35)' }}
         />
       ))}
       {/* Slow orbit rings */}
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-black/[0.06]"
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.08]"
         style={{ width: '86vw', height: '86vw', maxWidth: 1300, maxHeight: 1300 }}
       />
       <motion.div
         animate={{ rotate: -360 }}
         transition={{ duration: 90, repeat: Infinity, ease: 'linear' }}
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-black/[0.04]"
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.05]"
         style={{ width: '108vw', height: '108vw', maxWidth: 1600, maxHeight: 1600 }}
       />
     </>
