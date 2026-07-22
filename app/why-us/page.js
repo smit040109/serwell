@@ -549,17 +549,17 @@ function CoFounders() {
   const founders = [
     {
       src: '/team/uday.webp',
-      name: 'Uday Tailor',
+      name: 'Smit Patel',
       title: 'Co-Founder',
       caption: 'Systems, strategy & delivery',
-      bio: 'Uday leads engineering and client operations. His obsession with process is why our builds ship on time and stay live long after handover.',
+      bio: 'Smit leads engineering and client operations. His obsession with process is why our builds ship on time and stay live long after handover.',
     },
     {
       src: '/team/smit.webp',
-      name: 'Smit Patel',
+      name: 'Uday Tailor',
       title: 'Co-Founder',
       caption: 'Design, growth & story',
-      bio: 'Smit turns raw business ideas into brands and interfaces that people actually want to use. Design is his craft; growth is his obsession.',
+      bio: 'Uday turns raw business ideas into brands and interfaces that people actually want to use. Design is his craft; growth is his obsession.',
     },
   ]
   return (
@@ -623,7 +623,7 @@ function CoFounders() {
                 <div className="mt-1 text-[11px] tracking-[0.25em] uppercase text-[#6B6B6B]">{f.caption}</div>
                 <p className="mt-5 text-[14px] leading-relaxed text-[#525252]">{f.bio}</p>
                 <div className="mt-6 flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase font-semibold text-[#0A0A0A]">
-                  <MapPin size={12} /> Valsad, Gujarat
+                  <MapPin size={12} /> India · Worldwide
                 </div>
               </div>
               {/* corner accent line */}

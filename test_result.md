@@ -185,6 +185,18 @@ backend:
         comment: "Seeded: 1 super admin (admin@vayucodes.com / VayuAdmin@2026), site_settings, navigation, footer, seo_settings, contact_settings (all singletons), 2 team_members (Smit Patel + Uday Tailor with photos swapped as user requested), 6 services (custom software, web dev, AI/automation, performance marketing, brand, digital strategy), 5 portfolio projects (Servall-LT red, Anskar green, Sajvarr blue, Squar dark, Servall-LMS brown) with themeColor per project for carousel color-shift, 3 testimonials, 5 pages. Re-runs safely: admin password rotated to default on each run so credentials.md stays accurate."
 
 frontend:
+  - task: "Frontend Global Redesign — 12 items delivered"
+    implemented: true
+    working: "NA"
+    file: "app/layout.js, app/page.js, app/digital-marketing/page.js, app/contact/page.js, app/why-us/page.js, components/site/Shared.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "COMPLETE. 1) Font unified — Geist Sans (Vercel's official) + GeistMono via next/font, Instrument Serif for display italics. All legacy font vars remapped to Geist. 2) All ember/orange/amber/cream color literals purged from Shared.js and remaining hardcodes (#E85D2C, #FF8A3D, #FFD9B8 → #0A0A0A/white). 3) Footer's 'Start a project' button removed; navbar keeps sole Start Project CTA. 4) All 'Valsad, Gujarat' text swapped to 'India · Worldwide' across Shared.js, why-us, contact and footer. 5) Home hero fully rewritten — 4 floating corner badges (01 Design/02 Engineering/03 AI & Automation/04 Growth) with continuous y-float, big serif 'We design, engineer & scale digital systems.' with italic, an 'independent studio · Available Q3 2026' pill, and subtitle. NO Start Project button, NO See Our Work link, NO Scroll indicator on hero. 6) Home cinematic scene replaced with 'How We Work' 5-step story — 01 Understand → 02 Research → 03 Present → 04 Iterate → 05 Deliver & Ship — zig-zag layout with vertical timeline, large step-icon cards, and staggered entrance. 7) Selected Work carousel is CMS-driven (fetches /api/cms/portfolio_projects) with per-project themeColor background that transitions on 700ms ease-out — verified with Servall-LT red, Squar Parts dark-navy. 20+ businesses stat visible in section headline. 8) Marketing hero replaced with 5-slide auto-cycling slideshow (4.5s per slide) — Performance / Brand / Content & Creative / Field & Local / Sales Enablement — with slide indicator dots, live 02/05 counter, framer-motion AnimatePresence transitions, and rotating icon card. 9) Contact page fully rewritten — pulls from /api/cms/contact_settings, left column has intro + email/hours/location cards, right column has clean B&W form posting to /api/contact. Location card says 'India · Worldwide'. 10) Why Us co-founder names swapped as user requested: photo of 3-piece suit (uday.webp) = Smit Patel, photo of black shirt (smit.webp) = Uday Tailor. Location tag updated to India · Worldwide. 11) Impact Stats block on home: 20+ Products Shipped / 15+ Businesses Served / 6+ Industries / 100% Founder-Led. 12) Mobile responsive verified at 390px — hero collapses correctly, contact form stacks, cards responsive. All routes rendered and screenshotted at 1440px and 390px."
+
   - task: "Admin Panel UI — login + shell + 13 editors + media library"
     implemented: true
     working: "NA"

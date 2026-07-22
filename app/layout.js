@@ -1,44 +1,9 @@
 import './globals.css'
 import LenisProvider from '@/components/animation/LenisProvider'
-import {
-  Inter,
-  Manrope,
-  JetBrains_Mono,
-  Instrument_Serif,
-  Cormorant_Garamond,
-  Syne,
-  Playfair_Display,
-  Bebas_Neue,
-} from 'next/font/google'
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
+import { Instrument_Serif } from 'next/font/google'
 
-// ============================================================
-// SCALE.COM CLONE FONTS
-// Aeonik → Manrope (closest geometric restraint available on Google Fonts)
-// Mono   → JetBrains Mono
-// ============================================================
-const manrope = Manrope({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-aeonik',
-  display: 'swap',
-})
-
-const jetbrains = JetBrains_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500'],
-  variable: '--font-mono',
-  display: 'swap',
-})
-
-// ============================================================
-// LEGACY FONTS (kept so existing /contact, /our-work, /why-us, /digital-marketing pages don't break)
-// ============================================================
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-inter',
-  display: 'swap',
-})
 const instrument = Instrument_Serif({
   subsets: ['latin'],
   weight: ['400'],
@@ -46,45 +11,30 @@ const instrument = Instrument_Serif({
   variable: '--font-instrument',
   display: 'swap',
 })
-const cormorant = Cormorant_Garamond({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
-  style: ['normal', 'italic'],
-  variable: '--font-cormorant',
-  display: 'swap',
-})
-const syne = Syne({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-syne',
-  display: 'swap',
-})
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  style: ['normal', 'italic'],
-  variable: '--font-playfair',
-  display: 'swap',
-})
-const bebas = Bebas_Neue({
-  subsets: ['latin'],
-  weight: ['400'],
-  variable: '--font-bebas',
-  display: 'swap',
-})
 
 export const metadata = {
-  title: 'Scale — Reliable AI for the world\u2019s most important decisions',
-  description: 'Scale works across the AI stack, from the data that trains the models you rely on, to the systems that put them to work.',
+  title: 'VayuCodes — An independent design & engineering studio',
+  description: 'We design, engineer and scale digital systems for businesses built to move forward.',
 }
 
 export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${manrope.variable} ${jetbrains.variable} ${inter.variable} ${instrument.variable} ${cormorant.variable} ${syne.variable} ${playfair.variable} ${bebas.variable}`}
+      className={`${GeistSans.variable} ${GeistMono.variable} ${instrument.variable}`}
+      style={{
+        // Legacy variables remap: all previously used font vars now point to Geist for unified typography.
+        // Instrument Serif remains for display italics.
+        ['--font-aeonik']: 'var(--font-geist-sans)',
+        ['--font-inter']: 'var(--font-geist-sans)',
+        ['--font-syne']: 'var(--font-geist-sans)',
+        ['--font-cormorant']: 'var(--font-instrument)',
+        ['--font-playfair']: 'var(--font-instrument)',
+        ['--font-bebas']: 'var(--font-geist-sans)',
+        ['--font-mono']: 'var(--font-geist-mono)',
+      }}
     >
-      <body className="font-aeonik antialiased bg-pure-white text-obsidian">
+      <body className="antialiased bg-[#FAFAF7] text-[#0A0A0A]" style={{ fontFamily: 'var(--font-geist-sans), Inter, system-ui, sans-serif' }}>
         <LenisProvider>{children}</LenisProvider>
       </body>
     </html>

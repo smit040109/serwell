@@ -18,11 +18,11 @@ export function useVideoColor() { return useContext(VideoColorContext) }
    DESIGN TOKENS
 ============================================================ */
 export const COLORS = {
-  ink: '#0E0E10',
-  bone: '#F4F1EA',
-  ember: '#E85D2C',
-  amber: '#FF8A3D',
-  cream: '#FFD9B8',
+  ink: '#0A0A0A',
+  bone: '#FAFAF7',
+  ember: '#0A0A0A',
+  amber: '#171717',
+  cream: '#E7E5E1',
   ash: '#3A3A3A',
   mist: '#A8A29E',
 }
@@ -241,28 +241,6 @@ export function Footer() {
 
       <div className="relative max-w-[1500px] mx-auto px-6 lg:px-10 py-20">
         <div className="grid lg:grid-cols-12 gap-12">
-          <div className="lg:col-span-6">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="leading-[1.02] tracking-[-0.01em]"
-              style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(32px,5vw,72px)' }}
-            >
-              Let&apos;s build
-              <br />
-              <span className="italic text-white/70">something you can rely on.</span>
-            </motion.h2>
-            <Link
-              href="/contact"
-              className="group inline-flex items-center gap-3 mt-10 bg-white text-[#111111] font-semibold text-xs tracking-[0.2em] uppercase px-7 py-3.5 rounded-full hover:bg-[#E5E5E5] transition-all"
-            >
-              Start a project
-              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-
           <div className="lg:col-span-3 lg:col-start-9 space-y-8">
             <div>
               <div className="text-[10px] tracking-[0.3em] uppercase text-white/40 mb-3">Navigate</div>
@@ -280,8 +258,7 @@ export function Footer() {
             <div>
               <div className="text-[10px] tracking-[0.3em] uppercase text-white/40 mb-3">Studio</div>
               <div className="text-sm text-white/80 space-y-1">
-                <div>Valsad, Gujarat</div>
-                <div>India · 396001</div>
+                <div>India · Worldwide</div>
                 <a href="mailto:hello@vayucodes.com" className="block hover:text-white transition-colors">hello@vayucodes.com</a>
               </div>
             </div>
@@ -380,7 +357,7 @@ export function Preloader({ progress }) {
         {/* Thin animated underline (sole progress indicator, no numbers) */}
         <div className="mt-10 w-[min(420px,80vw)] h-px bg-white/10 overflow-hidden">
           <motion.div
-            className="h-full bg-gradient-to-r from-transparent via-[#E85D2C] to-[#FFD9B8]"
+            className="h-full bg-gradient-to-r from-transparent via-white to-white"
             initial={{ width: 0 }}
             animate={{ width: `${Math.min(100, progress)}%` }}
             transition={{ ease: [0.22, 1, 0.36, 1], duration: 0.5 }}
@@ -395,7 +372,7 @@ export function Preloader({ progress }) {
         transition={{ delay: 1.5, duration: 0.8 }}
         className="absolute bottom-6 inset-x-0 text-center text-[10px] tracking-[0.4em] uppercase text-white/30"
       >
-        {'A studio in Valsad, Gujarat \u00b7 Shipping worldwide'}
+        {'A studio worldwide \u00b7 Shipping globally'}
       </motion.div>
     </motion.div>
   )
@@ -544,7 +521,7 @@ function CinematicWelcomeText() {
         <motion.span
           animate={{ opacity: done ? 0 : [1, 0] }}
           transition={{ duration: 0.6, repeat: done ? 0 : Infinity }}
-          className="inline-block w-[3px] h-[0.9em] bg-[#FFD9B8] ml-1 align-middle"
+          className="inline-block w-[3px] h-[0.9em] bg-white ml-1 align-middle"
         />
       </h1>
 
@@ -554,7 +531,7 @@ function CinematicWelcomeText() {
         transition={{ duration: 0.8 }}
         className="mt-8 text-[10px] tracking-[0.5em] uppercase text-white/70"
       >
-        {'Valsad, Gujarat · Worldwide'}
+        {'India · Worldwide'}
       </motion.div>
     </motion.div>
   )
@@ -683,7 +660,7 @@ export function VideoIntro({ onEnd, onColor }) {
 
       {/* BOTTOM PROGRESS LINE */}
       <div className="absolute bottom-0 inset-x-0 h-[2px] bg-white/10 z-10">
-        <div className="h-full bg-gradient-to-r from-[#E85D2C] via-white to-[#FFD9B8] transition-[width] duration-100" style={{ width: `${progress}%` }} />
+        <div className="h-full bg-gradient-to-r from-white via-white to-white transition-[width] duration-100" style={{ width: `${progress}%` }} />
       </div>
     </motion.div>
   )
