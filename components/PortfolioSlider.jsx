@@ -11,7 +11,8 @@ const projects = [
     desc: "One system replacing six spreadsheets and a dozen phone calls. Every branch, every technician, every job — visible in real time, from a single screen.",
     stat: "3.5× faster ticket resolution across 12 branches.",
     video: "/videos/p1.mp4",
-    accent: "#cdaa73"
+    accent: "#F5A5A5",
+    bg: "#7A1414"
   },
   {
     status: "LIVE · 2026",
@@ -21,7 +22,8 @@ const projects = [
     desc: "A site built to be felt before it's read. Rhythm in the scroll, texture in the type — a digital front door that sounds like the brand behind it.",
     stat: "Full brand launch shipped in 6 weeks.",
     video: "/videos/p2.mp4",
-    accent: "#7ec8e3"
+    accent: "#DDDDDD",
+    bg: "#0B0B0B"
   },
   {
     status: "LIVE · 2026",
@@ -31,7 +33,8 @@ const projects = [
     desc: "Generations-old handloom craft, translated for a scroll-first audience — without losing the hand that made it. Campaigns built around the story, not just the sale.",
     stat: "2.8× online orders in one festive season.",
     video: "/videos/p3.mp4",
-    accent: "#e8935a"
+    accent: "#EBC69A",
+    bg: "#4A2818"
   },
   {
     status: "LIVE · 2026",
@@ -41,7 +44,8 @@ const projects = [
     desc: "Built for a business where the relationship outlasts the receipt. Every preference, occasion, and follow-up tracked across a client's lifetime — not just their last visit.",
     stat: "Every client, every carat, one dashboard.",
     video: "/videos/p4.mp4",
-    accent: "#d88fd0"
+    accent: "#B7CBEE",
+    bg: "#0F2444"
   },
   {
     status: "LIVE · 2026",
@@ -51,7 +55,8 @@ const projects = [
     desc: "Inventory, billing, and stock alerts unified into one system — built for the counter, not the boardroom. Every store now runs like the best-performing one.",
     stat: "Reconciliation time cut from hours to minutes.",
     video: "/videos/p5.mp4",
-    accent: "#8fd8a0"
+    accent: "#B4E0C3",
+    bg: "#153322"
   },
   {
     status: "LIVE · 2026",
@@ -61,7 +66,8 @@ const projects = [
     desc: "Onboarding, rebuilt as a habit instead of a binder. Courses, progress, and certification tracked for every technician, at every branch, automatically.",
     stat: "Onboarding time cut in half network-wide.",
     video: "/videos/p6.mp4",
-    accent: "#f2d97b"
+    accent: "#D6BCF0",
+    bg: "#2A1A4A"
   }
 ];
 
@@ -108,7 +114,7 @@ export default function PortfolioSlider() {
     <div
       ref={containerRef}
       className="ps-scroll-container"
-      style={{ height: `${projects.length * 100}vh` }}
+      style={{ height: `${projects.length * 100}vh`, '--stage-bg': projects[current]?.bg || '#0A0A0A' }}
     >
       <div className="ps-stage">
         <div className="ps-frame">
@@ -144,7 +150,8 @@ export default function PortfolioSlider() {
           top: 0;
           height: 100vh;
           width: 100%;
-          background: #10201b;
+          background: var(--stage-bg, #0A0A0A);
+          transition: background 800ms cubic-bezier(0.22, 1, 0.36, 1);
           color: #f2ede2;
           font-family: 'Inter', sans-serif;
           display: flex;
@@ -216,6 +223,7 @@ function Slide({ p, idx, current }) {
         transform,
         zIndex: idx + 1,
         '--accent': p.accent,
+        '--bg': p.bg || '#10201b',
       }}
     >
       <div className="ps-media">
@@ -254,7 +262,7 @@ function Slide({ p, idx, current }) {
           grid-template-columns: 1.15fr 1fr;
           gap: 64px;
           align-items: center;
-          background: #10201b;
+          background: var(--bg, #10201b);
           box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.35);
           transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1);
           will-change: transform;

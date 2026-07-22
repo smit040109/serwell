@@ -1,54 +1,91 @@
 'use client'
 
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import {
-  ArrowRight, Play, TrendingUp, Sparkles, Megaphone, Camera, Globe2, MessagesSquare,
+  ArrowRight, Play, TrendingUp, Sparkles, Megaphone, Camera, MessagesSquare,
+  BarChart3, Target as TargetIcon, Zap, Check,
 } from 'lucide-react'
 import { PageWrapper } from '@/components/site/Shared'
 
 /* ============================================================
-   1 · HERO — auto-cycling slideshow of marketing verticals
+   SLIDESHOW DATA — with photos per service
 ============================================================ */
 const SLIDES = [
-  { code: '01', title: 'Performance Marketing', tag: 'Meta · Google · LinkedIn',
+  {
+    code: '01', title: 'Performance', italic: 'Marketing',
+    tag: 'Meta · Google · LinkedIn',
     body: 'Creative-led performance campaigns. We test 40 variants a week, kill losers fast, scale winners harder — every rupee measured, every click accountable.',
-    icon: TrendingUp },
-  { code: '02', title: 'Brand Marketing', tag: 'Positioning · Voice · Story',
+    icon: TrendingUp,
+    img: 'https://images.unsplash.com/photo-1529078155058-5d716f45d604?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400',
+    stats: [{ v: '4.2x', l: 'Avg ROAS' }, { v: '↓ 38%', l: 'CAC drop' }, { v: '40+', l: 'Creatives / week' }],
+  },
+  {
+    code: '02', title: 'Brand', italic: 'Marketing',
+    tag: 'Positioning · Voice · Story',
     body: 'Naming, identity, and messaging that make your business memorable. We turn positioning workshops into deliverables you can actually deploy across every channel.',
-    icon: Sparkles },
-  { code: '03', title: 'Content & Creative', tag: 'Reels · Films · UGC',
+    icon: Sparkles,
+    img: 'https://images.unsplash.com/photo-1698328722160-7ecf41b789c5?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400',
+    stats: [{ v: '12', l: 'Brand systems' }, { v: '6+', l: 'Industries' }, { v: '100%', l: 'Fixed-scope' }],
+  },
+  {
+    code: '03', title: 'Content', italic: '& Creative',
+    tag: 'Reels · Films · UGC',
     body: 'Vertical-first content engine. High-velocity reels with hook-first scripting, cinema-grade brand films, and a curated UGC network across India.',
-    icon: Camera },
-  { code: '04', title: 'Field & Local Marketing', tag: 'GBP · Local SEO · Events',
+    icon: Camera,
+    img: 'https://images.unsplash.com/photo-1513031300226-c8fb12de9ade?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400',
+    stats: [{ v: '500+', l: 'Reels shipped' }, { v: '10M+', l: 'Views' }, { v: '1.5s', l: 'Avg hook' }],
+  },
+  {
+    code: '04', title: 'Field &', italic: 'Local Marketing',
+    tag: 'GBP · Local SEO · Events',
     body: 'Show up where your customers actually search. Google Business optimization, hyperlocal SEO, review systems, and on-ground activations built for your geography.',
-    icon: Megaphone },
-  { code: '05', title: 'Sales Enablement', tag: 'WhatsApp · CRM · Funnels',
+    icon: Megaphone,
+    img: 'https://images.unsplash.com/photo-1611166498484-5585e08d5656?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400',
+    stats: [{ v: '4.9★', l: 'Avg review' }, { v: '↑2.6x', l: 'Local traffic' }, { v: '25+', l: 'GBPs managed' }],
+  },
+  {
+    code: '05', title: 'Sales', italic: 'Enablement',
+    tag: 'WhatsApp · CRM · Funnels',
     body: 'Conversation-led commerce with automated WhatsApp funnels, broadcast systems, and click-to-chat ads. Where India actually buys — we close the loop.',
-    icon: MessagesSquare },
+    icon: MessagesSquare,
+    img: 'https://images.unsplash.com/photo-1553081871-306366d02dfc?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400',
+    stats: [{ v: '↑68%', l: 'Reply rate' }, { v: '↓5 min', l: 'Response' }, { v: '10+', l: 'Playbooks' }],
+  },
 ]
 
+/* ============================================================
+   1 · HERO — slideshow with photos
+============================================================ */
 function SlideshowHero() {
   const [i, setI] = useState(0)
   useEffect(() => {
-    const id = setInterval(() => setI(v => (v + 1) % SLIDES.length), 4500)
+    const id = setInterval(() => setI(v => (v + 1) % SLIDES.length), 5000)
     return () => clearInterval(id)
   }, [])
   const s = SLIDES[i]
-  const Icon = s.icon
-  return (
-    <section className="relative min-h-[100vh] bg-[#0A0A0A] text-white overflow-hidden flex items-center px-4 md:px-10 pt-24 pb-16">
-      {/* ambient */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[120vw] h-[80vh] rounded-full"
-             style={{ background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.05), transparent 60%)' }} />
-        <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay pointer-events-none" style={{
-          backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")"
-        }} />
-      </div>
 
-      <div className="relative max-w-[1400px] mx-auto w-full grid lg:grid-cols-12 gap-10 items-center">
+  return (
+    <section className="relative min-h-[100vh] bg-[#171717] text-white overflow-hidden flex items-center px-4 md:px-10 pt-24 pb-16">
+      {/* Background image gradient */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={'bg-' + s.code}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.4 }}
+          className="absolute inset-0"
+        >
+          <img src={s.img} alt="" className="w-full h-full object-cover"
+               style={{ filter: 'grayscale(100%) brightness(0.55) contrast(1.05)' }} />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+        </motion.div>
+      </AnimatePresence>
+
+      <div className="relative max-w-[1400px] mx-auto w-full grid lg:grid-cols-12 gap-10 items-center z-10">
         <div className="lg:col-span-7">
           <motion.div
             initial={{ opacity: 0, y: 8 }}
@@ -59,7 +96,6 @@ function SlideshowHero() {
             — Marketing Division
           </motion.div>
 
-          {/* Slide indicator */}
           <div className="flex items-center gap-3 mb-8">
             {SLIDES.map((_, idx) => (
               <button key={idx} onClick={() => setI(idx)}
@@ -77,7 +113,7 @@ function SlideshowHero() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -24 }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="flex items-center gap-3 mb-5">
                 <span className="font-mono text-white/50 text-xs tracking-[0.2em]">{s.code}</span>
@@ -85,11 +121,20 @@ function SlideshowHero() {
                 <span className="text-[10px] tracking-[0.25em] uppercase text-white/50">{s.tag}</span>
               </div>
               <h1 className="text-white leading-[0.98] tracking-[-0.02em]"
-                  style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(44px,8vw,116px)' }}>
-                {s.title.split(' ')[0]}<br />
-                <span className="italic text-white/60">{s.title.split(' ').slice(1).join(' ')}</span>
+                  style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(42px,7.5vw,110px)' }}>
+                {s.title}<br />
+                <span className="italic text-white/60">{s.italic}</span>
               </h1>
-              <p className="mt-8 max-w-xl text-[15px] md:text-base text-white/60 leading-relaxed">{s.body}</p>
+              <p className="mt-8 max-w-xl text-[15px] md:text-base text-white/70 leading-relaxed">{s.body}</p>
+
+              <div className="mt-10 grid grid-cols-3 gap-3 max-w-md">
+                {s.stats.map((st, idx) => (
+                  <div key={idx} className="backdrop-blur-md bg-white/[0.05] border border-white/12 rounded-xl p-3">
+                    <div className="text-white text-lg font-semibold tracking-tight">{st.v}</div>
+                    <div className="text-[9px] tracking-[0.2em] uppercase text-white/50 mt-0.5">{st.l}</div>
+                  </div>
+                ))}
+              </div>
             </motion.div>
           </AnimatePresence>
         </div>
@@ -97,17 +142,24 @@ function SlideshowHero() {
         <div className="lg:col-span-5 relative flex items-center justify-center">
           <AnimatePresence mode="wait">
             <motion.div
-              key={'icon-' + s.code}
-              initial={{ opacity: 0, scale: 0.85, rotate: -8 }}
+              key={'photo-' + s.code}
+              initial={{ opacity: 0, scale: 0.9, rotate: -4 }}
               animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              exit={{ opacity: 0, scale: 0.9, rotate: 6 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="relative w-full aspect-square max-w-[420px] rounded-3xl border border-white/12 bg-white/[0.03] backdrop-blur-sm flex items-center justify-center"
-              style={{ boxShadow: '0 40px 80px -30px rgba(255,255,255,0.05)' }}
+              exit={{ opacity: 0, scale: 0.95, rotate: 3 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="relative w-full aspect-[4/5] max-w-[440px] rounded-3xl overflow-hidden border border-white/15"
+              style={{ boxShadow: '0 40px 80px -30px rgba(0,0,0,0.4)' }}
             >
-              <Icon size={140} strokeWidth={0.8} className="text-white" />
-              <div className="absolute top-4 left-4 text-[9px] tracking-[0.3em] uppercase text-white/50 font-mono">{s.code}</div>
-              <div className="absolute bottom-4 right-4 text-[9px] tracking-[0.3em] uppercase text-white/50">Vertical</div>
+              <img src={s.img} alt={s.title} className="w-full h-full object-cover"
+                   style={{ filter: 'grayscale(100%) contrast(1.05)' }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+              <div className="absolute top-4 left-4 backdrop-blur-md bg-white/10 border border-white/20 text-[10px] tracking-[0.25em] uppercase text-white font-semibold px-3 py-1.5 rounded-full">
+                {s.code}
+              </div>
+              <div className="absolute bottom-5 left-5 right-5">
+                <div className="text-white text-lg font-medium tracking-tight">{s.title} {s.italic}</div>
+                <div className="text-white/60 text-[10px] tracking-[0.2em] uppercase mt-1">{s.tag}</div>
+              </div>
             </motion.div>
           </AnimatePresence>
         </div>
@@ -117,7 +169,176 @@ function SlideshowHero() {
 }
 
 /* ============================================================
-   2 · REEL GRID
+   2 · PHILOSOPHY BLOCK — white section with big statement
+============================================================ */
+function MarketingPhilosophy() {
+  return (
+    <section className="relative bg-[#FAFAF7] py-28 md:py-40 px-6 md:px-10">
+      <div className="max-w-[1200px] mx-auto text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 0.9 }}
+          className="text-[10px] tracking-[0.4em] uppercase text-[#6B6B6B] mb-8"
+        >
+          — Our Philosophy
+        </motion.div>
+        <motion.h2
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+          className="text-[#0A0A0A] leading-[1.02] tracking-[-0.02em]"
+          style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(34px,6vw,88px)' }}
+        >
+          We don&apos;t sell impressions.
+          <br />
+          <span className="italic text-[#0A0A0A]/60">We sell outcomes.</span>
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 0.9, delay: 0.2 }}
+          className="mt-8 max-w-2xl mx-auto text-[15px] md:text-base text-[#525252] leading-relaxed"
+        >
+          Every campaign we run is built to answer one question: did this move the P&L? Not likes, not reach, not vanity dashboards. Just business results your accountant can point at.
+        </motion.p>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
+   3 · SERVICE PILLARS — 3 columns with icon+title+body
+============================================================ */
+function ServicePillars() {
+  const pillars = [
+    {
+      icon: BarChart3, code: '01', title: 'Data-first',
+      body: 'Every rupee tracked with proper attribution. Meta, Google, GA4, server-side events — we set up the plumbing so decisions are made on facts, not feelings.',
+      points: ['GA4 + Meta CAPI', 'UTM discipline', 'Weekly P&L reviews'],
+    },
+    {
+      icon: TargetIcon, code: '02', title: 'Creative velocity',
+      body: 'Content is the new targeting. We produce 40+ variants weekly, test aggressively, and let the winners scale. Slow creative teams lose — always.',
+      points: ['Weekly creative sprints', 'Hook library', 'UGC network across India'],
+    },
+    {
+      icon: Zap, code: '03', title: 'Full-funnel thinking',
+      body: 'From awareness ad to WhatsApp close. We connect brand, performance, and sales into one integrated system — no more paying to fill a leaky bucket.',
+      points: ['Awareness → close mapping', 'CRM + WhatsApp automation', 'Retention loops built-in'],
+    },
+  ]
+  return (
+    <section className="relative bg-white py-24 md:py-32 px-6 md:px-10 border-t border-black/8">
+      <div className="max-w-[1400px] mx-auto">
+        <div className="max-w-3xl mb-16 md:mb-20">
+          <div className="text-[10px] tracking-[0.35em] uppercase text-[#6B6B6B] mb-4">— How we operate</div>
+          <h2 className="text-[#0A0A0A] leading-[1.02] tracking-[-0.02em]"
+              style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(30px,4.5vw,58px)' }}>
+            Three principles. <span className="italic text-[#0A0A0A]/60">Every engagement.</span>
+          </h2>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-4 md:gap-6">
+          {pillars.map((p, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.7, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ y: -4 }}
+              className="group relative p-8 md:p-10 rounded-2xl border border-black/10 bg-[#FAFAF7] hover:border-[#0A0A0A] transition-all duration-500"
+            >
+              <div className="flex items-start justify-between mb-8">
+                <div className="w-12 h-12 rounded-xl bg-[#0A0A0A] flex items-center justify-center">
+                  <p.icon size={18} className="text-white" />
+                </div>
+                <span className="font-mono text-[10px] tracking-[0.2em] text-[#6B6B6B]">{p.code}</span>
+              </div>
+              <h3 className="text-[#0A0A0A] leading-[1.1] tracking-[-0.01em] mb-4"
+                  style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(26px,2.8vw,36px)' }}>
+                {p.title}
+              </h3>
+              <p className="text-[14px] text-[#525252] leading-relaxed mb-6">{p.body}</p>
+              <ul className="space-y-2">
+                {p.points.map((pt, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-[13px] text-[#0A0A0A]">
+                    <Check size={14} className="mt-0.5 shrink-0" /> {pt}
+                  </li>
+                ))}
+              </ul>
+              <div className="pointer-events-none absolute top-0 left-8 right-8 h-px bg-[#0A0A0A] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
+   4 · CASE HIGHLIGHT — one big brag row with numbers
+============================================================ */
+function CaseHighlight() {
+  return (
+    <section className="relative bg-[#FAFAF7] py-24 md:py-32 px-6 md:px-10">
+      <div className="max-w-[1400px] mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.9 }}
+          className="grid lg:grid-cols-12 gap-8 items-center"
+        >
+          <div className="lg:col-span-5">
+            <div className="text-[10px] tracking-[0.35em] uppercase text-[#6B6B6B] mb-4">— Case in point</div>
+            <h2 className="text-[#0A0A0A] leading-[1.02] tracking-[-0.02em] mb-6"
+                style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(30px,4vw,54px)' }}>
+              Anaya Handlooms went 0 to <span className="italic text-[#0A0A0A]/60">₹1.2 Cr</span> in one Diwali.
+            </h2>
+            <p className="text-[15px] text-[#525252] leading-relaxed max-w-md mb-6">
+              We built the storefront, ran creative, closed on WhatsApp — all under one roof. One team, one goal, one accountability line.
+            </p>
+            <Link href="/our-work" className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase font-semibold text-[#0A0A0A] hover:underline underline-offset-4">
+              See more work <ArrowRight size={13} />
+            </Link>
+          </div>
+
+          <div className="lg:col-span-7 grid grid-cols-2 gap-3 md:gap-5">
+            {[
+              { v: '₹1.2 Cr', l: 'Festive revenue' },
+              { v: '4.7x', l: 'Peak ROAS' },
+              { v: '2.3 M', l: 'Impressions served' },
+              { v: '62%', l: 'WhatsApp close rate' },
+            ].map((s, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.6, delay: 0.1 + i * 0.08 }}
+                className="p-6 md:p-8 rounded-2xl border border-black/10 bg-white hover:border-[#0A0A0A] transition-colors"
+              >
+                <div className="text-[#0A0A0A] tracking-[-0.02em]"
+                     style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(32px,4vw,54px)' }}>
+                  {s.v}
+                </div>
+                <div className="mt-2 text-[10px] tracking-[0.2em] uppercase text-[#6B6B6B]">{s.l}</div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
+   5 · REEL GRID (unchanged — near the end now)
 ============================================================ */
 function ReelGrid() {
   const reels = [
@@ -189,37 +410,7 @@ function ReelCell({ reel, index }) {
 }
 
 /* ============================================================
-   3 · STATS
-============================================================ */
-function StatsRow() {
-  const stats = [
-    { n: '500+', label: 'Reels Created' },
-    { n: '10M+', label: 'Views Generated' },
-    { n: '20+', label: 'Brands Onboarded' },
-  ]
-  return (
-    <section className="relative bg-[#0A0A0A] py-20 md:py-24 px-6 md:px-10 border-t border-white/8">
-      <div className="max-w-[1400px] mx-auto grid md:grid-cols-3 gap-10">
-        {stats.map((s, i) => (
-          <motion.div key={i}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: i * 0.1 }}
-            className="text-center md:text-left"
-          >
-            <div className="text-white leading-none tracking-[-0.02em]"
-                 style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(48px,6vw,88px)' }}>{s.n}</div>
-            <div className="text-[10px] tracking-[0.35em] uppercase text-white/50 mt-4">{s.label}</div>
-          </motion.div>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-/* ============================================================
-   4 · CTA — monochrome
+   6 · CTA
 ============================================================ */
 function FinalCTA() {
   return (
@@ -246,8 +437,10 @@ export default function DigitalMarketingPage() {
   return (
     <PageWrapper darkHero={true}>
       <SlideshowHero />
+      <MarketingPhilosophy />
+      <ServicePillars />
+      <CaseHighlight />
       <ReelGrid />
-      <StatsRow />
       <FinalCTA />
     </PageWrapper>
   )

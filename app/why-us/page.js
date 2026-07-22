@@ -140,20 +140,10 @@ function Hero() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.5 }}
-            className="mt-10 flex items-center gap-6 flex-wrap"
+            className="mt-10 inline-flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase text-[#0A0A0A]/60"
           >
-            <Link
-              href="/contact"
-              className="group inline-flex items-center gap-3 bg-[#0A0A0A] text-white text-xs font-semibold tracking-[0.2em] uppercase px-8 py-4 rounded-full transition-all hover:bg-black active:scale-[0.97]"
-              style={{ boxShadow: '0 10px 30px -10px rgba(0,0,0,0.35)' }}
-            >
-              Start a project
-              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link href="/our-work" className="group inline-flex items-center gap-2 text-xs font-semibold tracking-[0.2em] uppercase text-[#0A0A0A] hover:text-black">
-              See our work
-              <ArrowUpRight size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </Link>
+            <span className="w-8 h-px bg-[#0A0A0A]/40" />
+            Studio · Est. 2026
           </motion.div>
         </div>
 
@@ -162,7 +152,7 @@ function Hero() {
           <div className="relative w-full h-full flex items-center justify-center">
             <div className="absolute left-[4%] top-[2%]">
               <FloatingProfileCard
-                src="/team/uday.webp"
+                src="/team/smit.webp"
                 name="Uday Tailor"
                 role="Co-Founder"
                 tag="Building"
@@ -173,7 +163,7 @@ function Hero() {
             </div>
             <div className="absolute right-[2%] bottom-[2%]">
               <FloatingProfileCard
-                src="/team/smit.webp"
+                src="/team/uday.webp"
                 name="Smit Patel"
                 role="Co-Founder"
                 tag="Shipping"
@@ -548,18 +538,18 @@ function CoreValues() {
 function CoFounders() {
   const founders = [
     {
-      src: '/team/uday.webp',
-      name: 'Smit Patel',
-      title: 'Co-Founder',
-      caption: 'Systems, strategy & delivery',
-      bio: 'Smit leads engineering and client operations. His obsession with process is why our builds ship on time and stay live long after handover.',
-    },
-    {
       src: '/team/smit.webp',
       name: 'Uday Tailor',
       title: 'Co-Founder',
+      caption: 'Systems, strategy & delivery',
+      bio: 'Uday leads engineering and client operations. His obsession with process is why our builds ship on time and stay live long after handover.',
+    },
+    {
+      src: '/team/uday.webp',
+      name: 'Smit Patel',
+      title: 'Co-Founder',
       caption: 'Design, growth & story',
-      bio: 'Uday turns raw business ideas into brands and interfaces that people actually want to use. Design is his craft; growth is his obsession.',
+      bio: 'Smit turns raw business ideas into brands and interfaces that people actually want to use. Design is his craft; growth is his obsession.',
     },
   ]
   return (

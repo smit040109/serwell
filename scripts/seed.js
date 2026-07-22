@@ -180,11 +180,11 @@ async function run() {
     await teamCol.insertMany([
       {
         _id: uuidv4(),
-        name: 'Smit Patel',
+        name: 'Uday Tailor',
         role: 'Co-Founder',
         caption: 'Systems, strategy & delivery',
-        bio: 'Smit leads engineering and client operations. His obsession with process is why our builds ship on time and stay live long after handover.',
-        photo: '/team/uday.webp', // 3-piece suit photo
+        bio: 'Uday leads engineering and client operations. His obsession with process is why our builds ship on time and stay live long after handover.',
+        photo: '/team/smit.webp', // 3-piece formal photo (actual file)
         order: 1,
         isCoFounder: true,
         published: true,
@@ -192,11 +192,11 @@ async function run() {
       },
       {
         _id: uuidv4(),
-        name: 'Uday Tailor',
+        name: 'Smit Patel',
         role: 'Co-Founder',
         caption: 'Design, growth & story',
-        bio: 'Uday turns raw business ideas into brands and interfaces that people actually want to use. Design is his craft; growth is his obsession.',
-        photo: '/team/smit.webp', // black shirt photo
+        bio: 'Smit turns raw business ideas into brands and interfaces that people actually want to use. Design is his craft; growth is his obsession.',
+        photo: '/team/uday.webp', // casual outdoor photo (actual file)
         order: 2,
         isCoFounder: true,
         published: true,

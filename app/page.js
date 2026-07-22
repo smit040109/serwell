@@ -1,113 +1,182 @@
 'use client'
 
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import {
-  ArrowRight, ArrowUpRight, Sparkles, Search, PenTool, Rocket,
-  MessageSquare, RefreshCw, ChevronRight, Code2, TrendingUp,
+  ArrowRight, ArrowUpRight, MessageSquare, Search, PenTool, RefreshCw, Rocket, ChevronRight,
 } from 'lucide-react'
 import { PageWrapper } from '@/components/site/Shared'
 
 /* ============================================================
-   1 · HERO — 4-corner badges + big serif, NO sub-CTAs
+   1 · HERO — white bg, rotating word, ambient video, subtle 3D scroll
 ============================================================ */
+const ROTATING_WORDS = [
+  'digital systems',
+  'brand experiences',
+  'AI workflows',
+  'growth engines',
+  'future products',
+]
+
+// Ambient stock video (Pexels CDN — abstract flowing patterns). Falls back gracefully.
+const HERO_VIDEO_SRC = 'https://videos.pexels.com/video-files/3129769/3129769-uhd_2560_1440_30fps.mp4'
+
 function Hero() {
-  const corners = [
-    { code: '01', label: 'Design', cls: 'left-4 md:left-10 top-24 md:top-32' },
-    { code: '02', label: 'Engineering', cls: 'right-4 md:right-10 top-24 md:top-32' },
-    { code: '03', label: 'AI & Automation', cls: 'left-4 md:left-10 bottom-28 md:bottom-32' },
-    { code: '04', label: 'Growth', cls: 'right-4 md:right-10 bottom-28 md:bottom-32' },
-  ]
+  const [idx, setIdx] = useState(0)
+  const ref = useRef(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  const y = useTransform(scrollYProgress, [0, 1], [0, 180])
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.92])
+  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+
+  useEffect(() => {
+    const id = setInterval(() => setIdx(v => (v + 1) % ROTATING_WORDS.length), 2600)
+    return () => clearInterval(id)
+  }, [])
+
   return (
-    <section className="relative min-h-[100vh] bg-[#0A0A0A] text-white overflow-hidden flex items-center justify-center px-4">
-      {/* subtle ambient glow */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[120vw] h-[80vh] rounded-full"
-             style={{ background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.06), transparent 60%)' }} />
-        <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay pointer-events-none" style={{
-          backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")"
+    <section ref={ref} className="relative min-h-[100vh] bg-white overflow-hidden flex items-center justify-center px-4">
+      {/* Ambient video background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <video
+          autoPlay muted loop playsInline preload="auto"
+          className="w-full h-full object-cover"
+          style={{ filter: 'grayscale(100%) brightness(1.15) contrast(0.9)', opacity: 0.28 }}
+        >
+          <source src={HERO_VIDEO_SRC} type="video/mp4" />
+        </video>
+        {/* White veil to keep it airy */}
+        <div className="absolute inset-0" style={{
+          background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.55), rgba(255,255,255,0.85) 50%, rgba(255,255,255,1))',
         }} />
+        {/* Faint animated grain */}
+        <div className="absolute inset-0 opacity-[0.04] mix-blend-multiply" style={{
+          backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.7'/%3E%3C/svg%3E\")"
+        }} />
+
+        {/* Floating decorative particles — 3D-ish scroll parallax */}
+        <FloatingParticles />
       </div>
 
-      {/* Floating corner badges */}
-      {corners.map((c, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0, y: 20, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 1, delay: 0.6 + i * 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className={`absolute z-10 ${c.cls}`}
-        >
-          <motion.div
-            animate={{ y: [-4, 4, -4] }}
-            transition={{ duration: 5 + i * 0.4, repeat: Infinity, ease: 'easeInOut', delay: i * 0.3 }}
-            className="inline-flex items-center gap-2 md:gap-3 pl-2.5 pr-4 md:pl-3 md:pr-6 py-1.5 md:py-2 rounded-full border border-white/15 bg-white/[0.03] backdrop-blur-sm"
-          >
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              <span className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-white/50 font-medium">{c.code}</span>
-            </div>
-            <span className="text-[11px] md:text-sm text-white font-medium tracking-tight">{c.label}</span>
-          </motion.div>
-        </motion.div>
-      ))}
-
-      {/* Center headline */}
-      <div className="relative z-0 max-w-6xl mx-auto text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.2 }}
-          className="inline-flex items-center gap-2 border border-white/15 bg-white/[0.03] backdrop-blur-md px-3 md:px-4 py-1.5 rounded-full text-[9px] md:text-[10px] tracking-[0.25em] uppercase text-white/70 mb-8 md:mb-12"
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-          An independent studio · Available Q3 2026
-        </motion.div>
-
+      {/* Headline */}
+      <motion.div
+        style={{ y, scale, opacity }}
+        className="relative z-10 max-w-6xl mx-auto text-center"
+      >
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="text-white leading-[0.98] tracking-[-0.02em]"
-          style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(38px,8vw,120px)' }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          className="text-[#0A0A0A] leading-[0.95] tracking-[-0.02em]"
+          style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(42px,8.5vw,140px)' }}
         >
-          We design, engineer
-          <br />
-          & scale <span className="italic text-white/60">digital systems.</span>
+          <span className="block">We design, engineer</span>
+          <span className="block whitespace-nowrap">
+            & scale{' '}
+            <span className="relative inline-block align-baseline overflow-visible">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={idx}
+                  initial={{ opacity: 0, y: '0.35em', filter: 'blur(6px)' }}
+                  animate={{ opacity: 1, y: '0em', filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, y: '-0.35em', filter: 'blur(6px)' }}
+                  transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                  className="italic text-[#0A0A0A]/70 inline-block"
+                >
+                  {ROTATING_WORDS[idx]}.
+                </motion.span>
+              </AnimatePresence>
+            </span>
+          </span>
         </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.7 }}
-          className="mt-8 md:mt-10 max-w-2xl mx-auto text-sm md:text-base lg:text-lg text-white/60 leading-relaxed px-4"
-        >
-          An independent studio combining design, engineering, AI and automation into
-          digital systems your business can rely on.
-        </motion.p>
-      </div>
+      </motion.div>
     </section>
   )
 }
 
-/* ============================================================
-   2 · HOW WE WORK — 5-step process story
-============================================================ */
-function HowWeWork() {
-  const ref = useRef(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
-
-  const steps = [
-    { code: '01', title: 'Understand', desc: 'We start by listening. Your business, your P&L, your customers, your calendar. A 60-minute call where you talk more than us.', icon: MessageSquare },
-    { code: '02', title: 'Research', desc: 'Competitor teardowns, customer interviews, workflow audits. We show up to the second meeting knowing your industry better than most consultants.', icon: Search },
-    { code: '03', title: 'Present', desc: 'Fixed-scope proposal with wireframes, timelines and pricing. No surprises, no fine print, no six-meeting sales funnels.', icon: PenTool },
-    { code: '04', title: 'Iterate', desc: 'Weekly demos, weekly feedback, weekly progress. You steer the ship at every milestone — nothing gets built in the dark.', icon: RefreshCw },
-    { code: '05', title: 'Deliver & Ship', desc: 'On the deadline, in production, documented. Then we stay for the post-launch quarter so momentum never dies.', icon: Rocket },
+function FloatingParticles() {
+  const dots = [
+    { x: '12%', y: '22%', s: 5, d: 6 },
+    { x: '82%', y: '18%', s: 3, d: 8 },
+    { x: '20%', y: '76%', s: 4, d: 7 },
+    { x: '75%', y: '72%', s: 6, d: 9 },
+    { x: '50%', y: '12%', s: 2, d: 10 },
+    { x: '88%', y: '48%', s: 3, d: 7 },
+    { x: '8%', y: '52%', s: 2, d: 8 },
   ]
-
   return (
-    <section ref={ref} className="relative bg-[#FAFAF7] py-24 md:py-40 px-6 md:px-10">
+    <>
+      {dots.map((p, i) => (
+        <motion.div
+          key={i}
+          animate={{ y: [-14, 14, -14], x: [-6, 6, -6] }}
+          transition={{ duration: p.d, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
+          className="absolute rounded-full"
+          style={{ left: p.x, top: p.y, width: p.s * 2, height: p.s * 2, background: '#0A0A0A', opacity: 0.16 }}
+        />
+      ))}
+      {/* Slow orbit rings */}
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-black/[0.06]"
+        style={{ width: '86vw', height: '86vw', maxWidth: 1300, maxHeight: 1300 }}
+      />
+      <motion.div
+        animate={{ rotate: -360 }}
+        transition={{ duration: 90, repeat: Infinity, ease: 'linear' }}
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-black/[0.04]"
+        style={{ width: '108vw', height: '108vw', maxWidth: 1600, maxHeight: 1600 }}
+      />
+    </>
+  )
+}
+
+/* ============================================================
+   2 · HOW WE WORK — 5-step story with real photos + framer motion
+============================================================ */
+const STEPS = [
+  {
+    code: '01', title: 'Understand',
+    desc: 'We start by listening. Your business, your P&L, your customers, your calendar. A 60-minute call where you talk more than us.',
+    icon: MessageSquare,
+    img: 'https://images.unsplash.com/photo-1573165662973-4ab3cf3d3508?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400',
+    tag: 'Discovery',
+  },
+  {
+    code: '02', title: 'Research',
+    desc: 'Competitor teardowns, customer interviews, workflow audits. We show up to the second meeting knowing your industry better than most consultants.',
+    icon: Search,
+    img: 'https://images.pexels.com/photos/7947854/pexels-photo-7947854.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=900&w=1400',
+    tag: 'Deep dive',
+  },
+  {
+    code: '03', title: 'Present',
+    desc: 'Fixed-scope proposal with wireframes, timelines and pricing. No surprises, no fine print, no six-meeting sales funnels.',
+    icon: PenTool,
+    img: 'https://images.unsplash.com/photo-1561123760-0b8467594a63?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400',
+    tag: 'Proposal',
+  },
+  {
+    code: '04', title: 'Iterate',
+    desc: 'Weekly demos, weekly feedback, weekly progress. You steer the ship at every milestone — nothing gets built in the dark.',
+    icon: RefreshCw,
+    img: 'https://images.pexels.com/photos/3862154/pexels-photo-3862154.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=900&w=1400',
+    tag: 'Build loop',
+  },
+  {
+    code: '05', title: 'Deliver & Ship',
+    desc: 'On the deadline, in production, documented. Then we stay for the post-launch quarter so momentum never dies.',
+    icon: Rocket,
+    img: 'https://images.unsplash.com/photo-1663316096144-245765748264?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400',
+    tag: 'Launch',
+  },
+]
+
+function HowWeWork() {
+  return (
+    <section className="relative bg-[#FAFAF7] py-24 md:py-40 px-6 md:px-10">
       <div className="max-w-[1400px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -127,48 +196,11 @@ function HowWeWork() {
         </motion.div>
 
         <div className="relative">
-          {/* vertical line */}
-          <div className="absolute left-6 md:left-1/2 top-4 bottom-4 w-px bg-black/10 -translate-x-px hidden md:block" />
+          {/* vertical line — desktop only */}
+          <div className="absolute left-1/2 top-4 bottom-4 w-px bg-black/10 -translate-x-px hidden md:block" />
 
-          <div className="space-y-10 md:space-y-24">
-            {steps.map((s, i) => {
-              const isEven = i % 2 === 1
-              return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-100px' }}
-                  transition={{ duration: 0.9, delay: 0.08 * i, ease: [0.22, 1, 0.36, 1] }}
-                  className={`relative grid md:grid-cols-2 gap-6 md:gap-16 items-center ${isEven ? 'md:[direction:rtl]' : ''}`}
-                >
-                  <div className={`md:[direction:ltr] ${isEven ? 'md:text-right' : ''}`}>
-                    <div className="inline-flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase text-[#6B6B6B] mb-4">
-                      <span className="font-mono text-[#0A0A0A] font-semibold">{s.code}</span>
-                      <span className="w-8 h-px bg-[#0A0A0A]" />
-                      <span>Step {i + 1}</span>
-                    </div>
-                    <h3 className="text-[#0A0A0A] leading-[1.05] tracking-[-0.02em] mb-4"
-                        style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(30px,4vw,52px)' }}>
-                      {s.title}
-                    </h3>
-                    <p className="text-[15px] text-[#525252] leading-relaxed max-w-md">{s.desc}</p>
-                  </div>
-
-                  <div className="md:[direction:ltr] relative">
-                    <div className={`relative rounded-3xl border border-black/10 bg-white overflow-hidden aspect-[4/3] p-6 md:p-10 flex items-center justify-center ${isEven ? '' : ''}`}
-                         style={{ boxShadow: '0 30px 60px -30px rgba(0,0,0,0.15)' }}>
-                      <div className="absolute top-4 left-4 text-[10px] tracking-[0.25em] uppercase text-[#6B6B6B]">{s.code}</div>
-                      <s.icon size={72} strokeWidth={1} className="text-[#0A0A0A]" />
-                      <div className="absolute bottom-4 right-4 text-[10px] tracking-[0.25em] uppercase text-[#6B6B6B]">{s.title}</div>
-                    </div>
-                    {/* central node on line */}
-                    <div className="hidden md:block absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#0A0A0A] border-4 border-[#FAFAF7]"
-                         style={isEven ? { right: 'calc(-50% + 20px)' } : { left: 'calc(-50% + 20px)' }} />
-                  </div>
-                </motion.div>
-              )
-            })}
+          <div className="space-y-16 md:space-y-32">
+            {STEPS.map((s, i) => <StepBlock key={i} step={s} index={i} />)}
           </div>
         </div>
       </div>
@@ -176,8 +208,77 @@ function HowWeWork() {
   )
 }
 
+function StepBlock({ step, index }) {
+  const ref = useRef(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+  const isEven = index % 2 === 1
+  const imgY = useTransform(scrollYProgress, [0, 1], [40, -40])
+  const Icon = step.icon
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 60 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-120px' }}
+      transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
+      className={`relative grid md:grid-cols-2 gap-8 md:gap-16 items-center ${isEven ? 'md:[direction:rtl]' : ''}`}
+    >
+      {/* TEXT SIDE */}
+      <div className={`md:[direction:ltr] ${isEven ? 'md:text-right' : ''}`}>
+        <motion.div
+          initial={{ opacity: 0, x: isEven ? 40 : -40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div className={`inline-flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase text-[#6B6B6B] mb-4 ${isEven ? 'flex-row-reverse' : ''}`}>
+            <span className="font-mono text-[#0A0A0A] font-semibold">{step.code}</span>
+            <span className="w-8 h-px bg-[#0A0A0A]" />
+            <span>Step {index + 1}</span>
+          </div>
+          <h3 className="text-[#0A0A0A] leading-[1.05] tracking-[-0.02em] mb-4"
+              style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(30px,4.5vw,58px)' }}>
+            {step.title}
+          </h3>
+          <p className="text-[15px] text-[#525252] leading-relaxed max-w-md md:ml-auto md:mr-auto">{step.desc}</p>
+        </motion.div>
+      </div>
+
+      {/* IMAGE SIDE */}
+      <div className="md:[direction:ltr] relative">
+        <motion.div
+          style={{ y: imgY }}
+          className="relative rounded-3xl overflow-hidden border border-black/10 aspect-[4/5] md:aspect-[5/6] bg-black"
+        >
+          <img
+            src={step.img}
+            alt={step.title}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ filter: 'grayscale(100%) contrast(1.05)' }}
+            draggable={false}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+          {/* Overlay content */}
+          <div className="absolute top-5 left-5 flex items-center gap-2 bg-white/95 backdrop-blur-sm text-[9px] tracking-[0.2em] uppercase font-semibold text-[#0A0A0A] px-3 py-1.5 rounded-full">
+            <Icon size={11} /> {step.tag}
+          </div>
+          <div className="absolute top-5 right-5 font-mono text-[10px] tracking-[0.2em] text-white/70">{step.code}</div>
+          <div className="absolute bottom-6 left-6 right-6">
+            <div className="text-white text-lg md:text-xl font-medium tracking-tight">{step.title}</div>
+            <div className="text-white/60 text-[11px] tracking-[0.2em] uppercase mt-1">Phase 0{index + 1}</div>
+          </div>
+        </motion.div>
+        {/* Timeline node */}
+        <div className="hidden md:block absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#0A0A0A] border-4 border-[#FAFAF7]"
+             style={isEven ? { right: 'calc(-50% + 20px)' } : { left: 'calc(-50% + 20px)' }} />
+      </div>
+    </motion.div>
+  )
+}
+
 /* ============================================================
-   3 · SELECTED WORK CAROUSEL — CMS-driven with color-shifting bg
+   3 · SELECTED WORK CAROUSEL — CMS-driven color-shifting
 ============================================================ */
 function SelectedWork() {
   const [projects, setProjects] = useState([])
@@ -206,21 +307,20 @@ function SelectedWork() {
           transition={{ duration: 0.9 }}
           className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 md:mb-20"
         >
-          <div>
-            <div className="text-[10px] tracking-[0.3em] uppercase opacity-60 mb-4">— Selected Work</div>
+          <div className="max-w-2xl">
+            <div className="text-[10px] tracking-[0.35em] uppercase opacity-60 mb-4">— Selected Work</div>
             <h2 className="leading-[1.02] tracking-[-0.02em]"
-                style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(34px,5.5vw,72px)' }}>
-              20+ businesses. <span className="italic opacity-70">One studio.</span>
+                style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(36px,5.5vw,76px)' }}>
+              Products that <span className="italic opacity-70">actually shipped.</span>
             </h2>
           </div>
           <Link href="/our-work" className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase font-semibold underline-offset-4 hover:underline">
-            See all work <ArrowUpRight size={14} />
+            View all work <ArrowUpRight size={14} />
           </Link>
         </motion.div>
 
         {projects.length > 0 ? (
           <div className="grid lg:grid-cols-2 gap-10 md:gap-14 items-center">
-            {/* LEFT: Big display for current */}
             <motion.div
               key={current._id}
               initial={{ opacity: 0, x: -20 }}
@@ -238,10 +338,9 @@ function SelectedWork() {
               <p className="text-[15px] md:text-base opacity-80 leading-relaxed max-w-md">{current.summary}</p>
               <div className="flex flex-wrap gap-2 pt-2">
                 {(current.services || []).map(sv => (
-                  <span key={sv} className="text-[10px] tracking-[0.2em] uppercase px-3 py-1.5 rounded-full border border-white/25 opacity-80">{sv}</span>
+                  <span key={sv} className="text-[10px] tracking-[0.2em] uppercase px-3 py-1.5 rounded-full border border-current/25 opacity-80">{sv}</span>
                 ))}
               </div>
-              {/* Nav dots */}
               <div className="pt-8 flex items-center gap-2">
                 {projects.map((p, i) => (
                   <button
@@ -264,7 +363,6 @@ function SelectedWork() {
               </div>
             </motion.div>
 
-            {/* RIGHT: image */}
             <motion.div
               key={'img-' + current._id}
               initial={{ opacity: 0, y: 24 }}
@@ -289,43 +387,7 @@ function SelectedWork() {
 }
 
 /* ============================================================
-   4 · IMPACT STATS — realistic numbers
-============================================================ */
-function ImpactStats() {
-  const stats = [
-    { n: '20+', label: 'Products shipped' },
-    { n: '15+', label: 'Businesses served' },
-    { n: '6+', label: 'Industries covered' },
-    { n: '100%', label: 'Founder-led delivery' },
-  ]
-  return (
-    <section className="relative bg-[#FAFAF7] py-24 md:py-32 px-6 md:px-10">
-      <div className="max-w-[1400px] mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {stats.map((s, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.7, delay: i * 0.1 }}
-              className="p-6 md:p-8 rounded-2xl bg-white border border-black/10"
-            >
-              <div className="text-[#0A0A0A] leading-none tracking-[-0.03em]"
-                   style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(40px,5vw,64px)' }}>
-                {s.n}
-              </div>
-              <div className="mt-4 text-[11px] tracking-[0.2em] uppercase text-[#6B6B6B]">{s.label}</div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ============================================================
-   5 · CLOSING STATEMENT
+   4 · CLOSING STATEMENT
 ============================================================ */
 function ClosingStatement() {
   return (
@@ -359,11 +421,10 @@ function ClosingStatement() {
 
 export default function Home() {
   return (
-    <PageWrapper darkHero={true}>
+    <PageWrapper darkHero={false}>
       <Hero />
       <HowWeWork />
       <SelectedWork />
-      <ImpactStats />
       <ClosingStatement />
     </PageWrapper>
   )
