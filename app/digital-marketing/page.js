@@ -298,10 +298,10 @@ function CaseHighlight() {
             <div className="text-[10px] tracking-[0.35em] uppercase text-[#6B6B6B] mb-4">— Case in point</div>
             <h2 className="text-[#0A0A0A] leading-[1.02] tracking-[-0.02em] mb-6"
                 style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(30px,4vw,54px)' }}>
-              Anaya Handlooms went 0 to <span className="italic text-[#0A0A0A]/60">₹1.2 Cr</span> in one Diwali.
+              Sanskar Handlooms saw their <span className="italic text-[#0A0A0A]/60">footfall multiply</span> in a single festive season.
             </h2>
             <p className="text-[15px] text-[#525252] leading-relaxed max-w-md mb-6">
-              We built the storefront, ran creative, closed on WhatsApp — all under one roof. One team, one goal, one accountability line.
+              We built their storefront, ran creative, closed on WhatsApp — all under one roof. One team, one goal, one accountability line.
             </p>
             <Link href="/our-work" className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase font-semibold text-[#0A0A0A] hover:underline underline-offset-4">
               See more work <ArrowRight size={13} />
@@ -310,8 +310,8 @@ function CaseHighlight() {
 
           <div className="lg:col-span-7 grid grid-cols-2 gap-3 md:gap-5">
             {[
-              { v: '₹1.2 Cr', l: 'Festive revenue' },
-              { v: '4.7x', l: 'Peak ROAS' },
+              { v: '4×', l: 'Store footfall growth' },
+              { v: '3.6×', l: 'Repeat visitors' },
               { v: '2.3 M', l: 'Impressions served' },
               { v: '62%', l: 'WhatsApp close rate' },
             ].map((s, i) => (
@@ -346,7 +346,7 @@ function ReelGrid() {
     { src: '/videos/p2.mp4', title: 'Product Drop', tag: 'Reel' },
     { src: '/videos/p3.mp4', title: 'Behind The Loom', tag: 'BTS' },
     { src: '/videos/p4.mp4', title: 'Founder Story', tag: 'Doc' },
-    { src: '/videos/p5.mp4', title: 'Anaya Diwali', tag: 'Ad' },
+    { src: '/videos/p5.mp4', title: 'Sanskar Diwali', tag: 'Ad' },
     { src: '/videos/p6.mp4', title: 'Bandhan Launch', tag: 'Promo' },
   ]
   return (

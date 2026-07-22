@@ -151,15 +151,28 @@ export function Navbar({ darkHero = false }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
 
+  // Lock body scroll while mobile menu is open (prevents underlying content from showing through)
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    if (open) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [open])
+
   return (
     <motion.header
       initial={{ y: -30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
       className="fixed top-0 inset-x-0 z-40 bg-transparent"
-      style={{ mixBlendMode: 'difference' }}
+      // Disable difference blend when the mobile menu is open — otherwise the
+      // menu text mixes with the underlying page and appears "overlapping".
+      style={{ mixBlendMode: open ? 'normal' : 'difference' }}
     >
-      <div className="max-w-[1500px] mx-auto flex justify-between items-center py-5 px-6 lg:px-10">
+      <div className={`max-w-[1500px] mx-auto flex justify-between items-center py-5 px-6 lg:px-10 ${open ? 'bg-[#0A0A0A]' : ''}`}>
         <Wordmark light={true} />
 
         <nav className="hidden md:flex items-center space-x-8 text-[11px] font-medium tracking-[0.18em] uppercase text-white/70">
@@ -203,25 +216,47 @@ export function Navbar({ darkHero = false }) {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-[#111111] border-t border-white/10 overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="md:hidden fixed inset-x-0 top-[64px] bottom-0 bg-[#0A0A0A] overflow-y-auto"
+            style={{ isolation: 'isolate' }}
           >
-            <div className="px-6 py-6 space-y-4">
-              {NAV_LINKS.map(l => (
-                <Link
+            <div className="px-6 py-10 space-y-2 flex flex-col">
+              {NAV_LINKS.map((l, i) => (
+                <motion.div
                   key={l.href}
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className={`block text-xl tracking-tight ${
-                    pathname === l.href ? 'text-white/60' : 'text-white'
-                  }`}
-                  style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400 }}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: 0.05 + i * 0.05 }}
                 >
-                  {l.label}
-                </Link>
+                  <Link
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    className={`block py-3 border-b border-white/8 text-3xl tracking-tight ${
+                      pathname === l.href ? 'text-white/50' : 'text-white'
+                    }`}
+                    style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400 }}
+                  >
+                    {l.label}
+                  </Link>
+                </motion.div>
               ))}
+
+              <div className="pt-8 mt-4">
+                <Link
+                  href="/contact"
+                  onClick={() => setOpen(false)}
+                  className="w-full inline-flex items-center justify-center gap-2 bg-white text-[#0A0A0A] text-xs font-semibold tracking-[0.2em] uppercase px-6 py-4 rounded-full active:scale-[0.98] transition-all"
+                >
+                  Start Project
+                  <ArrowRight size={14} />
+                </Link>
+                <div className="mt-6 text-[10px] tracking-[0.3em] uppercase text-white/40 text-center">
+                  Studio · India · Worldwide
+                </div>
+              </div>
             </div>
           </motion.div>
         )}

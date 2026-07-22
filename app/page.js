@@ -13,7 +13,6 @@ import { PageWrapper } from '@/components/site/Shared'
 ============================================================ */
 const ROTATING_WORDS = [
   'digital systems',
-  'brand experiences',
   'AI workflows',
   'growth engines',
   'future products',
@@ -90,18 +89,6 @@ function Hero() {
         <FloatingParticles />
       </motion.div>
 
-      {/* Top-left cinematic marker */}
-      <div className="absolute top-24 left-6 md:left-10 z-10 flex items-center gap-3 text-white/70 text-[10px] tracking-[0.3em] uppercase pointer-events-none">
-        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-        <span>Rec · Studio Live</span>
-      </div>
-
-      {/* Top-right meta */}
-      <div className="absolute top-24 right-6 md:right-10 z-10 text-white/60 text-[10px] tracking-[0.3em] uppercase pointer-events-none hidden md:block">
-        <div className="text-right">Independent Studio</div>
-        <div className="text-right text-white/40 mt-1">India · Worldwide</div>
-      </div>
-
       {/* Headline */}
       <motion.div
         style={{ y, scale, opacity }}
@@ -138,33 +125,6 @@ function Hero() {
             </span>
           </span>
         </motion.h1>
-
-        {/* Subtle underline meta-tag */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-10 flex items-center justify-center gap-4 text-white/70 text-[11px] tracking-[0.32em] uppercase"
-        >
-          <span className="h-px w-10 bg-white/30" />
-          <span>Design · Engineering · AI · Growth</span>
-          <span className="h-px w-10 bg-white/30" />
-        </motion.div>
-      </motion.div>
-
-      {/* Bottom scroll cue */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.2, delay: 1.4 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/50 text-[10px] tracking-[0.3em] uppercase pointer-events-none"
-      >
-        <span>Scroll</span>
-        <motion.span
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-          className="block h-6 w-px bg-white/40"
-        />
       </motion.div>
     </section>
   )
@@ -244,7 +204,7 @@ const STEPS = [
     code: '05', title: 'Deliver & Ship',
     desc: 'On the deadline, in production, documented. Then we stay for the post-launch quarter so momentum never dies.',
     icon: Rocket,
-    img: 'https://images.unsplash.com/photo-1663316096144-245765748264?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400',
+    img: 'https://images.unsplash.com/photo-1652172100914-c5b691730756?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHw0fHxkZXZlbG9wZXIlMjB0ZWFtfGVufDB8fHxibGFja19hbmRfd2hpdGV8MTc4NDcyMjc2NXww&ixlib=rb-4.1.0&q=85&w=1400',
     tag: 'Launch',
   },
 ]

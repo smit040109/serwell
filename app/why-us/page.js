@@ -192,7 +192,7 @@ function ImpactStats() {
   const stats = [
     { value: 20, suffix: '+', label: 'Projects Delivered', sub: 'Shipped end-to-end, on time.' },
     { value: 15, suffix: '+', label: 'Businesses Served', sub: 'From D2C brands to family enterprises.' },
-    { value: 6, suffix: '+', label: 'Industries Covered', sub: 'Textile, retail, education, hospitality, and more.' },
+    { value: 10, suffix: '', label: 'People. One Studio.', sub: 'Designers, engineers & strategists — under one roof.' },
     { value: 100, suffix: '%', label: 'Founder-Led', sub: 'Every project touched by both of us.' },
   ]
   return (
@@ -205,12 +205,12 @@ function ImpactStats() {
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           className="max-w-3xl mb-16 md:mb-20"
         >
-          <div className="text-[10px] tracking-[0.3em] uppercase text-[#6B6B6B] mb-5">— A small studio, deliberately.</div>
+          <div className="text-[10px] tracking-[0.3em] uppercase text-[#6B6B6B] mb-5">— A ten-person studio, deliberately small.</div>
           <h2
             className="text-[#0A0A0A] leading-[1.0] tracking-[-0.02em]"
             style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(32px,4.8vw,60px)' }}
           >
-            Two founders. Twenty
+            A team of ten. Twenty
             <br />
             products shipped. <span className="italic text-[#0A0A0A]/60">Zero excuses.</span>
           </h2>
@@ -414,40 +414,59 @@ function MockMobileUI() {
       {/* phone frame */}
       <div className="relative w-[280px] md:w-[320px] aspect-[9/19] rounded-[42px] bg-[#0A0A0A] p-2.5"
            style={{ boxShadow: '0 40px 80px -30px rgba(0,0,0,0.35)' }}>
-        <div className="w-full h-full rounded-[34px] bg-white overflow-hidden relative">
+        <div className="w-full h-full rounded-[34px] bg-[#0A0A0A] overflow-hidden relative">
           {/* notch */}
-          <div className="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-5 rounded-full bg-[#0A0A0A]" />
-          {/* content */}
-          <div className="pt-14 px-5">
-            <div className="text-[9px] tracking-[0.25em] uppercase text-[#6B6B6B]">Live sprint</div>
-            <div className="mt-1 text-lg font-semibold tracking-tight text-[#0A0A0A]">Anaya · Diwali Launch</div>
-            <div className="mt-4 space-y-2.5">
-              {[
-                { label: 'Brand system', p: 100 },
-                { label: 'E-commerce build', p: 92 },
-                { label: 'WhatsApp automation', p: 74 },
-                { label: 'Growth playbook', p: 48 },
-              ].map((r, i) => (
-                <div key={i}>
-                  <div className="flex items-center justify-between text-[10px] mb-1">
-                    <span className="text-[#0A0A0A]">{r.label}</span>
-                    <span className="text-[#6B6B6B] tabular-nums">{r.p}%</span>
-                  </div>
-                  <div className="h-1.5 rounded-full bg-black/8 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      whileInView={{ width: `${r.p}%` }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1.4, delay: 0.15 * i, ease: [0.22, 1, 0.36, 1] }}
-                      className="h-full bg-[#0A0A0A]"
-                    />
-                  </div>
-                </div>
-              ))}
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-5 rounded-full bg-[#0A0A0A] z-30" />
+
+          {/* Full-bleed video inside the phone */}
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="/videos/p4.mp4" type="video/mp4" />
+          </video>
+
+          {/* Legibility gradient (top status area + bottom caption) */}
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/60 to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/85 via-black/40 to-transparent z-10 pointer-events-none" />
+
+          {/* Top status bar */}
+          <div className="absolute top-3 left-4 right-4 z-20 flex items-center justify-between text-[10px] text-white/85 font-medium">
+            <span className="tabular-nums">9:41</span>
+            <span className="flex items-center gap-1">
+              <span className="w-1 h-1 rounded-full bg-white/70" />
+              <span className="w-1 h-1 rounded-full bg-white/70" />
+              <span className="w-1 h-1 rounded-full bg-white/70" />
+            </span>
+          </div>
+
+          {/* Live pulse label top-right */}
+          <div className="absolute top-11 right-4 z-20 flex items-center gap-1.5 bg-white/12 backdrop-blur-md text-[8.5px] tracking-[0.2em] uppercase font-semibold text-white px-2.5 py-1 rounded-full border border-white/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+            Live
+          </div>
+
+          {/* Bottom caption card */}
+          <div className="absolute inset-x-4 bottom-4 z-20">
+            <div className="text-[9px] tracking-[0.25em] uppercase text-white/70 mb-1">Now shipping</div>
+            <div className="text-white text-[15px] font-semibold leading-tight tracking-tight">
+              Sanskar · Diwali Launch
             </div>
-            <div className="mt-6 p-3 rounded-xl bg-[#FAFAF7] border border-black/8">
-              <div className="text-[9px] tracking-[0.2em] uppercase text-[#6B6B6B]">Next demo</div>
-              <div className="mt-1 text-[13px] font-semibold text-[#0A0A0A]">Friday · 5:30 PM IST</div>
+            <div className="mt-3 flex items-center gap-2">
+              <div className="flex-1 h-1 rounded-full bg-white/15 overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  whileInView={{ width: '72%' }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
+                  className="h-full bg-white"
+                />
+              </div>
+              <span className="text-white/75 text-[10px] tabular-nums">72%</span>
             </div>
           </div>
         </div>
@@ -666,18 +685,18 @@ function NewsletterCTA() {
               Get one honest email a month — what we shipped, what we learned, and the one system every founder should be using this quarter.
             </p>
 
-            <form onSubmit={submit} className="mt-10 relative flex items-center max-w-lg mx-auto">
+            <form onSubmit={submit} className="mt-10 max-w-lg mx-auto flex flex-col sm:relative sm:flex-row sm:items-center gap-3 sm:gap-0">
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@yourbusiness.com"
-                className="w-full pl-6 pr-40 py-5 rounded-full border border-black/12 bg-[#FAFAF7] text-[14px] text-[#0A0A0A] placeholder:text-[#A3A3A3] outline-none focus:border-[#0A0A0A] focus:ring-4 focus:ring-black/5 transition-all"
+                className="w-full pl-6 pr-6 sm:pr-40 py-5 rounded-full border border-black/12 bg-[#FAFAF7] text-[14px] text-[#0A0A0A] placeholder:text-[#A3A3A3] outline-none focus:border-[#0A0A0A] focus:ring-4 focus:ring-black/5 transition-all"
               />
               <button
                 type="submit"
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex items-center gap-2 bg-[#0A0A0A] text-white text-xs font-semibold tracking-[0.2em] uppercase px-6 py-3.5 rounded-full hover:bg-black active:scale-[0.97] transition-all"
+                className="w-full sm:w-auto sm:absolute sm:right-1.5 sm:top-1/2 sm:-translate-y-1/2 inline-flex items-center justify-center gap-2 bg-[#0A0A0A] text-white text-xs font-semibold tracking-[0.2em] uppercase px-6 py-4 sm:py-3.5 rounded-full hover:bg-black active:scale-[0.97] transition-all"
               >
                 {submitted ? 'Sent ✓' : 'Subscribe'}
                 {!submitted && <ArrowRight size={14} />}

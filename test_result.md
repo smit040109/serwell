@@ -185,6 +185,82 @@ backend:
         comment: "Seeded: 1 super admin (admin@vayucodes.com / VayuAdmin@2026), site_settings, navigation, footer, seo_settings, contact_settings (all singletons), 2 team_members (Smit Patel + Uday Tailor with photos swapped as user requested), 6 services (custom software, web dev, AI/automation, performance marketing, brand, digital strategy), 5 portfolio projects (Servall-LT red, Anskar green, Sajvarr blue, Squar dark, Servall-LMS brown) with themeColor per project for carousel color-shift, 3 testimonials, 5 pages. Re-runs safely: admin password rotated to default on each run so credentials.md stays accurate."
 
 frontend:
+  - task: "Home hero — minimalist cleanup (remove overlay chrome)"
+    implemented: true
+    working: true
+    file: "app/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "User requested removal of all hero overlay chrome. Removed: (1) top-left 'REC · STUDIO LIVE' red-pulse marker, (2) top-right 'INDEPENDENT STUDIO / INDIA · WORLDWIDE' meta block, (3) 'DESIGN · ENGINEERING · AI · GROWTH' underlined tagline below headline, (4) bottom 'SCROLL' indicator with animated vertical line. Also removed 'brand experiences' from rotating word list (now cycles: digital systems / AI workflows / growth engines / future products). Hero is now video + headline only — as clean as possible."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: All overlay chrome successfully removed. Confirmed: (1) NO 'REC · STUDIO LIVE' marker (count: 0), (2) NO 'INDEPENDENT STUDIO' in hero (found 1 instance but in footer only), (3) NO 'INDIA · WORLDWIDE' in hero section, (4) NO 'DESIGN · ENGINEERING · AI · GROWTH' tagline (count: 0), (5) NO 'SCROLL' indicator (count: 0). Hero contains ONLY: cinematic video background (/videos/hero-cinematic.mp4) + headline 'We design, engineer & scale [rotating word].' Rotating word cycle verified over 15 seconds: observed all 4 expected words ('digital systems', 'AI workflows', 'growth engines', 'future products') with NO 'brand experiences' in rotation. Hero is minimalist and clean as requested."
+
+  - task: "Home 'Deliver & Ship' — replace pizza delivery image with IT project delivery"
+    implemented: true
+    working: true
+    file: "app/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Step 5 image swapped from Domino's delivery rider photo to Unsplash black-and-white developer/multi-monitor deploy station photo (photo-1652172100914-c5b691730756). Selected via vision_expert_agent to represent an IT project being shipped/deployed. Copy unchanged."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Step 05 'Deliver & Ship' image successfully replaced. Confirmed: Image src contains 'photo-1652172100914-c5b691730756' (developer/multi-monitor deploy station photo). NOT the pizza delivery rider image. Image is black-and-white and represents IT project deployment as intended."
+
+  - task: "Digital-marketing case study — Anaya → Sanskar Handlooms + footfall stats"
+    implemented: true
+    working: true
+    file: "app/digital-marketing/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Per user request, renamed 'Anaya Handlooms' to 'Sanskar Handlooms' and removed all revenue-based metrics. New headline: 'Sanskar Handlooms saw their footfall multiply in a single festive season.' Stats card metrics rewritten to non-revenue: 4× Store footfall growth, 3.6× Repeat visitors, 2.3 M Impressions served, 62% WhatsApp close rate. Reel grid tile 'Anaya Diwali' also renamed to 'Sanskar Diwali'."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Case study successfully updated to Sanskar Handlooms. Confirmed: (1) Headline reads 'Sanskar Handlooms saw their footfall multiply in a single festive season.' (2) NO 'Anaya' text anywhere on page (count: 0). (3) All 4 new stat cards present: '4× Store footfall growth', '3.6× Repeat visitors', '2.3 M Impressions served', '62% WhatsApp close rate'. (4) Old revenue stats removed: NO '₹1.2 Cr', NO 'Peak ROAS', NO 'Festive revenue' (all count: 0). (5) Reel grid shows 'Sanskar Diwali' (count: 1), NO 'Anaya Diwali' (count: 0). All changes implemented correctly."
+
+  - task: "Why Us — 'team of 10' stat + video-in-phone mockup"
+    implemented: true
+    working: true
+    file: "app/why-us/page.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "ImpactStats grid: replaced '6+ Industries Covered' with '10 People. One Studio.' — 'Designers, engineers & strategists — under one roof.' Section eyebrow changed to '— A ten-person studio, deliberately small.' Headline changed from 'Two founders. Twenty products shipped. Zero excuses.' to 'A team of ten. Twenty products shipped. Zero excuses.' — reflects the team-of-10 positioning. MockMobileUI phone mockup fully rewritten: instead of white background with progress bars, now shows /videos/p4.mp4 playing full-bleed inside the phone screen with autoPlay/muted/loop/playsInline. Top/bottom legibility gradients, 9:41 status bar, LIVE red-pulse badge top-right, and bottom caption card 'Now shipping · Sanskar · Diwali Launch' with animated 72% progress bar. Notch preserved."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: All 'team of 10' changes and video-in-phone mockup working perfectly. Impact Stats section: (1) Eyebrow reads '— A ten-person studio, deliberately small.' ✓ (2) Headline contains all required text: 'A team of ten. Twenty products shipped. Zero excuses.' ✓ (3) Third stat card shows 'People. One Studio.' with sub-text 'Designers, engineers & strategists — under one roof.' ✓ Vision & Mission section phone mockup: (4) Video element with /videos/p4.mp4 found (using <source> tag) with autoPlay, muted, loop, playsInline attributes ✓ (5) Status bar shows '9:41' ✓ (6) LIVE badge with red pulse in top-right ✓ (7) Bottom caption shows 'Now shipping' eyebrow, 'Sanskar · Diwali Launch' title, and 72% animated progress bar ✓ (8) Notch preserved ✓ (9) Old elements removed: NO 'Brand system 100%' progress list, NO 'Anaya · Diwali Launch' ✓ Screenshot captured showing phone mockup with video playing (black screen due to Playwright codec limitations, but video element confirmed in DOM). All requirements met."
+
+  - task: "Mobile view fixes — Subscribe button + nav menu overlap"
+    implemented: true
+    working: true
+    file: "app/why-us/page.js, components/site/Shared.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "FIX 1 — Newsletter subscribe button on Why-Us page: form was `relative flex items-center` with absolute-positioned button overlapping the input placeholder text on small screens. Rewrote as `flex flex-col sm:relative sm:flex-row` — on mobile the button stacks below the input (full width, py-4), on >= sm breakpoint it returns to absolute-positioned pill inside the input. FIX 2 — Mobile nav menu overlap: Navbar had mixBlendMode: difference which caused the open menu text to visually mix with underlying page content (menu items appearing overlapped on the hero headline). Now toggling: mixBlendMode = normal when open, difference when closed. Menu container upgraded from expanding accordion to a proper fixed full-height overlay (fixed inset-x-0 top-[64px] bottom-0 bg-[#0A0A0A] with overflow-y-auto). Body scroll locked via useEffect while menu open. Added staggered item entrance, bottom-border separators, and a large Start Project CTA + 'Studio · India · Worldwide' footer inside the menu. Header row also switches to solid black background when menu is open so the logo and close button don't blend into the background."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Both mobile view fixes working correctly. TEST 5a (Newsletter Subscribe button at 390px viewport): Form has 'flex-col' class (stacked layout on mobile) ✓, Subscribe button has 'w-full' class (full width, no overlap with input placeholder) ✓. Screenshot confirms button is stacked below input with no overlap. TEST 5b (Mobile nav menu at 390px viewport): Menu opens correctly with hamburger button ✓, Menu container is full-height dark overlay (bg-[#0A0A0A]) ✓, Nav items clearly legible with white text (Home, Our Work, Marketing, Why Us, Contact all visible) ✓, 'Start Project' button present in menu ✓, 'Studio · India · Worldwide' caption at bottom ✓, Body scroll locked while menu open (overflow: hidden) ✓, Menu closes cleanly with X button ✓, mixBlendMode toggles correctly (normal when open, difference when closed) ✓. Screenshots captured showing menu closed and open states. All mobile view issues resolved."
+
+
   - task: "Home hero — cinematic video background (Canon EOS250D loop)"
     implemented: true
     working: "NA"
@@ -344,3 +420,6 @@ agent_communication:
     message: "🎉 FRONTEND TESTING COMPLETE (resumed after interruption). Co-founder photo-to-name mapping bug fix on /why-us page has been VERIFIED. ✅ Hero floating cards: LEFT (BUILDING tag) = FORMAL 3-piece suit photo + 'Uday Tailor', RIGHT (SHIPPING tag) = CASUAL black-shirt photo + 'Smit Patel'. ✅ 'Meet the co-founders' section: LEFT large portrait = FORMAL suit + 'Uday Tailor', RIGHT = CASUAL shirt + 'Smit Patel'. ✅ No 'Start a project' button in Why-Us hero (only navbar retains CTA). Secondary spot-checks all passed: Home hero (white bg, rotating italic word), /digital-marketing (5-slide auto-cycling slideshow with 02/05 → 03/05 counter), /our-work (rotating word 'SHIPPED', portfolio slider). ALL PRIMARY AND SECONDARY VERIFICATION ITEMS PASSED. Bug fix is production-ready."
   - agent: "testing"
     message: "✅ CO-FOUNDER PHOTO SWAP BUG FIX VERIFIED SUCCESSFULLY. Completed comprehensive Playwright testing of /why-us page and secondary spot-checks. PRIMARY VERIFICATION (ALL 4 ITEMS PASSED): 1) Hero floating cards - LEFT card with BUILDING tag correctly shows FORMAL 3-piece suit photo (smit.webp) labeled 'Uday Tailor', RIGHT card with SHIPPING tag correctly shows CASUAL black-shirt photo (uday.webp) labeled 'Smit Patel'. 2) 'Meet the co-founders' section - LEFT large portrait correctly shows FORMAL photo labeled 'Uday Tailor', RIGHT large portrait correctly shows CASUAL photo labeled 'Smit Patel'. 3) NO 'Start a project' button found in Why-Us hero (only navbar has Start Project CTA). 4) All photo-to-name mappings are 100% correct. SECONDARY SPOT-CHECKS: Home page (/) has white background (rgb(250,250,247)), 'We design, engineer & scale' headline with rotating italic word present. Digital-marketing page has 5-slide auto-cycling slideshow working (verified slide counter progression 02/05 → 03/05). Our-work page has 'Twenty products' headline with rotating word (observed 'SHIPPED'). Screenshots captured for visual confirmation: why-us-hero-cards.png, why-us-cofounders-section.png, home-hero.png, digital-marketing-hero.png, our-work-hero.png. Bug fix is production-ready. NO ISSUES FOUND."
+
+  - agent: "testing"
+    message: "🎉 ALL 5 UI CHANGES VERIFIED SUCCESSFULLY - READY FOR PRODUCTION. Completed comprehensive Playwright testing of all 5 tasks requested in review. RESULTS: ✅ TEST 1 (Home Hero Minimalist Cleanup): All overlay chrome removed (REC·STUDIO LIVE, INDEPENDENT STUDIO, INDIA·WORLDWIDE, DESIGN·ENGINEERING tagline, SCROLL indicator all gone). Hero now contains ONLY video background + headline with rotating word. Verified 4 correct words in rotation (digital systems, AI workflows, growth engines, future products) with NO 'brand experiences'. ✅ TEST 2 (Deliver & Ship Image): Step 05 image successfully replaced with developer/multi-monitor deploy station photo (photo-1652172100914-c5b691730756), NOT pizza delivery rider. ✅ TEST 3 (Sanskar Handlooms Case Study): Headline updated to 'Sanskar Handlooms saw their footfall multiply', all 4 new stats present (4×, 3.6×, 2.3M, 62%), old revenue stats removed, 'Sanskar Diwali' in reel grid, NO 'Anaya' anywhere. ✅ TEST 4 (Why Us Team of 10 + Video): Eyebrow/headline updated to 'ten-person studio' and 'team of ten', stat card shows '10 People. One Studio.', phone mockup contains p4.mp4 video with autoPlay/muted/loop, LIVE badge, 'Sanskar·Diwali Launch' caption with 72% progress bar, old elements removed. ✅ TEST 5 (Mobile View Fixes): Newsletter form stacks vertically on mobile (no overlap), mobile nav menu opens as full-height dark overlay with legible white text, body scroll locked, mixBlendMode toggles correctly. Screenshots captured for all tests. NO MAJOR ISSUES FOUND. All changes are production-ready."
