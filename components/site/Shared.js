@@ -301,9 +301,16 @@ export function Footer() {
         </div>
 
         <div className="mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-[10px] tracking-[0.25em] uppercase text-white/40">
-            © 2026 vayucodes · An independent studio
+          <div className="text-[10px] tracking-[0.25em] uppercase text-white/40 text-center md:text-left">
+            © {new Date().getFullYear()} VayuCodes · All rights reserved
           </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[10px] tracking-[0.25em] uppercase text-white/60">
+            <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+            <a href="mailto:hello@vayucodes.com" className="hover:text-white transition-colors">Contact</a>
+          </div>
+
           <div className="text-[10px] tracking-[0.25em] uppercase text-white/40 flex items-center gap-2">
             <Circle size={6} className="fill-white/60 text-white/60 animate-pulse" />
             Available · Q3 2026
@@ -416,8 +423,8 @@ export function Preloader({ progress }) {
 /* ============================================================
    CINEMATIC VIDEO INTRO \u2014 iPhone 15 Pro Max footage + typewriter + sound
 ============================================================ */
-export const CINEMATIC_VIDEO_URL = '/video/intro.mp4?v=3'
-export const CINEMATIC_VIDEO_POSTER = '/video/intro-poster.jpg?v=3'
+export const CINEMATIC_VIDEO_URL = '/video/intro.mp4?v=4'
+export const CINEMATIC_VIDEO_POSTER = '/video/intro-poster.jpg?v=4'
 
 // Typing-sound: synthesized via Web Audio API for crisp mechanical clicks
 function useTypingSound() {
@@ -783,7 +790,7 @@ export function LandingFlow({ children }) {
       const saved = sessionStorage.getItem('vc_video_color')
       if (saved) setVideoColor(JSON.parse(saved))
     } catch {}
-    const seen = sessionStorage.getItem('vc_intro_seen_v3')
+    const seen = sessionStorage.getItem('vc_intro_seen_v4')
     if (!seen) setStage('loading')
   }, [])
 
@@ -805,7 +812,7 @@ export function LandingFlow({ children }) {
     if (stage !== 'home') document.body.style.overflow = 'hidden'
     else {
       document.body.style.overflow = ''
-      if (mounted) sessionStorage.setItem('vc_intro_seen_v3', '1')
+      if (mounted) sessionStorage.setItem('vc_intro_seen_v4', '1')
     }
     return () => { document.body.style.overflow = '' }
   }, [stage, mounted])

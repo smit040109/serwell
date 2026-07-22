@@ -31,6 +31,8 @@ export default function LenisProvider({ children }) {
       lerp: 0.08,
     })
     lenisRef.current = lenis
+    // Expose for cross-component access (e.g. ScrollToTop on route change)
+    if (typeof window !== 'undefined') window.__lenis = lenis
 
     lenis.on('scroll', ScrollTrigger.update)
 
@@ -54,6 +56,7 @@ export default function LenisProvider({ children }) {
       gsap.ticker.remove(tick)
       lenis.destroy()
       lenisRef.current = null
+      if (typeof window !== 'undefined' && window.__lenis === lenis) delete window.__lenis
     }
   }, [])
 

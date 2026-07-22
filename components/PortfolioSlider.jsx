@@ -203,7 +203,18 @@ export default function PortfolioSlider() {
           z-index: 200;
         }
         @media (max-width: 900px) {
+          .ps-stage {
+            padding: 24px 16px;
+            height: 100vh;
+            /* modern viewport unit that accounts for mobile browser chrome */
+            height: 100svh;
+          }
+          .ps-frame {
+            height: calc(100svh - 48px);
+            max-width: 100%;
+          }
           .ps-navdots { display: none; }
+          .ps-counter { font-size: 10px; bottom: -28px; }
         }
       `}</style>
     </div>
@@ -397,9 +408,55 @@ function Slide({ p, idx, current }) {
         @media (max-width: 900px) {
           .ps-slide {
             grid-template-columns: 1fr;
-            gap: 24px;
+            gap: 18px;
+            padding: 0;
+            align-items: stretch;
+            grid-template-rows: 240px 1fr;
           }
-          .ps-media { height: 280px; }
+          .ps-media { height: 100%; }
+          .ps-copy {
+            padding: 4px 4px 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+          .ps-eyebrow {
+            font-size: 10px;
+            letter-spacing: 0.16em;
+            margin-bottom: 14px;
+            gap: 10px;
+          }
+          .ps-eyebrow .ps-rule { width: 22px; }
+          .ps-title {
+            font-size: clamp(30px, 8vw, 42px);
+            line-height: 1.05;
+            margin-bottom: 10px;
+          }
+          .ps-subtitle {
+            font-size: 14px;
+            margin-bottom: 14px;
+          }
+          .ps-desc {
+            font-size: 14px;
+            line-height: 1.55;
+            margin-bottom: 12px;
+            max-width: 100%;
+          }
+          .ps-stat {
+            font-size: 12px;
+            margin-bottom: 18px;
+          }
+          .ps-cta {
+            font-size: 11px;
+            padding-top: 14px;
+            max-width: 100%;
+          }
+          .ps-badge {
+            font-size: 9.5px;
+            padding: 4px 10px 4px 8px;
+          }
+        }
+        @media (max-width: 900px) {
+          .ps-stage { padding: 20px 16px; }
         }
       `}</style>
     </div>

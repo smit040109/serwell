@@ -1,5 +1,6 @@
 import './globals.css'
 import LenisProvider from '@/components/animation/LenisProvider'
+import ScrollToTop from '@/components/site/ScrollToTop'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { Instrument_Serif } from 'next/font/google'
@@ -35,6 +36,7 @@ export default function RootLayout({ children }) {
       }}
     >
       <body className="antialiased bg-[#FAFAF7] text-[#0A0A0A]" style={{ fontFamily: 'var(--font-geist-sans), Inter, system-ui, sans-serif' }}>
+        <ScrollToTop />
         <LenisProvider>{children}</LenisProvider>
       </body>
     </html>
