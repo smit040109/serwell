@@ -416,8 +416,8 @@ export function Preloader({ progress }) {
 /* ============================================================
    CINEMATIC VIDEO INTRO \u2014 iPhone 15 Pro Max footage + typewriter + sound
 ============================================================ */
-export const CINEMATIC_VIDEO_URL = '/video/intro.mp4'
-export const CINEMATIC_VIDEO_POSTER = '/video/intro-poster.jpg'
+export const CINEMATIC_VIDEO_URL = '/video/intro.mp4?v=3'
+export const CINEMATIC_VIDEO_POSTER = '/video/intro-poster.jpg?v=3'
 
 // Typing-sound: synthesized via Web Audio API for crisp mechanical clicks
 function useTypingSound() {
@@ -606,6 +606,32 @@ export function VideoIntro({ onEnd, onColor }) {
     } catch (e) { /* CORS or other \u2014 silently fall back */ }
   }, [onColor])
 
+  // Force-play on mount — some browsers pause muted autoplay if tab regains
+  // focus mid-load or if there's any hiccup. Retry a few times to be robust.
+  useEffect(() => {
+    const v = videoRef.current
+    if (!v) return
+    let cancelled = false
+    const tryPlay = () => {
+      if (cancelled) return
+      const pr = v.play()
+      if (pr && typeof pr.catch === 'function') {
+        pr.catch(() => {
+          // Retry once shortly after
+          setTimeout(() => { if (!cancelled) v.play().catch(() => {}) }, 400)
+        })
+      }
+    }
+    tryPlay()
+    v.addEventListener('canplay', tryPlay)
+    v.addEventListener('loadeddata', tryPlay)
+    return () => {
+      cancelled = true
+      v.removeEventListener('canplay', tryPlay)
+      v.removeEventListener('loadeddata', tryPlay)
+    }
+  }, [])
+
   // Auto-end after duration OR onEnded fires
   useEffect(() => {
     const DURATION = 8500
@@ -757,7 +783,7 @@ export function LandingFlow({ children }) {
       const saved = sessionStorage.getItem('vc_video_color')
       if (saved) setVideoColor(JSON.parse(saved))
     } catch {}
-    const seen = sessionStorage.getItem('vc_intro_seen_v2')
+    const seen = sessionStorage.getItem('vc_intro_seen_v3')
     if (!seen) setStage('loading')
   }, [])
 
@@ -779,7 +805,7 @@ export function LandingFlow({ children }) {
     if (stage !== 'home') document.body.style.overflow = 'hidden'
     else {
       document.body.style.overflow = ''
-      if (mounted) sessionStorage.setItem('vc_intro_seen_v2', '1')
+      if (mounted) sessionStorage.setItem('vc_intro_seen_v3', '1')
     }
     return () => { document.body.style.overflow = '' }
   }, [stage, mounted])
