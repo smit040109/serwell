@@ -24,6 +24,7 @@ const HERO_VIDEO_SRC = '/videos/hero-cinematic.mp4'
 function Hero() {
   const [idx, setIdx] = useState(0)
   const [videoReady, setVideoReady] = useState(false)
+  const [settings, setSettings] = useState(null)
   const videoRef = useRef(null)
   const ref = useRef(null)
   const stage = useLandingStage()
@@ -40,6 +41,22 @@ function Hero() {
     const id = setInterval(() => setIdx(v => (v + 1) % ROTATING_WORDS.length), 2600)
     return () => clearInterval(id)
   }, [])
+
+  // Fetch CMS site settings (hero headline/subtitle/video) — falls back to
+  // the hardcoded defaults until the fetch resolves, so nothing flashes.
+  useEffect(() => {
+    fetch('/api/cms/site_settings')
+      .then(r => r.json())
+      .then(d => setSettings(d.data))
+      .catch(() => {})
+  }, [])
+
+  const heroLine1 = settings?.hero?.headlineLine1 || 'We design, engineer'
+  const heroItalicWord = settings?.hero?.headlineItalicWord || null
+  const heroSubtitle = settings?.hero?.subtitle || ''
+  const videoEnabled = settings?.hero ? settings.hero.videoEnabled : true
+  const videoSrc = (settings?.hero?.videoEnabled && settings?.hero?.videoUrl) || HERO_VIDEO_SRC
+  const videoLoop = settings?.hero ? settings.hero.videoLoop : true
 
   // Force-play on mount for some mobile browsers so the browser preloads/decodes
   // the file even while the intro plays. The video is kept invisible until
@@ -76,17 +93,17 @@ function Hero() {
       >
         <video
           ref={videoRef}
-          autoPlay muted loop playsInline preload="auto"
+          autoPlay muted loop={videoLoop} playsInline preload="auto"
           onCanPlay={() => setVideoReady(true)}
           onLoadedData={() => setVideoReady(true)}
           className="w-full h-full object-cover"
           style={{
             filter: 'contrast(1.08) saturate(0.85) brightness(0.92)',
-            opacity: videoReady && introComplete ? 1 : 0,
+            opacity: videoReady && introComplete && videoEnabled ? 1 : 0,
             transition: 'opacity 900ms ease-out',
           }}
         >
-          <source src={HERO_VIDEO_SRC} type="video/mp4" />
+          <source src={videoSrc} type="video/mp4" />
         </video>
 
         {/* Cinematic legibility overlays — very subtle so video is clearly visible */}
@@ -124,25 +141,39 @@ function Hero() {
             textShadow: '0 2px 30px rgba(0,0,0,0.35)',
           }}
         >
-          <span className="block">We design, engineer</span>
+          <span className="block">{heroLine1}</span>
           <span className="block whitespace-nowrap">
             & scale{' '}
             <span className="relative inline-block align-baseline overflow-visible">
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={idx}
-                  initial={{ opacity: 0, y: '0.35em', filter: 'blur(6px)' }}
-                  animate={{ opacity: 1, y: '0em', filter: 'blur(0px)' }}
-                  exit={{ opacity: 0, y: '-0.35em', filter: 'blur(6px)' }}
-                  transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                  className="italic text-white/85 inline-block"
-                >
-                  {ROTATING_WORDS[idx]}.
-                </motion.span>
-              </AnimatePresence>
+              {heroItalicWord ? (
+                <span className="italic text-white/85 inline-block">{heroItalicWord}</span>
+              ) : (
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={idx}
+                    initial={{ opacity: 0, y: '0.35em', filter: 'blur(6px)' }}
+                    animate={{ opacity: 1, y: '0em', filter: 'blur(0px)' }}
+                    exit={{ opacity: 0, y: '-0.35em', filter: 'blur(6px)' }}
+                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                    className="italic text-white/85 inline-block"
+                  >
+                    {ROTATING_WORDS[idx]}.
+                  </motion.span>
+                </AnimatePresence>
+              )}
             </span>
           </span>
         </motion.h1>
+        {heroSubtitle && (
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-6 text-white/70 max-w-2xl mx-auto text-base md:text-lg leading-relaxed"
+          >
+            {heroSubtitle}
+          </motion.p>
+        )}
       </motion.div>
     </section>
   )
@@ -478,7 +509,6 @@ export default function Home() {
       <PageWrapper darkHero={false}>
         <Hero />
         <HowWeWork />
-        <SelectedWork />
         <ClosingStatement />
       </PageWrapper>
     </LandingFlow>
