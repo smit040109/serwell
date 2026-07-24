@@ -2,7 +2,6 @@
 
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
-import { ArrowDown, Sparkles } from 'lucide-react'
 
 const MARQUEE_WORDS = [
   'CUSTOM SOFTWARE', 'BRAND WEB', 'CRM SYSTEMS', 'AI AUTOMATION',
@@ -50,12 +49,6 @@ export default function OurWorkHero() {
       />
 
       {/* Vertical side counters */}
-      <div className="hidden md:block absolute left-8 top-1/2 -translate-y-1/2 [writing-mode:vertical-rl] rotate-180 text-[10px] tracking-[0.35em] uppercase text-white/40">
-        Portfolio · Est. 2026
-      </div>
-      <div className="hidden md:block absolute right-8 top-1/2 -translate-y-1/2 [writing-mode:vertical-rl] text-[10px] tracking-[0.35em] uppercase text-white/40">
-        Six live builds
-      </div>
 
       {/* Center content */}
       <motion.div
@@ -63,14 +56,6 @@ export default function OurWorkHero() {
         className="relative z-10 w-full px-6 md:px-10 text-center"
       >
         {/* Kicker */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9 }}
-          className="inline-flex items-center gap-2 border border-white/15 bg-white/[0.04] backdrop-blur-md px-3 md:px-4 py-1.5 rounded-full text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-white/70 mb-8 md:mb-12"
-        >
-          <Sparkles size={11} /> Selected Work · 2024 — 2026
-        </motion.div>
 
         {/* Headline */}
         <motion.h1
@@ -98,31 +83,8 @@ export default function OurWorkHero() {
         </motion.h1>
 
         {/* Sub */}
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.5 }}
-          className="mt-8 md:mt-10 max-w-2xl mx-auto text-sm md:text-base lg:text-lg text-white/50 leading-relaxed px-4"
-        >
-          Every scroll is a case study. Every color is a client. Every build shipped by two founders and a promise.
-        </motion.p>
 
         {/* Scroll cue */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.9 }}
-          className="mt-16 md:mt-24 flex flex-col items-center gap-3"
-        >
-          <div className="text-[9px] tracking-[0.35em] uppercase text-white/40">Scroll to explore</div>
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-            className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center"
-          >
-            <ArrowDown size={12} />
-          </motion.div>
-        </motion.div>
       </motion.div>
 
       {/* Bottom marquee */}

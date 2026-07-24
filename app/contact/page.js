@@ -119,7 +119,7 @@ function ContactHero() {
             <div className="text-[10px] tracking-[0.3em] uppercase text-[#6B6B6B] mb-8">— Project inquiry</div>
 
             <div className="grid md:grid-cols-2 gap-5">
-              <Field label="Your name" required value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} placeholder="Uday Tailor" />
+              <Field label="Your name" required value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} placeholder="Your name" />
               <Field label="Email" type="email" required value={form.email} onChange={v => setForm(f => ({ ...f, email: v }))} placeholder="you@business.com" />
               <Field label="Phone (optional)" value={form.phone} onChange={v => setForm(f => ({ ...f, phone: v }))} placeholder="+91 XXXXX XXXXX" />
               <Field label="Business name" value={form.business} onChange={v => setForm(f => ({ ...f, business: v }))} placeholder="Company Ltd." />
@@ -185,7 +185,7 @@ function FAQ() {
   const faqs = [
     { q: 'How quickly can you start?', a: 'Most projects begin within 5–10 days of signing. For urgent launches (festive, product launch), we keep buffer slots open.' },
     { q: 'Do you work outside India?', a: 'Yes — we work with clients across the US, UK, UAE and India. We\u2019re a distributed studio serving founders worldwide.' },
-    { q: 'What does a typical engagement cost?', a: 'Websites start around ₹1.5 L. Custom software from ₹4 L. Performance marketing retainers from ₹45k/month. Every quote is fixed-scope and transparent.' },
+    { q: 'What does a typical engagement cost?', a: 'Cost depends on your requirements, scope and timeline. Every quote is fixed-scope, transparent and shared upfront — no surprises, no hidden fees.' },
     { q: 'Do you offer ongoing maintenance?', a: 'Always. We don\u2019t do build-and-disappear. Most clients move into a monthly partnership for reviews, improvements, and growth experiments.' },
     { q: 'Can you work with our existing team?', a: 'Absolutely. We frequently slot in as the senior tech/design partner while your in-house team handles operations. We integrate, not replace.' },
   ]

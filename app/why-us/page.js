@@ -445,17 +445,9 @@ function MockMobileUI() {
           </div>
 
           {/* Live pulse label top-right */}
-          <div className="absolute top-11 right-4 z-20 flex items-center gap-1.5 bg-white/12 backdrop-blur-md text-[8.5px] tracking-[0.2em] uppercase font-semibold text-white px-2.5 py-1 rounded-full border border-white/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-            Live
-          </div>
 
           {/* Bottom caption card */}
           <div className="absolute inset-x-4 bottom-4 z-20">
-            <div className="text-[9px] tracking-[0.25em] uppercase text-white/70 mb-1">Now shipping</div>
-            <div className="text-white text-[15px] font-semibold leading-tight tracking-tight">
-              Sanskar · Diwali Launch
-            </div>
             <div className="mt-3 flex items-center gap-2">
               <div className="flex-1 h-1 rounded-full bg-white/15 overflow-hidden">
                 <motion.div
@@ -479,14 +471,6 @@ function MockMobileUI() {
         style={{ boxShadow: '0 12px 30px -12px rgba(0,0,0,0.2)' }}
       >
         Shipped on time
-      </motion.div>
-      <motion.div
-        animate={{ y: [5, -5, 5] }}
-        transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute bottom-10 left-0 md:left-6 flex items-center gap-2 bg-[#0A0A0A] text-white text-[10px] tracking-[0.15em] uppercase font-semibold px-3 py-1.5 rounded-full"
-      >
-        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-        Live build
       </motion.div>
     </div>
   )
@@ -560,15 +544,15 @@ function CoFounders() {
       src: '/team/smit.webp',
       name: 'Uday Tailor',
       title: 'Co-Founder',
-      caption: 'Systems, strategy & delivery',
-      bio: 'Uday leads engineering and client operations. His obsession with process is why our builds ship on time and stay live long after handover.',
+      caption: 'Technical Operations & Backend Systems',
+      bio: 'Uday manages the technical foundation of every project at VayuCodes. He is responsible for backend architecture, project structuring, system planning, and operational workflows. Alongside technical execution, he handles project documentation, gathers client requirements, and oversees accounting and internal operations to keep every project organized and efficient.',
     },
     {
       src: '/team/uday.webp',
       name: 'Smit Patel',
       title: 'Co-Founder',
-      caption: 'Design, growth & story',
-      bio: 'Smit turns raw business ideas into brands and interfaces that people actually want to use. Design is his craft; growth is his obsession.',
+      caption: 'Client Strategy & Product Development',
+      bio: "Smit leads client relationships, project strategy, and product execution at VayuCodes. From understanding business requirements and presenting tailored solutions to managing communication throughout the project lifecycle, he ensures every product is aligned with the client's vision. He also oversees planning, UI/UX direction, and delivery to create impactful digital experiences.",
     },
   ]
   return (
