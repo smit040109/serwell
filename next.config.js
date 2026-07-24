@@ -36,6 +36,11 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      { source: '/marketing', destination: '/digital-marketing', permanent: false },
+    ];
+  },
 };
 
 module.exports = nextConfig;
