@@ -14,6 +14,10 @@ import {
 export const VideoColorContext = createContext(null)
 export function useVideoColor() { return useContext(VideoColorContext) }
 
+/* Stage context so consumers (e.g. Hero video) can gate playback until intro ends */
+export const LandingStageContext = createContext('home')
+export function useLandingStage() { return useContext(LandingStageContext) }
+
 /* ============================================================
    DESIGN TOKENS
 ============================================================ */
@@ -753,6 +757,22 @@ export function VideoIntro({ onEnd, onColor }) {
       <div className="absolute bottom-0 inset-x-0 h-[2px] bg-white/10 z-10">
         <div className="h-full bg-gradient-to-r from-white via-white to-white transition-[width] duration-100" style={{ width: `${progress}%` }} />
       </div>
+
+      {/* SKIP BUTTON */}
+      <motion.button
+        type="button"
+        onClick={() => { sampleColor(); onEnd() }}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.2, duration: 0.6 }}
+        className="absolute bottom-8 right-6 md:bottom-10 md:right-10 z-20 group inline-flex items-center gap-2 text-white/80 hover:text-white bg-white/[0.06] hover:bg-white/[0.14] backdrop-blur-md border border-white/20 hover:border-white/40 px-4 py-2 rounded-full text-[10px] tracking-[0.3em] uppercase font-medium transition-all"
+        aria-label="Skip intro"
+      >
+        Skip
+        <span className="w-4 h-4 rounded-full border border-white/40 group-hover:border-white flex items-center justify-center transition-colors">
+          <span className="block w-0 h-0 border-y-[3px] border-y-transparent border-l-[4px] border-l-white/80 group-hover:border-l-white translate-x-[1px]" />
+        </span>
+      </motion.button>
     </motion.div>
   )
 }
@@ -844,6 +864,7 @@ export function LandingFlow({ children }) {
 
   return (
     <VideoColorContext.Provider value={videoColor}>
+      <LandingStageContext.Provider value={stage}>
       <CustomCursor />
       <GrainOverlay />
       <AnimatePresence mode="wait">
@@ -865,6 +886,7 @@ export function LandingFlow({ children }) {
       >
         {children}
       </motion.main>
+      </LandingStageContext.Provider>
     </VideoColorContext.Provider>
   )
 }

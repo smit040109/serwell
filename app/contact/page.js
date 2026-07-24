@@ -11,14 +11,55 @@ import { PageWrapper } from '@/components/site/Shared'
 function ContactHero() {
   const [settings, setSettings] = useState(null)
   const [form, setForm] = useState({ name: '', email: '', phone: '', business: '', message: '' })
+  const [errors, setErrors] = useState({})
   const [status, setStatus] = useState({ loading: false, ok: false, err: '' })
 
   useEffect(() => {
     fetch('/api/cms/contact_settings').then(r => r.json()).then(d => setSettings(d.data)).catch(() => {})
   }, [])
 
+  // Validation helpers
+  const NAME_RE = /^[A-Za-z][A-Za-z\s.'-]{1,}$/
+  const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
+  const PHONE_RE = /^\+?[0-9\s\-()]{7,20}$/
+
+  function validate(f) {
+    const e = {}
+    if (!f.name.trim()) e.name = 'Please enter your name.'
+    else if (!NAME_RE.test(f.name.trim())) e.name = 'Only letters, spaces, apostrophes and hyphens.'
+    if (!f.email.trim()) e.email = 'Please enter your email.'
+    else if (!EMAIL_RE.test(f.email.trim())) e.email = 'Enter a valid email address.'
+    if (f.phone.trim() && !PHONE_RE.test(f.phone.trim())) e.phone = 'Enter a valid phone number.'
+    if (!f.message.trim()) e.message = 'Please tell us what you\u2019re building.'
+    else if (f.message.trim().length < 10) e.message = 'Give us a little more detail (10+ chars).'
+    return e
+  }
+
+  // Field-specific input filtering
+  const updateField = (key) => (val) => {
+    let v = val
+    if (key === 'name') {
+      // Allow letters, spaces, dots, apostrophes, hyphens only
+      v = v.replace(/[^A-Za-z\s.'-]/g, '')
+    } else if (key === 'phone') {
+      // Allow leading +, digits, spaces, hyphens, parentheses
+      v = v.replace(/[^0-9+\s\-()]/g, '')
+      // Only one leading '+'
+      v = v.replace(/(?!^)\+/g, '')
+    }
+    setForm(f => ({ ...f, [key]: v }))
+    // Clear this field's error as user edits
+    setErrors(prev => (prev[key] ? { ...prev, [key]: undefined } : prev))
+  }
+
   async function submit(e) {
     e.preventDefault()
+    const eMap = validate(form)
+    setErrors(eMap)
+    if (Object.keys(eMap).length) {
+      setStatus({ loading: false, ok: false, err: '' })
+      return
+    }
     setStatus({ loading: true, ok: false, err: '' })
     try {
       const res = await fetch('/api/contact', {
@@ -30,6 +71,7 @@ function ContactHero() {
       if (!res.ok) throw new Error(data.error || 'Something went wrong')
       setStatus({ loading: false, ok: true, err: '' })
       setForm({ name: '', email: '', phone: '', business: '', message: '' })
+      setErrors({})
     } catch (err) {
       setStatus({ loading: false, ok: false, err: err.message })
     }
@@ -119,21 +161,65 @@ function ContactHero() {
             <div className="text-[10px] tracking-[0.3em] uppercase text-[#6B6B6B] mb-8">— Project inquiry</div>
 
             <div className="grid md:grid-cols-2 gap-5">
-              <Field label="Your name" required value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} placeholder="Your name" />
-              <Field label="Email" type="email" required value={form.email} onChange={v => setForm(f => ({ ...f, email: v }))} placeholder="you@business.com" />
-              <Field label="Phone (optional)" value={form.phone} onChange={v => setForm(f => ({ ...f, phone: v }))} placeholder="+91 XXXXX XXXXX" />
-              <Field label="Business name" value={form.business} onChange={v => setForm(f => ({ ...f, business: v }))} placeholder="Company Ltd." />
+              <Field
+                label="Your name"
+                required
+                value={form.name}
+                onChange={updateField('name')}
+                placeholder="Your name"
+                error={errors.name}
+                autoComplete="name"
+                inputMode="text"
+                maxLength={60}
+              />
+              <Field
+                label="Email"
+                type="email"
+                required
+                value={form.email}
+                onChange={updateField('email')}
+                placeholder="you@business.com"
+                error={errors.email}
+                autoComplete="email"
+                inputMode="email"
+              />
+              <Field
+                label="Phone (optional)"
+                value={form.phone}
+                onChange={updateField('phone')}
+                placeholder="+91 XXXXX XXXXX"
+                error={errors.phone}
+                autoComplete="tel"
+                inputMode="tel"
+                maxLength={20}
+              />
+              <Field
+                label="Business name"
+                value={form.business}
+                onChange={v => setForm(f => ({ ...f, business: v }))}
+                placeholder="Company Ltd."
+                autoComplete="organization"
+                maxLength={80}
+              />
             </div>
 
             <div className="mt-5">
-              <label className="text-[10px] font-semibold tracking-[0.25em] uppercase text-[#6B6B6B] mb-2 block">What are you building?</label>
+              <label className="text-[10px] font-semibold tracking-[0.25em] uppercase text-[#6B6B6B] mb-2 block">
+                What are you building? <span className="text-[#0A0A0A]">*</span>
+              </label>
               <textarea
                 rows={5}
+                required
                 value={form.message}
-                onChange={e => setForm({ ...form, message: e.target.value })}
+                onChange={e => {
+                  const v = e.target.value
+                  setForm({ ...form, message: v })
+                  setErrors(prev => (prev.message ? { ...prev, message: undefined } : prev))
+                }}
                 placeholder="Tell us in a few sentences what you need, when, and what success looks like."
-                className="w-full px-4 py-3 rounded-xl bg-[#FAFAF7] border border-black/10 focus:border-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-black/5 text-sm text-[#0A0A0A] placeholder:text-[#A3A3A3] resize-none transition-all"
+                className={`w-full px-4 py-3 rounded-xl bg-[#FAFAF7] border ${errors.message ? 'border-red-500 focus:border-red-500 focus:ring-red-100' : 'border-black/10 focus:border-[#0A0A0A] focus:ring-black/5'} focus:outline-none focus:ring-2 text-sm text-[#0A0A0A] placeholder:text-[#A3A3A3] resize-none transition-all`}
               />
+              {errors.message && <div className="mt-1.5 text-[11px] text-red-600">{errors.message}</div>}
             </div>
 
             <div className="mt-8 flex items-center justify-between flex-wrap gap-4">
@@ -162,18 +248,25 @@ function ContactHero() {
   )
 }
 
-function Field({ label, value, onChange, type = 'text', required, placeholder }) {
+function Field({ label, value, onChange, type = 'text', required, placeholder, error, autoComplete, inputMode, maxLength }) {
   return (
     <div>
-      <label className="text-[10px] font-semibold tracking-[0.25em] uppercase text-[#6B6B6B] mb-2 block">{label}</label>
+      <label className="text-[10px] font-semibold tracking-[0.25em] uppercase text-[#6B6B6B] mb-2 block">
+        {label}{required && <span className="text-[#0A0A0A]"> *</span>}
+      </label>
       <input
         type={type}
         required={required}
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full px-4 py-3 rounded-xl bg-[#FAFAF7] border border-black/10 focus:border-[#0A0A0A] focus:outline-none focus:ring-2 focus:ring-black/5 text-sm text-[#0A0A0A] placeholder:text-[#A3A3A3] transition-all"
+        autoComplete={autoComplete}
+        inputMode={inputMode}
+        maxLength={maxLength}
+        aria-invalid={!!error}
+        className={`w-full px-4 py-3 rounded-xl bg-[#FAFAF7] border ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-100' : 'border-black/10 focus:border-[#0A0A0A] focus:ring-black/5'} focus:outline-none focus:ring-2 text-sm text-[#0A0A0A] placeholder:text-[#A3A3A3] transition-all`}
       />
+      {error && <div className="mt-1.5 text-[11px] text-red-600">{error}</div>}
     </div>
   )
 }

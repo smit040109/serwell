@@ -159,7 +159,16 @@ async function handleCollectionDelete(collection, id, request) {
 async function handleContactLead(request) {
   const body = await request.json()
   const { name, email, phone, business, message } = body || {}
-  if (!name || !email) return json({ error: 'name and email are required' }, 400)
+  const NAME_RE = /^[A-Za-z][A-Za-z\s.'-]{1,}$/
+  const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
+  const PHONE_RE = /^\+?[0-9\s\-()]{7,20}$/
+  if (!name || !String(name).trim()) return json({ error: 'Name is required' }, 400)
+  if (!NAME_RE.test(String(name).trim())) return json({ error: 'Enter a valid name' }, 400)
+  if (!email || !String(email).trim()) return json({ error: 'Email is required' }, 400)
+  if (!EMAIL_RE.test(String(email).trim())) return json({ error: 'Enter a valid email' }, 400)
+  if (phone && !PHONE_RE.test(String(phone).trim())) return json({ error: 'Enter a valid phone number' }, 400)
+  if (!message || !String(message).trim()) return json({ error: 'Message is required' }, 400)
+  if (String(message).trim().length < 10) return json({ error: 'Message is too short' }, 400)
   await connectDb()
   const mongoose = (await import('mongoose')).default
   const LeadSchema = new mongoose.Schema({

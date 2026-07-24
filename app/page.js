@@ -6,7 +6,7 @@ import Link from 'next/link'
 import {
   ArrowRight, ArrowUpRight, MessageSquare, Search, PenTool, RefreshCw, Rocket, ChevronRight,
 } from 'lucide-react'
-import { PageWrapper, LandingFlow } from '@/components/site/Shared'
+import { PageWrapper, LandingFlow, useLandingStage } from '@/components/site/Shared'
 
 /* ============================================================
    1 · HERO — white bg, rotating word, ambient video, subtle 3D scroll
@@ -26,6 +26,8 @@ function Hero() {
   const [videoReady, setVideoReady] = useState(false)
   const videoRef = useRef(null)
   const ref = useRef(null)
+  const stage = useLandingStage()
+  const introComplete = stage === 'home'
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
   const y = useTransform(scrollYProgress, [0, 1], [0, 180])
   const scale = useTransform(scrollYProgress, [0, 1], [1, 0.92])
@@ -39,15 +41,31 @@ function Hero() {
     return () => clearInterval(id)
   }, [])
 
-  // Force-play on mount for some mobile browsers
+  // Force-play on mount for some mobile browsers so the browser preloads/decodes
+  // the file even while the intro plays. The video is kept invisible until
+  // the intro ends (see opacity below), and we rewind it to frame 0 the
+  // instant the intro finishes so the user always sees the clip from the start.
   useEffect(() => {
     const v = videoRef.current
     if (!v) return
     const tryPlay = () => v.play().catch(() => {})
     tryPlay()
     v.addEventListener('canplay', tryPlay)
-    return () => v.removeEventListener('canplay', tryPlay)
+    v.addEventListener('loadeddata', tryPlay)
+    return () => {
+      v.removeEventListener('canplay', tryPlay)
+      v.removeEventListener('loadeddata', tryPlay)
+    }
   }, [])
+
+  // When the intro finishes, restart the hero video from the beginning so the
+  // user always sees a clean opening frame rather than a mid-clip moment.
+  useEffect(() => {
+    const v = videoRef.current
+    if (!v || !introComplete) return
+    try { v.currentTime = 0 } catch { /* ignore */ }
+    v.play().catch(() => {})
+  }, [introComplete])
 
   return (
     <section ref={ref} className="relative min-h-[100vh] bg-black overflow-hidden flex items-center justify-center px-4">
@@ -64,7 +82,7 @@ function Hero() {
           className="w-full h-full object-cover"
           style={{
             filter: 'contrast(1.08) saturate(0.85) brightness(0.92)',
-            opacity: videoReady ? 1 : 0,
+            opacity: videoReady && introComplete ? 1 : 0,
             transition: 'opacity 900ms ease-out',
           }}
         >
