@@ -112,6 +112,97 @@ user_problem_statement: |
   generic CRUD API, seeded initial content.
 
 backend:
+  - task: "Phase 1-3: SiteSettings extended fields (rotatingWords, closingStatement, preloaderText, cinematicVideoUrl, cinematicPosterUrl, cinematicEnabled, introTypewriterText)"
+    implemented: true
+    working: true
+    file: "lib/models.js, app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Extended SiteSettingsSchema with 7 new fields + defaults. Seeded via scripts/seed_phase3.js. Singleton upsert via POST /api/cms/site_settings (auth required). Public GET /api/cms/site_settings returns doc with _id='main' including new fields."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: All 7 extended fields working perfectly. GET /api/cms/site_settings returns doc with _id='main' containing: rotatingWords (array of 4 strings: ['digital systems', 'AI workflows', 'growth engines', 'future products']), closingStatement, preloaderText ('DESIGNING EXPERIENCES'), cinematicVideoUrl ('/video/intro.mp4'), cinematicPosterUrl, cinematicEnabled (boolean), introTypewriterText. POST update with auth successfully changed preloaderText to 'TEST PRELOADER' and rotatingWords to ['test-a', 'test-b'], verified persisted via GET, then restored original values. All CRUD operations working correctly."
+
+  - task: "Phase 1-3: how_we_work_steps collection — list CRUD (5 steps seeded)"
+    implemented: true
+    working: true
+    file: "lib/models.js, app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "New HowWeWorkStep model (collection how_we_work_steps): stepNumber, title (required), description, image, accent, order, published. Generic CRUD at /api/cms/how_we_work_steps. 5 steps seeded. Public GET returns published only; writes need Bearer token."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: how_we_work_steps collection fully functional. GET /api/cms/how_we_work_steps returns 5 published steps (as expected). POST without token correctly returns 401. Full CRUD tested with auth: CREATE step (stepNumber: 6, title: 'Test Step', description, order: 6) → 200 with UUID _id. GET by ID → 200 with correct step data. UPDATE title to 'Test Step UPDATED' → 200 with updated data. DELETE → 200 with {ok: true}. GET after delete → 404 (verified gone). All operations working correctly."
+
+  - task: "Phase 1-3: faq_items collection — list CRUD (4 items seeded)"
+    implemented: true
+    working: true
+    file: "lib/models.js, app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "New FaqItem model (collection faq_items): question (required), answer, category, order, published. Generic CRUD at /api/cms/faq_items. 4 items seeded."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: faq_items collection fully functional. GET /api/cms/faq_items returns 4 items (as expected). POST without token correctly returns 401. Full CRUD tested with auth: CREATE item (question: 'Test Question?', answer: 'Test answer for backend testing', category: 'test') → 200 with UUID _id. UPDATE answer to 'Updated answer' → 200 with updated data. DELETE → 200 with {ok: true}. All operations working correctly."
+
+  - task: "Phase 1-3: legal_pages — KEYED_UPSERT by 'key' (privacy, terms seeded)"
+    implemented: true
+    working: true
+    file: "lib/models.js, app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "New LegalPage model with unique 'key' field. POST /api/cms/legal_pages with body containing key upserts by key (no duplicates). GET /api/cms/legal_pages/privacy resolves by key (falls back from _id lookup). Fields: key, title, lastUpdated, sections[{heading,body}], seoDescription, published."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: legal_pages KEYED_UPSERT working perfectly. GET /api/cms/legal_pages returns 2 pages with keys ['terms', 'privacy']. GET /api/cms/legal_pages/privacy resolves by key → 200 with doc containing key='privacy', title='Privacy Policy', sections array. KEYED UPSERT tested: POST with {key: 'privacy', title: 'Privacy Policy UPDATED'} → 200, verified count before (2) equals count after (2) - NO DUPLICATE created. GET privacy again confirms title updated. Restored original title 'Privacy Policy'. CREATE new key {key: 'test-legal', title: 'Test Legal Page'} → 200 with new _id. DELETE by _id → 200 {ok: true}. All KEYED_UPSERT logic working correctly."
+
+  - task: "Phase 1-3: page_content — KEYED_UPSERT by 'key' (why-us, digital-marketing seeded)"
+    implemented: true
+    working: true
+    file: "lib/models.js, app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "New PageContent model with unique 'key' + flexible data object. Upsert by key on POST, GET by key at /api/cms/page_content/why-us."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: page_content KEYED_UPSERT working perfectly. GET /api/cms/page_content returns 2 pages with keys ['digital-marketing', 'why-us']. GET /api/cms/page_content/why-us resolves by key → 200 with doc containing key='why-us', data object with headline='A team of ten. One studio.'. KEYED UPSERT tested: POST with {key: 'why-us', data: {headline: 'TEST HEADLINE UPDATED'}} → 200, verified count before (2) equals count after (2) - NO DUPLICATE created. GET why-us again confirms headline updated to 'TEST HEADLINE UPDATED'. Restored original headline 'A team of ten. One studio.'. All KEYED_UPSERT logic working correctly."
+
+  - task: "Phase 4 backend: /api/admin/media endpoints (POST upload alias, GET list auth-required, DELETE by id with file unlink)"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added /api/admin/media: POST (multipart upload, same handler as /api/admin/upload), GET (list all media, requires Bearer), DELETE /api/admin/media/{id} (deletes doc + unlinks file from public/uploads). Media delete via /api/cms/media/{id} also unlinks physical file now."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Phase 4 /api/admin/media endpoints fully functional. POST /api/admin/media without auth → 401 ✓. POST with auth (multipart file upload) → 200 with {media} object containing url='/uploads/1784895954923-56473e7f.png', type='image' ✓. GET /api/admin/media without auth → 401 ✓. GET with auth → 200 with {data: [...]} array containing uploaded item ✓. Uploaded file accessible at https://vayucms-phase4.preview.emergentagent.com/uploads/1784895954923-56473e7f.png → 200 ✓. DELETE /api/admin/media/{id} without auth → 401 ✓. DELETE with auth → 200 {ok: true} ✓. Verified doc removed from GET list ✓. Verified physical file removed (GET file URL → 404) ✓. Legacy POST /api/admin/upload still works → 200 ✓. DELETE via /api/cms/media/{id} also unlinks physical file ✓. All Phase 4 media endpoints working correctly with proper auth guards and file cleanup."
+
+
   - task: "MongoDB Atlas connection via mongoose"
     implemented: true
     working: true
@@ -506,17 +597,25 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "2.1"
-  test_sequence: 2
+  version: "2.2"
+  test_sequence: 3
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Phase 1-3: SiteSettings extended fields (rotatingWords, closingStatement, preloaderText, cinematicVideoUrl, cinematicPosterUrl, cinematicEnabled, introTypewriterText)"
+    - "Phase 1-3: how_we_work_steps collection — list CRUD (5 steps seeded)"
+    - "Phase 1-3: faq_items collection — list CRUD (4 items seeded)"
+    - "Phase 1-3: legal_pages — KEYED_UPSERT by 'key' (privacy, terms seeded)"
+    - "Phase 1-3: page_content — KEYED_UPSERT by 'key' (why-us, digital-marketing seeded)"
+    - "Phase 4 backend: /api/admin/media endpoints (POST upload alias, GET list auth-required, DELETE by id with file unlink)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
+  - agent: "main"
+    message: "PHASE 1-3 + PHASE 4 IMPLEMENTED & BACKEND TESTED (14/14 pass). Backend: added how_we_work_steps, faq_items, legal_pages (KEYED_UPSERT by key), page_content (KEYED_UPSERT by key) models + SiteSettings extended fields (rotatingWords, closingStatement, preloaderText, cinematicVideoUrl, cinematicPosterUrl, cinematicEnabled, introTypewriterText). Added /api/admin/media (POST upload, GET list, DELETE by id with physical file unlink). lib/mongoose.js + seed scripts honor DB_NAME env. Seeded via scripts/seed.js + seed_phase3.js; scripts/sync_frontend_content.js aligns CMS data with current live homepage content. FRONTEND (implemented, NOT yet UI-tested — needs user permission): (1) components/admin/MediaPicker.js — modal media browser + inline upload + MediaInput field; (2) CollectionEditor new field types: media, stringlist, json, repeater; (3) new admin pages /admin/how-we-work (image picker per step), /admin/faq, /admin/legal (sections repeater), /admin/page-content (JSON editor); AdminShell nav updated; (4) /admin/site-settings edits rotating words, closing statement, preloader text, cinematic intro video/poster via media pickers; (5) Homepage hero rotating words + HowWeWork steps + closing statement CMS-driven with fallbacks; (6) Shared.js useCmsSiteSettings shared-cache hook; VideoIntro uses CMS cinematicVideoUrl/poster/typewriter text frozen at mount; Preloader caption CMS-driven. Admin creds: admin@vayucodes.com / VayuAdmin@2026."
   - agent: "main"
     message: "BUG FIX + FEATURE ITERATION APPLIED. Critical bug fixed: co-founder name-to-photo mapping on /why-us page. The file /public/team/uday.webp actually contains the CASUAL BLACK-SHIRT photo, and /public/team/smit.webp actually contains the FORMAL 3-PIECE SUIT WITH TIE photo (file naming was inverted from original expectations — verified by viewing binary contents). Per user's latest instruction (image 2 with name labels), correct mapping is: 3-piece formal photo (smit.webp file) → 'Uday Tailor', casual photo (uday.webp file) → 'Smit Patel'. Updated in three places: 1) app/why-us/page.js hero cascade cards (FloatingProfileCard), 2) app/why-us/page.js CoFounders section founders array, 3) scripts/seed.js team members insert, 4) MongoDB team_members collection directly via update script. Also removed 'Start a project' and 'See our work' CTA buttons from /why-us hero per user's global rule that only navbar keeps Start Project. PLEASE VERIFY via frontend testing agent: (a) navigate to http://localhost:3000/why-us, (b) in the hero at top, the LEFT floating tilted card (BUILDING tag) should show the FORMAL 3-piece suit with black tie photo and be labeled 'Uday Tailor', the RIGHT floating tilted card (SHIPPING tag) should show the CASUAL black-shirt outdoor photo and be labeled 'Smit Patel', (c) scroll down to the 'Meet the co-founders' section: LEFT large portrait card should be the FORMAL 3-piece photo labeled 'Uday Tailor', RIGHT should be the CASUAL photo labeled 'Smit Patel', (d) confirm no 'Start a project' button appears in the Why-Us hero (only navbar top-right should have Start Project). Also please spot-check the new home page hero at http://localhost:3000/ (should have white bg, rotating italic word cycling through 'digital systems / brand experiences / AI workflows / growth engines / future products', big serif headline 'We design, engineer & scale [WORD].', no corner badges/subtitle/CTAs), the marketing hero at /digital-marketing (auto-cycling slideshow with 5 slides showing photo per slide), and the our-work hero (big 'Twenty products. [BUILT/SHIPPED/LAUNCHED/SCALED].' with rotating word, orbital rings, bottom marquee, and per-project color-shifting portfolio slider below)."
   - agent: "testing"
@@ -541,3 +640,6 @@ agent_communication:
     message: "✅ CONTACT FORM API VALIDATION VERIFIED — ALL TESTS PASSED (12/12). Completed comprehensive backend testing of /api/contact endpoint validation as requested. Created contact_form_validation_test.py with all 10 validation scenarios plus prerequisite checks. TEST RESULTS: ✅ PREREQUISITE TESTS (2/2 passed): (1) GET /api/health → 200 with status:'ok', app:'vayucodes-cms' ✓. (2) GET /api/cms/contact_settings → 200 with _id:'main' and all contact settings (emails, phones, officeHours, responseTime, ctaHeadline, ctaSubtitle) — MONGO_URL is being read correctly from /app/.env ✓. ✅ CONTACT FORM VALIDATION TESTS (10/10 passed): (1) Valid payload (name:'John Doe', email:'john@example.com', phone:'+91 98765 43210', business:'Acme', message:'Hi, this is a test message longer than 10 chars.') → 200 with {ok:true, id:'8416457a-ffa7-4ca0-a8a8-200a8d389981'} ✓. (2) Missing name (empty string) → 400 with 'Name is required' ✓. (3) Invalid email format 'notanemail' → 400 with 'Enter a valid email' ✓. (4) Missing email (empty string) → 400 with 'Email is required' ✓. (5) Invalid name 'John123' (contains digits) → 400 with 'Enter a valid name' ✓. (6) Missing message (empty string) → 400 with 'Message is required' ✓. (7) Short message 'hey' (<10 chars) → 400 with 'Message is too short' ✓. (8) Valid phone number '+91 98765 43210' → 200 with {ok:true, id:'85e85344-49a2-4dfc-ab4e-24d2ac17c047'} ✓. (9) Invalid phone 'abcxyz!!' → 400 with 'Enter a valid phone number' ✓. (10) Phone omitted (optional field) → 200 with {ok:true, id:'0042e8a7-f3f1-4b26-adbd-2f3b9544e62d'} ✓. All validation rules confirmed working: NAME_RE=/^[A-Za-z][A-Za-z\s.'-]{1,}$/ (name must start with letter, only letters/spaces/dots/apostrophes/hyphens), EMAIL_RE=/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/ (standard email format), PHONE_RE=/^\+?[0-9\s\-()]{7,20}$/ (phone optional but if provided must match pattern), message minimum 10 characters. Contact form API validation is production-ready. NO ISSUES FOUND."
   - agent: "testing"
     message: "🎉 COMPREHENSIVE FRONTEND QA TESTING COMPLETED — 5 PRIMARY TESTS. Performed comprehensive QA testing as requested in review. RESULTS: ✅ TEST 1 (INTRO VIDEO + SKIP BUTTON + HERO VIDEO GATING): Intro sequence working correctly. Preloader logo detected, VideoIntro with /video/intro.mp4?v=4 found. Skip button present in bottom-right corner (x=1786, y=1014) with play-triangle icon. Skip button click transitions to home hero correctly. SessionStorage flag 'vc_intro_seen_v4' set to '1' correctly. Intro skipped on reload as expected. ⚠️ Hero video opacity during intro could not be verified (hero video element not found in DOM during intro — likely not mounted until intro completes, which is acceptable behavior). ✅ TEST 2 (CONTACT FORM VALIDATION): All form labels correct with proper asterisks (Your name *, Email *, Phone (optional), Business name, What are you building? *). Name field correctly blocks digits ('John123' → 'John'). Phone field correctly blocks letters ('abcxyz' → ''). Valid inputs accepted ('+91 98765 43210', 'John Doe'). Message length validation working (short message shows 'Give us a little more detail (10+ chars).'). Form submission successful with success message 'Got it. We'll reply within 12 hours.' ⚠️ Initial HTML5 validation may prevent inline errors from showing before first submit attempt (browser native validation). ✅ TEST 3 (BROKEN LINKS + NAV SWEEP): All main routes working (/, /our-work, /why-us, /digital-marketing, /contact, /privacy-policy, /terms all return 200). ❌ CRITICAL: /marketing route returns 404 (should redirect to /digital-marketing). Navbar links working correctly. Footer Privacy Policy and Terms links working and navigating correctly. ✅ TEST 4 (RESPONSIVE / MOBILE VIEW at 390×844): Home page renders with readable headline. Contact form inputs full-width and stack vertically. Why-us page renders correctly with co-founder cards. Our-work page renders correctly. ⚠️ Minor horizontal scroll detected on home (scrollWidth: 406px) and why-us pages — likely due to floating elements or animations, not blocking functionality. ✅ TEST 5 (TEXT REMOVAL VERIFICATION): /our-work: ALL removed text NOT present ('PORTFOLIO · EST. 2026', 'SIX LIVE BUILDS', 'SELECTED WORK · 2024', 'Every scroll is a case study', 'Scroll to explore' all confirmed absent). /why-us phone mockup: ALL removed text NOT present ('LIVE', 'NOW SHIPPING', 'Sanskar · Diwali Launch', 'LIVE BUILD' all confirmed absent). Progress bar (72%) still present as expected. /why-us co-founder captions: Captions are in code (line 547: 'Technical Operations & Backend Systems', line 554: 'Client Strategy & Product Development') but not visible in Playwright test — likely rendered in a different section or with different selectors. Visual screenshot shows co-founder section correctly. /contact FAQ: All pricing removed ('₹1.5 L', '₹4 L', '₹45k' all absent). Correct FAQ answer present: 'Cost depends on your requirements...' Screenshots captured: test1-intro-with-skip.png, test2-contact-form.png, test4-home-mobile.png, test4-contact-mobile.png, test4-whyus-mobile.png, test4-ourwork-mobile.png, test5-whyus-cofounders.png, test5-contact-faq.png, intro-with-skip-detailed.png, home-after-skip-detailed.png, whyus-cofounders-detailed.png. OVERALL: 4 of 5 tests PASSED with minor issues. 1 CRITICAL ISSUE: /marketing route 404."
+  - agent: "testing"
+    message: "🎉 PHASE 1-4 BACKEND TESTING COMPLETE — ALL TESTS PASSED (14/14 test groups, 100% success rate). Comprehensive backend testing completed for all 6 tasks in current_focus. Created comprehensive backend_test.py covering: (1) Health endpoint ✅, (2) Auth flow (wrong password → 401, login success → JWT, /admin/me with/without token) ✅, (3) Regression tests for existing 13 collections (all public reads working, portfolio CRUD spot-check complete) ✅, (4) Phase 1-3 SiteSettings extended fields (all 7 fields present: rotatingWords array of 4 strings, closingStatement, preloaderText, cinematicVideoUrl, cinematicPosterUrl, cinematicEnabled, introTypewriterText; POST update with auth working, values persisted, restored original) ✅, (5) Phase 1-3 how_we_work_steps collection (GET list returns 5 steps, POST without token → 401, full CRUD with auth: CREATE → GET by ID → UPDATE → DELETE → 404 after delete) ✅, (6) Phase 1-3 faq_items collection (GET list returns 4 items, POST without token → 401, full CRUD with auth working) ✅, (7) Phase 1-3 legal_pages KEYED_UPSERT (GET list returns 2 pages with keys ['terms', 'privacy'], GET by key resolves correctly, KEYED UPSERT verified NO duplicate created, count before = count after, restored original title, CREATE new key + DELETE working) ✅, (8) Phase 1-3 page_content KEYED_UPSERT (GET list returns 2 pages with keys ['digital-marketing', 'why-us'], GET by key resolves correctly with data.headline='A team of ten. One studio.', KEYED UPSERT verified NO duplicate created, restored original headline) ✅, (9) Phase 4 /api/admin/media endpoints (POST without auth → 401, POST with auth → 200 with url='/uploads/*' and type='image', GET without auth → 401, GET with auth → 200 with data array, uploaded file accessible at public URL → 200, DELETE without auth → 401, DELETE with auth → 200, doc removed from list, physical file removed → 404, legacy POST /api/admin/upload still works, DELETE via /api/cms/media/{id} also unlinks file) ✅, (10) Unknown collection → 404 ✅. All test data cleaned up. All mutations restored. Backend is production-ready. NO MAJOR ISSUES FOUND."
+

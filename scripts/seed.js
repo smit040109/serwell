@@ -16,7 +16,10 @@ const ADMIN_PASSWORD = 'VayuAdmin@2026'
 
 async function run() {
   console.log('[seed] Connecting to', MONGODB_URI.replace(/:[^:@]+@/, ':****@'))
-  await mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 15000 })
+  await mongoose.connect(MONGODB_URI, {
+    serverSelectionTimeoutMS: 15000,
+    ...(process.env.DB_NAME ? { dbName: process.env.DB_NAME } : {}),
+  })
   console.log('[seed] Connected. DB:', mongoose.connection.db.databaseName)
 
   const db = mongoose.connection.db

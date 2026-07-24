@@ -333,6 +333,8 @@ const LOADER_STATES = ['Designing', 'Compiling', 'Rendering', 'Almost there']
 export function Preloader({ progress }) {
   const WORD = 'vayucodes'
   const letters = WORD.split('')
+  // Warm the CMS settings cache early (also used by VideoIntro) + CMS-driven caption
+  const cms = useCmsSiteSettings()
 
   // Wait for the logo bitmap to be fully decoded before revealing.
   // This prevents the top-to-bottom progressive-paint stutter the user reported.
@@ -440,7 +442,7 @@ export function Preloader({ progress }) {
         transition={{ delay: 1.5, duration: 0.8 }}
         className="absolute bottom-6 inset-x-0 text-center text-[10px] tracking-[0.4em] uppercase text-white/30"
       >
-        {'A studio worldwide \u00b7 Shipping globally'}
+        {cms?.preloaderText || 'A studio worldwide \u00b7 Shipping globally'}
       </motion.div>
     </motion.div>
   )
@@ -451,6 +453,30 @@ export function Preloader({ progress }) {
 ============================================================ */
 export const CINEMATIC_VIDEO_URL = '/video/intro.mp4?v=4'
 export const CINEMATIC_VIDEO_POSTER = '/video/intro-poster.jpg?v=4'
+
+/* ------------------------------------------------------------
+   CMS site settings — module-level cache so every consumer
+   (Preloader, VideoIntro, heroes) shares ONE fetch. Falls back
+   to the hardcoded constants if the fetch hasn't resolved.
+------------------------------------------------------------ */
+let __cmsSettingsCache = null
+let __cmsSettingsPromise = null
+export function useCmsSiteSettings() {
+  const [s, setS] = useState(__cmsSettingsCache)
+  useEffect(() => {
+    if (__cmsSettingsCache) { setS(__cmsSettingsCache); return }
+    if (!__cmsSettingsPromise) {
+      __cmsSettingsPromise = fetch('/api/cms/site_settings')
+        .then(r => r.json())
+        .then(d => { __cmsSettingsCache = d?.data || null; return __cmsSettingsCache })
+        .catch(() => null)
+    }
+    let mounted = true
+    __cmsSettingsPromise.then(v => { if (mounted && v) setS(v) })
+    return () => { mounted = false }
+  }, [])
+  return s
+}
 
 // Typing-sound: synthesized via Web Audio API for crisp mechanical clicks
 function useTypingSound() {
@@ -554,8 +580,8 @@ function useTypewriter(text, { speed = 180, startDelay = 1200, jitter = 80, onCh
 }
 
 // Cinematic welcome text — fade-in kicker/subtitle + typewriter main line with sound
-function CinematicWelcomeText() {
-  const { displayed, done } = useTypewriter('Welcome to the VayuCodes World', {
+function CinematicWelcomeText({ text = 'Welcome to the VayuCodes World' }) {
+  const { displayed, done } = useTypewriter(text, {
     speed: 110,
     startDelay: 900,
     jitter: 20,
@@ -609,6 +635,19 @@ export function VideoIntro({ onEnd, onColor }) {
   const videoRef = useRef(null)
   const [progress, setProgress] = useState(0)
   const [videoReady, setVideoReady] = useState(false)
+
+  // CMS-driven intro assets — frozen at first render so the video src never
+  // swaps mid-playback. Falls back to the shipped constants.
+  const cms = useCmsSiteSettings()
+  const frozenRef = useRef(null)
+  if (!frozenRef.current) {
+    frozenRef.current = {
+      src: cms?.cinematicVideoUrl || CINEMATIC_VIDEO_URL,
+      poster: cms?.cinematicPosterUrl || CINEMATIC_VIDEO_POSTER,
+      text: cms?.introTypewriterText || 'Welcome to the VayuCodes World',
+    }
+  }
+  const intro = frozenRef.current
 
   // Color sampling from video frames
   const sampledRef = useRef(false)
@@ -701,8 +740,8 @@ export function VideoIntro({ onEnd, onColor }) {
       {/* THE CINEMATIC VIDEO — same-origin H.264 for universal playback */}
       <video
         ref={videoRef}
-        src={CINEMATIC_VIDEO_URL}
-        poster={CINEMATIC_VIDEO_POSTER}
+        src={intro.src}
+        poster={intro.poster}
         autoPlay
         muted
         playsInline
@@ -750,7 +789,7 @@ export function VideoIntro({ onEnd, onColor }) {
 
       {/* CINEMATIC WELCOME TEXT — center */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 px-6">
-        <CinematicWelcomeText />
+        <CinematicWelcomeText text={intro.text} />
       </div>
 
       {/* BOTTOM PROGRESS LINE */}

@@ -30,10 +30,17 @@ export default function SiteSettingsPage() {
         { key: 'hero.headlineLine1', label: 'Hero headline', type: 'text', wide: true },
         { key: 'hero.headlineItalicWord', label: 'Italic emphasis word', type: 'text' },
         { key: 'hero.subtitle', label: 'Hero subtitle', textarea: true, wide: true },
-        { key: 'hero.videoUrl', label: 'Hero video URL', type: 'text', wide: true, help: 'Upload in Media Library first, then paste the URL. Video will auto-loop.' },
+        { key: 'hero.videoUrl', label: 'Hero video', type: 'media', mediaType: 'video', wide: true, help: 'Pick from Media Library or paste a URL. Video will auto-loop.' },
         { key: 'hero.videoEnabled', label: 'Show hero video', type: 'boolean' },
         { key: 'hero.videoLoop', label: 'Loop video', type: 'boolean' },
         { key: 'hero.videoMaxSeconds', label: 'Max seconds (loop)', type: 'number' },
+        { key: 'rotatingWords', label: 'Hero rotating words', type: 'stringlist', wide: true, rows: 5, help: 'One word/phrase per line — cycles in the hero headline.' },
+        { key: 'closingStatement', label: 'Closing statement', textarea: true, wide: true, rows: 2, help: 'Big statement at the bottom of the homepage. Text after the first "?" renders italic.' },
+        { key: 'preloaderText', label: 'Preloader bottom text', type: 'text', wide: true, help: 'Small caption at the bottom of the loading screen.' },
+        { key: 'introTypewriterText', label: 'Intro typewriter text', type: 'text', wide: true, help: 'Typed out over the cinematic intro video.' },
+        { key: 'cinematicVideoUrl', label: 'Cinematic intro video', type: 'media', mediaType: 'video', wide: true, help: 'The full-screen intro video shown on first visit. Pick from Media Library.' },
+        { key: 'cinematicPosterUrl', label: 'Cinematic poster image', type: 'media', mediaType: 'image', wide: true, help: 'Shown while the intro video buffers.' },
+        { key: 'cinematicEnabled', label: 'Cinematic intro enabled', type: 'boolean' },
       ]}
     />
   )

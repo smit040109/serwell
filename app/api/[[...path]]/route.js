@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
+import { writeFile, mkdir, unlink } from 'fs/promises'
 import path from 'path'
 import { connectDb } from '@/lib/mongoose'
 import {
   Admin, SiteSettings, Page, Section, Media, Portfolio, Service,
   TeamMember, Testimonial, ContactSettings, Navigation, Footer, SeoSettings,
-  COLLECTION_MODELS, SINGLETON_COLLECTIONS,
+  COLLECTION_MODELS, SINGLETON_COLLECTIONS, KEYED_COLLECTIONS,
 } from '@/lib/models'
 import { hashPassword, verifyPassword, signToken, requireAdmin } from '@/lib/auth'
 import { v4 as uuidv4 } from 'uuid'
@@ -119,6 +119,17 @@ async function handleCollectionCreate(collection, request) {
     const doc = await Model.findOneAndUpdate({ _id: 'main' }, body, { new: true, upsert: true, setDefaultsOnInsert: true })
     return json({ data: doc })
   }
+  // KEYED_UPSERT — upsert by unique key field (e.g. legal_pages by 'key')
+  const keyField = KEYED_COLLECTIONS[collection]
+  if (keyField && body[keyField]) {
+    delete body._id
+    const doc = await Model.findOneAndUpdate(
+      { [keyField]: String(body[keyField]).toLowerCase().trim() },
+      { $set: body },
+      { new: true, upsert: true, setDefaultsOnInsert: true, runValidators: true }
+    )
+    return json({ data: doc })
+  }
   const doc = await Model.create(body)
   return json({ data: doc })
 }
@@ -150,6 +161,12 @@ async function handleCollectionDelete(collection, id, request) {
   await connectDb()
   const doc = await Model.findByIdAndDelete(id)
   if (!doc) return json({ error: 'Not found' }, 404)
+  // Media: also remove the physical file from /public/uploads
+  if (collection === 'media' && doc.url && String(doc.url).startsWith('/uploads/')) {
+    try {
+      await unlink(path.join(process.cwd(), 'public', doc.url))
+    } catch (e) { /* file may already be gone — ignore */ }
+  }
   return json({ ok: true })
 }
 
@@ -201,6 +218,19 @@ async function handler(request, { params }) {
     // MEDIA upload
     if (segs[0] === 'admin' && segs[1] === 'upload' && method === 'POST') return handleUpload(request)
 
+    // MEDIA library endpoints (Phase 4): /api/admin/media
+    if (segs[0] === 'admin' && segs[1] === 'media') {
+      if (method === 'POST') return handleUpload(request)
+      if (method === 'GET') {
+        const auth = requireAdmin(request)
+        if (!auth.ok) return json({ error: auth.error }, auth.status)
+        await connectDb()
+        const docs = await Media.find({}).sort({ createdAt: -1 }).lean()
+        return json({ data: docs })
+      }
+      if (method === 'DELETE' && segs[2]) return handleCollectionDelete('media', segs[2], request)
+    }
+
     // Legacy public contact lead (kept for backwards-compat)
     if (segs[0] === 'contact' && method === 'POST') return handleContactLead(request)
 
@@ -218,7 +248,12 @@ async function handler(request, { params }) {
           const Model = COLLECTION_MODELS[collection]
           if (!Model) return json({ error: 'Unknown collection' }, 404)
           await connectDb()
-          const doc = await Model.findById(id).lean()
+          let doc = await Model.findById(id).lean()
+          // KEYED collections: allow lookup by key (e.g. /api/cms/legal_pages/privacy)
+          const keyField = KEYED_COLLECTIONS[collection]
+          if (!doc && keyField) {
+            doc = await Model.findOne({ [keyField]: String(id).toLowerCase().trim() }).lean()
+          }
           if (!doc) return json({ error: 'Not found' }, 404)
           return json({ data: doc })
         }

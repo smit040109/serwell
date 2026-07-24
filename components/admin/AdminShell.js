@@ -7,6 +7,7 @@ import {
   LayoutDashboard, Settings, FileText, Image as ImageIcon,
   Briefcase, Wrench, Users, MessageSquareQuote, Mail,
   Navigation as NavIcon, PanelBottom, Search, LogOut, ExternalLink, Layers,
+  ListOrdered, HelpCircle, ScrollText, LayoutTemplate,
 } from 'lucide-react'
 
 const NAV = [
@@ -14,7 +15,11 @@ const NAV = [
   { href: '/admin/site-settings', label: 'Site Settings', icon: Settings },
   { href: '/admin/pages', label: 'Pages', icon: FileText },
   { href: '/admin/sections', label: 'Sections', icon: Layers },
+  { href: '/admin/page-content', label: 'Page Content', icon: LayoutTemplate },
   { href: '/admin/media', label: 'Media Library', icon: ImageIcon },
+  { href: '/admin/how-we-work', label: 'How We Work', icon: ListOrdered },
+  { href: '/admin/faq', label: 'FAQ', icon: HelpCircle },
+  { href: '/admin/legal', label: 'Legal Pages', icon: ScrollText },
   { href: '/admin/portfolio', label: 'Portfolio', icon: Briefcase },
   { href: '/admin/services', label: 'Services', icon: Wrench },
   { href: '/admin/team', label: 'Team', icon: Users },

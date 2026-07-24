@@ -6,7 +6,7 @@ import Link from 'next/link'
 import {
   ArrowRight, ArrowUpRight, MessageSquare, Search, PenTool, RefreshCw, Rocket, ChevronRight,
 } from 'lucide-react'
-import { PageWrapper, LandingFlow, useLandingStage } from '@/components/site/Shared'
+import { PageWrapper, LandingFlow, useLandingStage, useCmsSiteSettings } from '@/components/site/Shared'
 
 /* ============================================================
    1 · HERO — white bg, rotating word, ambient video, subtle 3D scroll
@@ -38,7 +38,7 @@ function Hero() {
   const videoScale = useTransform(scrollYProgress, [0, 1], [1.06, 1.14])
 
   useEffect(() => {
-    const id = setInterval(() => setIdx(v => (v + 1) % ROTATING_WORDS.length), 2600)
+    const id = setInterval(() => setIdx(v => v + 1), 2600)
     return () => clearInterval(id)
   }, [])
 
@@ -54,6 +54,9 @@ function Hero() {
   const heroLine1 = settings?.hero?.headlineLine1 || 'We design, engineer'
   const heroItalicWord = settings?.hero?.headlineItalicWord || null
   const heroSubtitle = settings?.hero?.subtitle || ''
+  const rotatingWords = (Array.isArray(settings?.rotatingWords) && settings.rotatingWords.filter(Boolean).length)
+    ? settings.rotatingWords.filter(Boolean)
+    : ROTATING_WORDS
   const videoEnabled = settings?.hero ? settings.hero.videoEnabled : true
   const videoSrc = (settings?.hero?.videoEnabled && settings?.hero?.videoUrl) || HERO_VIDEO_SRC
   const videoLoop = settings?.hero ? settings.hero.videoLoop : true
@@ -259,6 +262,27 @@ const STEPS = [
 ]
 
 function HowWeWork() {
+  // CMS-driven steps — falls back to the hardcoded STEPS until fetch resolves
+  const [cmsSteps, setCmsSteps] = useState(null)
+  useEffect(() => {
+    fetch('/api/cms/how_we_work_steps')
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d?.data) && d.data.length) setCmsSteps(d.data) })
+      .catch(() => {})
+  }, [])
+
+  const ICONS = [MessageSquare, Search, PenTool, RefreshCw, Rocket]
+  const steps = cmsSteps
+    ? cmsSteps.map((s, i) => ({
+        code: String(s.stepNumber || i + 1).padStart(2, '0'),
+        title: s.title,
+        desc: s.description,
+        img: s.image || STEPS[i % STEPS.length].img,
+        tag: s.accent || STEPS[i % STEPS.length].tag,
+        icon: ICONS[i % ICONS.length],
+      }))
+    : STEPS
+
   return (
     <section className="relative bg-[#FAFAF7] py-24 md:py-40 px-6 md:px-10">
       <div className="max-w-[1400px] mx-auto">
@@ -284,7 +308,7 @@ function HowWeWork() {
           <div className="absolute left-1/2 top-4 bottom-4 w-px bg-black/10 -translate-x-px hidden md:block" />
 
           <div className="space-y-16 md:space-y-32">
-            {STEPS.map((s, i) => <StepBlock key={i} step={s} index={i} />)}
+            {steps.map((s, i) => <StepBlock key={i} step={s} index={i} />)}
           </div>
         </div>
       </div>
@@ -474,6 +498,11 @@ function SelectedWork() {
    4 · CLOSING STATEMENT
 ============================================================ */
 function ClosingStatement() {
+  // CMS-driven closing statement — text after the first '?' renders italic,
+  // matching the original design. Falls back to the shipped copy.
+  const cms = useCmsSiteSettings()
+  const closing = cms?.closingStatement || ''
+  const match = closing ? closing.match(/^([^?]*\?)\s*(.*)$/) : null
   return (
     <section className="relative bg-[#0A0A0A] text-white py-28 md:py-40 px-6 md:px-10 overflow-hidden">
       <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[80vw] h-[60vh] rounded-full"
@@ -496,7 +525,13 @@ function ClosingStatement() {
           className="leading-[1.0] tracking-[-0.02em]"
           style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(36px,6.5vw,84px)' }}
         >
-          Have an idea? <span className="italic text-white/60">Let&apos;s build what comes next.</span>
+          {closing ? (
+            match ? (
+              <>{match[1]} <span className="italic text-white/60">{match[2]}</span></>
+            ) : closing
+          ) : (
+            <>Have an idea? <span className="italic text-white/60">Let&apos;s build what comes next.</span></>
+          )}
         </motion.h2>
       </div>
     </section>

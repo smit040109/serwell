@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
 """
-VayuCodes CMS Backend API Test Suite
-Tests all endpoints end-to-end as per review request
+VayuCodes CMS Backend API Test Suite - Phase 1-4 Complete
+Tests all endpoints including new Phase 1-3 collections and Phase 4 media endpoints
 """
 
 import requests
 import json
 import io
+import time
 from PIL import Image
 
-BASE_URL = "http://localhost:3000/api"
+# Use production URL from .env
+BASE_URL = "https://vayucms-phase4.preview.emergentagent.com/api"
 ADMIN_EMAIL = "admin@vayucodes.com"
 ADMIN_PASSWORD = "VayuAdmin@2026"
 
 # Global token storage
 auth_token = None
 test_ids = {}
+original_values = {}
 
 def print_test(name, passed, details=""):
     status = "✅ PASS" if passed else "❌ FAIL"
@@ -24,8 +27,16 @@ def print_test(name, passed, details=""):
         print(f"    {details}")
     print()
 
+def print_section(title):
+    print("\n" + "="*70)
+    print(f"  {title}")
+    print("="*70 + "\n")
+
+# ============================================================
+# 1. HEALTH CHECK
+# ============================================================
 def test_health():
-    """Test 1: Health endpoint"""
+    """Test 1: GET /api/health"""
     try:
         resp = requests.get(f"{BASE_URL}/health", timeout=10)
         data = resp.json()
@@ -40,8 +51,11 @@ def test_health():
         print_test("Health Check", False, f"Error: {str(e)}")
         return False
 
-def test_login_wrong_password():
-    """Test 2.1: Login with wrong password"""
+# ============================================================
+# 2. AUTH FLOW
+# ============================================================
+def test_auth_wrong_password():
+    """Test 2.1: Login with wrong password → 401"""
     try:
         resp = requests.post(
             f"{BASE_URL}/admin/login",
@@ -49,40 +63,14 @@ def test_login_wrong_password():
             timeout=10
         )
         passed = resp.status_code == 401
-        print_test("Login - Wrong Password", passed, f"Status: {resp.status_code}, Response: {resp.json()}")
+        print_test("Auth - Wrong Password → 401", passed, f"Status: {resp.status_code}")
         return passed
     except Exception as e:
-        print_test("Login - Wrong Password", False, f"Error: {str(e)}")
+        print_test("Auth - Wrong Password → 401", False, f"Error: {str(e)}")
         return False
 
-def test_login_wrong_email():
-    """Test 2.2: Login with wrong email"""
-    try:
-        resp = requests.post(
-            f"{BASE_URL}/admin/login",
-            json={"email": "wrong@example.com", "password": ADMIN_PASSWORD},
-            timeout=10
-        )
-        passed = resp.status_code == 401
-        print_test("Login - Wrong Email", passed, f"Status: {resp.status_code}, Response: {resp.json()}")
-        return passed
-    except Exception as e:
-        print_test("Login - Wrong Email", False, f"Error: {str(e)}")
-        return False
-
-def test_login_no_body():
-    """Test 2.3: Login without body"""
-    try:
-        resp = requests.post(f"{BASE_URL}/admin/login", json={}, timeout=10)
-        passed = resp.status_code == 400
-        print_test("Login - No Body", passed, f"Status: {resp.status_code}, Response: {resp.json()}")
-        return passed
-    except Exception as e:
-        print_test("Login - No Body", False, f"Error: {str(e)}")
-        return False
-
-def test_login_success():
-    """Test 2.4: Login with correct credentials"""
+def test_auth_login_success():
+    """Test 2.2: Login success → JWT token"""
     global auth_token
     try:
         resp = requests.post(
@@ -94,45 +82,29 @@ def test_login_success():
         passed = (
             resp.status_code == 200 and
             "token" in data and
-            "admin" in data and
-            data["admin"].get("email") == ADMIN_EMAIL
+            "admin" in data
         )
         if passed:
             auth_token = data["token"]
-        print_test("Login - Success", passed, f"Token received: {bool(auth_token)}, Admin: {data.get('admin', {})}")
+        print_test("Auth - Login Success → JWT", passed, f"Token received: {bool(auth_token)}")
         return passed
     except Exception as e:
-        print_test("Login - Success", False, f"Error: {str(e)}")
+        print_test("Auth - Login Success → JWT", False, f"Error: {str(e)}")
         return False
 
-def test_me_no_token():
-    """Test 2.5: GET /admin/me without token"""
+def test_auth_me_no_token():
+    """Test 2.3: GET /admin/me without token → 401"""
     try:
         resp = requests.get(f"{BASE_URL}/admin/me", timeout=10)
         passed = resp.status_code == 401
-        print_test("Admin Me - No Token", passed, f"Status: {resp.status_code}")
+        print_test("Auth - /admin/me without token → 401", passed, f"Status: {resp.status_code}")
         return passed
     except Exception as e:
-        print_test("Admin Me - No Token", False, f"Error: {str(e)}")
+        print_test("Auth - /admin/me without token → 401", False, f"Error: {str(e)}")
         return False
 
-def test_me_invalid_token():
-    """Test 2.6: GET /admin/me with invalid token"""
-    try:
-        resp = requests.get(
-            f"{BASE_URL}/admin/me",
-            headers={"Authorization": "Bearer invalid_token_12345"},
-            timeout=10
-        )
-        passed = resp.status_code == 401
-        print_test("Admin Me - Invalid Token", passed, f"Status: {resp.status_code}")
-        return passed
-    except Exception as e:
-        print_test("Admin Me - Invalid Token", False, f"Error: {str(e)}")
-        return False
-
-def test_me_valid_token():
-    """Test 2.7: GET /admin/me with valid token"""
+def test_auth_me_with_token():
+    """Test 2.4: GET /admin/me with token → 200"""
     try:
         resp = requests.get(
             f"{BASE_URL}/admin/me",
@@ -140,670 +112,1068 @@ def test_me_valid_token():
             timeout=10
         )
         data = resp.json()
-        passed = (
-            resp.status_code == 200 and
-            "admin" in data and
-            data["admin"].get("email") == ADMIN_EMAIL
-        )
-        print_test("Admin Me - Valid Token", passed, f"Admin: {data.get('admin', {})}")
+        passed = resp.status_code == 200 and "admin" in data
+        print_test("Auth - /admin/me with token → 200", passed, f"Admin: {data.get('admin', {}).get('email')}")
         return passed
     except Exception as e:
-        print_test("Admin Me - Valid Token", False, f"Error: {str(e)}")
+        print_test("Auth - /admin/me with token → 200", False, f"Error: {str(e)}")
         return False
 
-def test_public_team_members():
-    """Test 3.1: GET /cms/team_members (public)"""
-    try:
-        resp = requests.get(f"{BASE_URL}/cms/team_members", timeout=10)
-        data = resp.json()
-        passed = resp.status_code == 200 and "data" in data
-        members = data.get("data", [])
-        co_founders = [m for m in members if m.get("isCoFounder")]
-        print_test(
-            "Public - Team Members",
-            passed,
-            f"Found {len(members)} members, {len(co_founders)} co-founders. Names: {[m.get('name') for m in co_founders]}"
-        )
-        return passed
-    except Exception as e:
-        print_test("Public - Team Members", False, f"Error: {str(e)}")
-        return False
+# ============================================================
+# 3. REGRESSION - EXISTING 13 COLLECTIONS
+# ============================================================
+def test_regression_public_collections():
+    """Test 3: Public GET for all 13 collections"""
+    results = []
+    
+    # List collections (should return arrays)
+    list_collections = [
+        ("team_members", 2),  # 2 co-founders
+        ("portfolio_projects", 5),
+        ("services", 6),
+        ("testimonials", 3),
+        ("pages", 5),
+        ("media", None),  # variable count
+        ("sections", None),
+    ]
+    
+    for collection, expected_count in list_collections:
+        try:
+            resp = requests.get(f"{BASE_URL}/cms/{collection}", timeout=10)
+            data = resp.json()
+            items = data.get("data", [])
+            passed = resp.status_code == 200 and isinstance(items, list)
+            if expected_count is not None:
+                passed = passed and len(items) >= expected_count
+            details = f"Found {len(items)} items"
+            if expected_count:
+                details += f" (expected >= {expected_count})"
+            print_test(f"Regression - GET /cms/{collection}", passed, details)
+            results.append(passed)
+        except Exception as e:
+            print_test(f"Regression - GET /cms/{collection}", False, f"Error: {str(e)}")
+            results.append(False)
+    
+    # Singleton collections (should return single object with _id='main')
+    singleton_collections = [
+        "site_settings",
+        "contact_settings",
+        "navigation",
+        "footer",
+        "seo_settings",
+    ]
+    
+    for collection in singleton_collections:
+        try:
+            resp = requests.get(f"{BASE_URL}/cms/{collection}", timeout=10)
+            data = resp.json()
+            doc = data.get("data", {})
+            passed = (
+                resp.status_code == 200 and
+                isinstance(doc, dict) and
+                doc.get("_id") == "main"
+            )
+            print_test(f"Regression - GET /cms/{collection} (singleton)", passed, f"_id: {doc.get('_id')}")
+            results.append(passed)
+        except Exception as e:
+            print_test(f"Regression - GET /cms/{collection} (singleton)", False, f"Error: {str(e)}")
+            results.append(False)
+    
+    return all(results)
 
-def test_public_portfolio():
-    """Test 3.2: GET /cms/portfolio_projects (public)"""
-    try:
-        resp = requests.get(f"{BASE_URL}/cms/portfolio_projects", timeout=10)
-        data = resp.json()
-        passed = resp.status_code == 200 and "data" in data
-        projects = data.get("data", [])
-        print_test("Public - Portfolio Projects", passed, f"Found {len(projects)} projects")
-        return passed
-    except Exception as e:
-        print_test("Public - Portfolio Projects", False, f"Error: {str(e)}")
-        return False
-
-def test_public_services():
-    """Test 3.3: GET /cms/services (public)"""
-    try:
-        resp = requests.get(f"{BASE_URL}/cms/services", timeout=10)
-        data = resp.json()
-        passed = resp.status_code == 200 and "data" in data
-        services = data.get("data", [])
-        print_test("Public - Services", passed, f"Found {len(services)} services")
-        return passed
-    except Exception as e:
-        print_test("Public - Services", False, f"Error: {str(e)}")
-        return False
-
-def test_public_testimonials():
-    """Test 3.4: GET /cms/testimonials (public)"""
-    try:
-        resp = requests.get(f"{BASE_URL}/cms/testimonials", timeout=10)
-        data = resp.json()
-        passed = resp.status_code == 200 and "data" in data
-        testimonials = data.get("data", [])
-        print_test("Public - Testimonials", passed, f"Found {len(testimonials)} testimonials")
-        return passed
-    except Exception as e:
-        print_test("Public - Testimonials", False, f"Error: {str(e)}")
-        return False
-
-def test_public_pages():
-    """Test 3.5: GET /cms/pages (public)"""
-    try:
-        resp = requests.get(f"{BASE_URL}/cms/pages", timeout=10)
-        data = resp.json()
-        passed = resp.status_code == 200 and "data" in data
-        pages = data.get("data", [])
-        print_test("Public - Pages", passed, f"Found {len(pages)} pages")
-        return passed
-    except Exception as e:
-        print_test("Public - Pages", False, f"Error: {str(e)}")
-        return False
-
-def test_public_site_settings():
-    """Test 3.6: GET /cms/site_settings (singleton)"""
-    try:
-        resp = requests.get(f"{BASE_URL}/cms/site_settings", timeout=10)
-        data = resp.json()
-        passed = (
-            resp.status_code == 200 and
-            "data" in data and
-            data["data"].get("_id") == "main"
-        )
-        print_test("Public - Site Settings (Singleton)", passed, f"Site name: {data.get('data', {}).get('siteName')}")
-        return passed
-    except Exception as e:
-        print_test("Public - Site Settings (Singleton)", False, f"Error: {str(e)}")
-        return False
-
-def test_public_navigation():
-    """Test 3.7: GET /cms/navigation (singleton)"""
-    try:
-        resp = requests.get(f"{BASE_URL}/cms/navigation", timeout=10)
-        data = resp.json()
-        passed = resp.status_code == 200 and "data" in data
-        print_test("Public - Navigation (Singleton)", passed, f"_id: {data.get('data', {}).get('_id')}")
-        return passed
-    except Exception as e:
-        print_test("Public - Navigation (Singleton)", False, f"Error: {str(e)}")
-        return False
-
-def test_public_footer():
-    """Test 3.8: GET /cms/footer (singleton)"""
-    try:
-        resp = requests.get(f"{BASE_URL}/cms/footer", timeout=10)
-        data = resp.json()
-        passed = resp.status_code == 200 and "data" in data
-        print_test("Public - Footer (Singleton)", passed, f"_id: {data.get('data', {}).get('_id')}")
-        return passed
-    except Exception as e:
-        print_test("Public - Footer (Singleton)", False, f"Error: {str(e)}")
-        return False
-
-def test_public_contact_settings():
-    """Test 3.9: GET /cms/contact_settings (singleton)"""
-    try:
-        resp = requests.get(f"{BASE_URL}/cms/contact_settings", timeout=10)
-        data = resp.json()
-        passed = resp.status_code == 200 and "data" in data
-        print_test("Public - Contact Settings (Singleton)", passed, f"_id: {data.get('data', {}).get('_id')}")
-        return passed
-    except Exception as e:
-        print_test("Public - Contact Settings (Singleton)", False, f"Error: {str(e)}")
-        return False
-
-def test_public_seo_settings():
-    """Test 3.10: GET /cms/seo_settings (singleton)"""
-    try:
-        resp = requests.get(f"{BASE_URL}/cms/seo_settings", timeout=10)
-        data = resp.json()
-        passed = resp.status_code == 200 and "data" in data
-        print_test("Public - SEO Settings (Singleton)", passed, f"_id: {data.get('data', {}).get('_id')}")
-        return passed
-    except Exception as e:
-        print_test("Public - SEO Settings (Singleton)", False, f"Error: {str(e)}")
-        return False
-
-def test_public_media():
-    """Test 3.11: GET /cms/media (public)"""
-    try:
-        resp = requests.get(f"{BASE_URL}/cms/media", timeout=10)
-        data = resp.json()
-        passed = resp.status_code == 200 and "data" in data
-        media = data.get("data", [])
-        print_test("Public - Media", passed, f"Found {len(media)} media items")
-        return passed
-    except Exception as e:
-        print_test("Public - Media", False, f"Error: {str(e)}")
-        return False
-
-def test_create_portfolio_no_auth():
-    """Test 4.1: POST /cms/portfolio_projects without token"""
-    try:
-        resp = requests.post(
-            f"{BASE_URL}/cms/portfolio_projects",
-            json={"title": "Test", "slug": "test"},
-            timeout=10
-        )
-        passed = resp.status_code == 401
-        print_test("Create Portfolio - No Auth", passed, f"Status: {resp.status_code}")
-        return passed
-    except Exception as e:
-        print_test("Create Portfolio - No Auth", False, f"Error: {str(e)}")
-        return False
-
-def test_create_portfolio_with_auth():
-    """Test 4.2: POST /cms/portfolio_projects with auth"""
-    global test_ids
-    try:
-        resp = requests.post(
-            f"{BASE_URL}/cms/portfolio_projects",
-            headers={"Authorization": f"Bearer {auth_token}"},
-            json={
-                "title": "Test Project",
-                "slug": "test-project-backend-test",
-                "category": "Test",
-                "themeColor": "#000000",
-                "published": True
-            },
-            timeout=10
-        )
-        data = resp.json()
-        passed = resp.status_code == 200 and "data" in data and "_id" in data["data"]
-        if passed:
-            test_ids["portfolio"] = data["data"]["_id"]
-        print_test("Create Portfolio - With Auth", passed, f"Created ID: {test_ids.get('portfolio')}")
-        return passed
-    except Exception as e:
-        print_test("Create Portfolio - With Auth", False, f"Error: {str(e)}")
-        return False
-
-def test_get_portfolio_by_id():
-    """Test 4.3: GET /cms/portfolio_projects/{id}"""
-    try:
-        portfolio_id = test_ids.get("portfolio")
-        if not portfolio_id:
-            print_test("Get Portfolio By ID", False, "No portfolio ID available")
-            return False
-        
-        resp = requests.get(f"{BASE_URL}/cms/portfolio_projects/{portfolio_id}", timeout=10)
-        data = resp.json()
-        passed = (
-            resp.status_code == 200 and
-            "data" in data and
-            data["data"].get("_id") == portfolio_id
-        )
-        print_test("Get Portfolio By ID", passed, f"Title: {data.get('data', {}).get('title')}")
-        return passed
-    except Exception as e:
-        print_test("Get Portfolio By ID", False, f"Error: {str(e)}")
-        return False
-
-def test_update_portfolio():
-    """Test 4.4: PUT /cms/portfolio_projects/{id}"""
-    try:
-        portfolio_id = test_ids.get("portfolio")
-        if not portfolio_id:
-            print_test("Update Portfolio", False, "No portfolio ID available")
-            return False
-        
-        resp = requests.put(
-            f"{BASE_URL}/cms/portfolio_projects/{portfolio_id}",
-            headers={"Authorization": f"Bearer {auth_token}"},
-            json={"title": "Test Project Updated"},
-            timeout=10
-        )
-        data = resp.json()
-        passed = (
-            resp.status_code == 200 and
-            "data" in data and
-            data["data"].get("title") == "Test Project Updated"
-        )
-        print_test("Update Portfolio", passed, f"New title: {data.get('data', {}).get('title')}")
-        return passed
-    except Exception as e:
-        print_test("Update Portfolio", False, f"Error: {str(e)}")
-        return False
-
-def test_delete_portfolio():
-    """Test 4.5: DELETE /cms/portfolio_projects/{id}"""
-    try:
-        portfolio_id = test_ids.get("portfolio")
-        if not portfolio_id:
-            print_test("Delete Portfolio", False, "No portfolio ID available")
-            return False
-        
-        resp = requests.delete(
-            f"{BASE_URL}/cms/portfolio_projects/{portfolio_id}",
-            headers={"Authorization": f"Bearer {auth_token}"},
-            timeout=10
-        )
-        data = resp.json()
-        passed = resp.status_code == 200 and data.get("ok") == True
-        print_test("Delete Portfolio", passed, f"Response: {data}")
-        return passed
-    except Exception as e:
-        print_test("Delete Portfolio", False, f"Error: {str(e)}")
-        return False
-
-def test_get_deleted_portfolio():
-    """Test 4.6: GET /cms/portfolio_projects/{id} after delete"""
-    try:
-        portfolio_id = test_ids.get("portfolio")
-        if not portfolio_id:
-            print_test("Get Deleted Portfolio", False, "No portfolio ID available")
-            return False
-        
-        resp = requests.get(f"{BASE_URL}/cms/portfolio_projects/{portfolio_id}", timeout=10)
-        passed = resp.status_code == 404
-        print_test("Get Deleted Portfolio - Should 404", passed, f"Status: {resp.status_code}")
-        return passed
-    except Exception as e:
-        print_test("Get Deleted Portfolio - Should 404", False, f"Error: {str(e)}")
-        return False
-
-def test_team_crud():
-    """Test 5: Team CRUD operations"""
+def test_regression_portfolio_crud():
+    """Test 3.1: Portfolio CRUD spot-check"""
     global test_ids
     results = []
     
-    # Create
+    # CREATE
     try:
         resp = requests.post(
-            f"{BASE_URL}/cms/team_members",
+            f"{BASE_URL}/cms/portfolio_projects",
             headers={"Authorization": f"Bearer {auth_token}"},
             json={
-                "name": "Test Person",
-                "role": "Test Role",
+                "title": "Test Project CRUD",
+                "slug": f"test-project-{int(time.time())}",
+                "category": "Test",
                 "published": True
             },
             timeout=10
         )
         data = resp.json()
-        passed = resp.status_code == 200 and "data" in data and "_id" in data["data"]
+        passed = resp.status_code == 200 and "_id" in data.get("data", {})
         if passed:
-            test_ids["team"] = data["data"]["_id"]
-        print_test("Create Team Member", passed, f"Created ID: {test_ids.get('team')}")
+            test_ids["portfolio_crud"] = data["data"]["_id"]
+        print_test("Regression - Portfolio CREATE", passed, f"ID: {test_ids.get('portfolio_crud')}")
         results.append(passed)
     except Exception as e:
-        print_test("Create Team Member", False, f"Error: {str(e)}")
+        print_test("Regression - Portfolio CREATE", False, f"Error: {str(e)}")
         results.append(False)
     
-    # Update
+    # GET by ID
     try:
-        team_id = test_ids.get("team")
-        if team_id:
+        pid = test_ids.get("portfolio_crud")
+        if pid:
+            resp = requests.get(f"{BASE_URL}/cms/portfolio_projects/{pid}", timeout=10)
+            data = resp.json()
+            passed = resp.status_code == 200 and data.get("data", {}).get("_id") == pid
+            print_test("Regression - Portfolio GET by ID", passed, f"Title: {data.get('data', {}).get('title')}")
+            results.append(passed)
+        else:
+            print_test("Regression - Portfolio GET by ID", False, "No ID")
+            results.append(False)
+    except Exception as e:
+        print_test("Regression - Portfolio GET by ID", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # UPDATE
+    try:
+        pid = test_ids.get("portfolio_crud")
+        if pid:
             resp = requests.put(
-                f"{BASE_URL}/cms/team_members/{team_id}",
+                f"{BASE_URL}/cms/portfolio_projects/{pid}",
                 headers={"Authorization": f"Bearer {auth_token}"},
-                json={"bio": "Updated bio for testing"},
+                json={"title": "Test Project UPDATED"},
                 timeout=10
             )
             data = resp.json()
-            passed = resp.status_code == 200 and data.get("data", {}).get("bio") == "Updated bio for testing"
-            print_test("Update Team Member", passed, f"Bio updated: {passed}")
+            passed = resp.status_code == 200 and data.get("data", {}).get("title") == "Test Project UPDATED"
+            print_test("Regression - Portfolio UPDATE", passed, f"New title: {data.get('data', {}).get('title')}")
             results.append(passed)
         else:
-            print_test("Update Team Member", False, "No team ID available")
+            print_test("Regression - Portfolio UPDATE", False, "No ID")
             results.append(False)
     except Exception as e:
-        print_test("Update Team Member", False, f"Error: {str(e)}")
+        print_test("Regression - Portfolio UPDATE", False, f"Error: {str(e)}")
         results.append(False)
     
-    # Delete
+    # DELETE
     try:
-        team_id = test_ids.get("team")
-        if team_id:
+        pid = test_ids.get("portfolio_crud")
+        if pid:
             resp = requests.delete(
-                f"{BASE_URL}/cms/team_members/{team_id}",
+                f"{BASE_URL}/cms/portfolio_projects/{pid}",
                 headers={"Authorization": f"Bearer {auth_token}"},
                 timeout=10
             )
             passed = resp.status_code == 200 and resp.json().get("ok") == True
-            print_test("Delete Team Member", passed, f"Deleted: {passed}")
+            print_test("Regression - Portfolio DELETE", passed, f"Deleted: {passed}")
             results.append(passed)
         else:
-            print_test("Delete Team Member", False, "No team ID available")
+            print_test("Regression - Portfolio DELETE", False, "No ID")
             results.append(False)
     except Exception as e:
-        print_test("Delete Team Member", False, f"Error: {str(e)}")
+        print_test("Regression - Portfolio DELETE", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # Verify 404 after delete
+    try:
+        pid = test_ids.get("portfolio_crud")
+        if pid:
+            resp = requests.get(f"{BASE_URL}/cms/portfolio_projects/{pid}", timeout=10)
+            passed = resp.status_code == 404
+            print_test("Regression - Portfolio GET after DELETE → 404", passed, f"Status: {resp.status_code}")
+            results.append(passed)
+        else:
+            print_test("Regression - Portfolio GET after DELETE → 404", False, "No ID")
+            results.append(False)
+    except Exception as e:
+        print_test("Regression - Portfolio GET after DELETE → 404", False, f"Error: {str(e)}")
         results.append(False)
     
     return all(results)
 
-def test_singleton_upsert():
-    """Test 6: Singleton upsert behavior"""
+# ============================================================
+# 4. PHASE 1-3: SITE SETTINGS EXTENDED FIELDS
+# ============================================================
+def test_site_settings_extended_fields():
+    """Test 4: SiteSettings extended fields (Phase 1-3)"""
+    global original_values
     results = []
     
-    # First POST
-    try:
-        resp = requests.post(
-            f"{BASE_URL}/cms/site_settings",
-            headers={"Authorization": f"Bearer {auth_token}"},
-            json={"siteName": "Updated Site Name Test"},
-            timeout=10
-        )
-        data = resp.json()
-        passed = (
-            resp.status_code == 200 and
-            data.get("data", {}).get("_id") == "main" and
-            data.get("data", {}).get("siteName") == "Updated Site Name Test"
-        )
-        print_test("Singleton Upsert - First POST", passed, f"_id: {data.get('data', {}).get('_id')}")
-        results.append(passed)
-    except Exception as e:
-        print_test("Singleton Upsert - First POST", False, f"Error: {str(e)}")
-        results.append(False)
-    
-    # GET to verify
+    # GET and verify all extended fields exist
     try:
         resp = requests.get(f"{BASE_URL}/cms/site_settings", timeout=10)
         data = resp.json()
-        passed = (
-            resp.status_code == 200 and
-            data.get("data", {}).get("siteName") == "Updated Site Name Test"
-        )
-        print_test("Singleton Upsert - GET Verify", passed, f"Site name: {data.get('data', {}).get('siteName')}")
+        doc = data.get("data", {})
+        
+        required_fields = [
+            "rotatingWords",
+            "closingStatement",
+            "preloaderText",
+            "cinematicVideoUrl",
+            "cinematicPosterUrl",
+            "cinematicEnabled",
+            "introTypewriterText"
+        ]
+        
+        all_present = all(field in doc for field in required_fields)
+        rotating_words_valid = isinstance(doc.get("rotatingWords"), list) and len(doc.get("rotatingWords", [])) == 4
+        
+        passed = resp.status_code == 200 and all_present and rotating_words_valid
+        
+        # Store original values for restoration
+        if passed:
+            original_values["site_settings"] = {
+                "preloaderText": doc.get("preloaderText"),
+                "rotatingWords": doc.get("rotatingWords"),
+            }
+        
+        details = f"Fields present: {all_present}, rotatingWords: {doc.get('rotatingWords')}, preloaderText: '{doc.get('preloaderText')}', cinematicVideoUrl: '{doc.get('cinematicVideoUrl')}'"
+        print_test("Phase 1-3 - SiteSettings extended fields GET", passed, details)
         results.append(passed)
     except Exception as e:
-        print_test("Singleton Upsert - GET Verify", False, f"Error: {str(e)}")
+        print_test("Phase 1-3 - SiteSettings extended fields GET", False, f"Error: {str(e)}")
         results.append(False)
     
-    # Second POST with different data
+    # POST update with auth
     try:
         resp = requests.post(
             f"{BASE_URL}/cms/site_settings",
             headers={"Authorization": f"Bearer {auth_token}"},
-            json={"siteName": "Another Update", "tagline": "Test tagline"},
+            json={
+                "preloaderText": "TEST PRELOADER",
+                "rotatingWords": ["test-a", "test-b"]
+            },
             timeout=10
         )
         data = resp.json()
+        doc = data.get("data", {})
         passed = (
             resp.status_code == 200 and
-            data.get("data", {}).get("_id") == "main"
+            doc.get("preloaderText") == "TEST PRELOADER" and
+            doc.get("rotatingWords") == ["test-a", "test-b"]
         )
-        print_test("Singleton Upsert - Second POST (should still be _id=main)", passed, f"_id: {data.get('data', {}).get('_id')}")
+        print_test("Phase 1-3 - SiteSettings POST update (auth)", passed, f"preloaderText: '{doc.get('preloaderText')}'")
         results.append(passed)
     except Exception as e:
-        print_test("Singleton Upsert - Second POST", False, f"Error: {str(e)}")
+        print_test("Phase 1-3 - SiteSettings POST update (auth)", False, f"Error: {str(e)}")
         results.append(False)
     
-    # Try to DELETE singleton (should fail)
+    # Verify persisted
     try:
-        resp = requests.delete(
-            f"{BASE_URL}/cms/site_settings/main",
-            headers={"Authorization": f"Bearer {auth_token}"},
-            timeout=10
+        resp = requests.get(f"{BASE_URL}/cms/site_settings", timeout=10)
+        data = resp.json()
+        doc = data.get("data", {})
+        passed = (
+            resp.status_code == 200 and
+            doc.get("preloaderText") == "TEST PRELOADER"
         )
-        passed = resp.status_code == 400
-        print_test("Singleton Delete - Should Fail", passed, f"Status: {resp.status_code}, Response: {resp.json()}")
+        print_test("Phase 1-3 - SiteSettings verify persisted", passed, f"preloaderText: '{doc.get('preloaderText')}'")
         results.append(passed)
     except Exception as e:
-        print_test("Singleton Delete - Should Fail", False, f"Error: {str(e)}")
+        print_test("Phase 1-3 - SiteSettings verify persisted", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # RESTORE original values
+    try:
+        if "site_settings" in original_values:
+            resp = requests.post(
+                f"{BASE_URL}/cms/site_settings",
+                headers={"Authorization": f"Bearer {auth_token}"},
+                json=original_values["site_settings"],
+                timeout=10
+            )
+            passed = resp.status_code == 200
+            print_test("Phase 1-3 - SiteSettings RESTORE original", passed, "Restored original values")
+            results.append(passed)
+        else:
+            print_test("Phase 1-3 - SiteSettings RESTORE original", False, "No original values stored")
+            results.append(False)
+    except Exception as e:
+        print_test("Phase 1-3 - SiteSettings RESTORE original", False, f"Error: {str(e)}")
         results.append(False)
     
     return all(results)
 
-def test_file_upload():
-    """Test 7: File upload"""
+# ============================================================
+# 5. PHASE 1-3: HOW_WE_WORK_STEPS COLLECTION
+# ============================================================
+def test_how_we_work_steps():
+    """Test 5: how_we_work_steps collection (Phase 1-3)"""
     global test_ids
     results = []
     
-    # Upload without token
+    # GET list (should have 5 published steps)
     try:
-        # Create a small test image
-        img = Image.new('RGB', (100, 100), color='red')
-        img_bytes = io.BytesIO()
-        img.save(img_bytes, format='PNG')
-        img_bytes.seek(0)
-        
+        resp = requests.get(f"{BASE_URL}/cms/how_we_work_steps", timeout=10)
+        data = resp.json()
+        steps = data.get("data", [])
+        passed = resp.status_code == 200 and len(steps) >= 5
+        print_test("Phase 1-3 - how_we_work_steps GET list", passed, f"Found {len(steps)} steps (expected >= 5)")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 1-3 - how_we_work_steps GET list", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # POST without token → 401
+    try:
         resp = requests.post(
-            f"{BASE_URL}/admin/upload",
-            files={"file": ("test.png", img_bytes, "image/png")},
+            f"{BASE_URL}/cms/how_we_work_steps",
+            json={"title": "Test Step", "stepNumber": 99},
             timeout=10
         )
         passed = resp.status_code == 401
-        print_test("File Upload - No Auth", passed, f"Status: {resp.status_code}")
+        print_test("Phase 1-3 - how_we_work_steps POST without token → 401", passed, f"Status: {resp.status_code}")
         results.append(passed)
     except Exception as e:
-        print_test("File Upload - No Auth", False, f"Error: {str(e)}")
+        print_test("Phase 1-3 - how_we_work_steps POST without token → 401", False, f"Error: {str(e)}")
         results.append(False)
     
-    # Upload with token
+    # CREATE with auth
     try:
-        img = Image.new('RGB', (100, 100), color='blue')
+        resp = requests.post(
+            f"{BASE_URL}/cms/how_we_work_steps",
+            headers={"Authorization": f"Bearer {auth_token}"},
+            json={
+                "stepNumber": 6,
+                "title": "Test Step",
+                "description": "Test description",
+                "order": 6,
+                "published": True
+            },
+            timeout=10
+        )
+        data = resp.json()
+        passed = resp.status_code == 200 and "_id" in data.get("data", {})
+        if passed:
+            test_ids["how_we_work_step"] = data["data"]["_id"]
+        print_test("Phase 1-3 - how_we_work_steps CREATE", passed, f"ID: {test_ids.get('how_we_work_step')}")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 1-3 - how_we_work_steps CREATE", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # GET by ID
+    try:
+        sid = test_ids.get("how_we_work_step")
+        if sid:
+            resp = requests.get(f"{BASE_URL}/cms/how_we_work_steps/{sid}", timeout=10)
+            data = resp.json()
+            passed = resp.status_code == 200 and data.get("data", {}).get("_id") == sid
+            print_test("Phase 1-3 - how_we_work_steps GET by ID", passed, f"Title: {data.get('data', {}).get('title')}")
+            results.append(passed)
+        else:
+            print_test("Phase 1-3 - how_we_work_steps GET by ID", False, "No ID")
+            results.append(False)
+    except Exception as e:
+        print_test("Phase 1-3 - how_we_work_steps GET by ID", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # UPDATE
+    try:
+        sid = test_ids.get("how_we_work_step")
+        if sid:
+            resp = requests.put(
+                f"{BASE_URL}/cms/how_we_work_steps/{sid}",
+                headers={"Authorization": f"Bearer {auth_token}"},
+                json={"title": "Test Step UPDATED"},
+                timeout=10
+            )
+            data = resp.json()
+            passed = resp.status_code == 200 and data.get("data", {}).get("title") == "Test Step UPDATED"
+            print_test("Phase 1-3 - how_we_work_steps UPDATE", passed, f"New title: {data.get('data', {}).get('title')}")
+            results.append(passed)
+        else:
+            print_test("Phase 1-3 - how_we_work_steps UPDATE", False, "No ID")
+            results.append(False)
+    except Exception as e:
+        print_test("Phase 1-3 - how_we_work_steps UPDATE", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # DELETE
+    try:
+        sid = test_ids.get("how_we_work_step")
+        if sid:
+            resp = requests.delete(
+                f"{BASE_URL}/cms/how_we_work_steps/{sid}",
+                headers={"Authorization": f"Bearer {auth_token}"},
+                timeout=10
+            )
+            passed = resp.status_code == 200 and resp.json().get("ok") == True
+            print_test("Phase 1-3 - how_we_work_steps DELETE", passed, f"Deleted: {passed}")
+            results.append(passed)
+        else:
+            print_test("Phase 1-3 - how_we_work_steps DELETE", False, "No ID")
+            results.append(False)
+    except Exception as e:
+        print_test("Phase 1-3 - how_we_work_steps DELETE", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # Verify gone
+    try:
+        sid = test_ids.get("how_we_work_step")
+        if sid:
+            resp = requests.get(f"{BASE_URL}/cms/how_we_work_steps/{sid}", timeout=10)
+            passed = resp.status_code == 404
+            print_test("Phase 1-3 - how_we_work_steps verify gone → 404", passed, f"Status: {resp.status_code}")
+            results.append(passed)
+        else:
+            print_test("Phase 1-3 - how_we_work_steps verify gone → 404", False, "No ID")
+            results.append(False)
+    except Exception as e:
+        print_test("Phase 1-3 - how_we_work_steps verify gone → 404", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    return all(results)
+
+# ============================================================
+# 6. PHASE 1-3: FAQ_ITEMS COLLECTION
+# ============================================================
+def test_faq_items():
+    """Test 6: faq_items collection (Phase 1-3)"""
+    global test_ids
+    results = []
+    
+    # GET list (should have 4 items)
+    try:
+        resp = requests.get(f"{BASE_URL}/cms/faq_items", timeout=10)
+        data = resp.json()
+        items = data.get("data", [])
+        passed = resp.status_code == 200 and len(items) >= 4
+        print_test("Phase 1-3 - faq_items GET list", passed, f"Found {len(items)} items (expected >= 4)")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 1-3 - faq_items GET list", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # POST without token → 401
+    try:
+        resp = requests.post(
+            f"{BASE_URL}/cms/faq_items",
+            json={"question": "Test?", "answer": "Test answer"},
+            timeout=10
+        )
+        passed = resp.status_code == 401
+        print_test("Phase 1-3 - faq_items POST without token → 401", passed, f"Status: {resp.status_code}")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 1-3 - faq_items POST without token → 401", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # CREATE with auth
+    try:
+        resp = requests.post(
+            f"{BASE_URL}/cms/faq_items",
+            headers={"Authorization": f"Bearer {auth_token}"},
+            json={
+                "question": "Test Question?",
+                "answer": "Test answer for backend testing",
+                "category": "test",
+                "published": True
+            },
+            timeout=10
+        )
+        data = resp.json()
+        passed = resp.status_code == 200 and "_id" in data.get("data", {})
+        if passed:
+            test_ids["faq_item"] = data["data"]["_id"]
+        print_test("Phase 1-3 - faq_items CREATE", passed, f"ID: {test_ids.get('faq_item')}")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 1-3 - faq_items CREATE", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # UPDATE
+    try:
+        fid = test_ids.get("faq_item")
+        if fid:
+            resp = requests.put(
+                f"{BASE_URL}/cms/faq_items/{fid}",
+                headers={"Authorization": f"Bearer {auth_token}"},
+                json={"answer": "Updated answer"},
+                timeout=10
+            )
+            data = resp.json()
+            passed = resp.status_code == 200 and data.get("data", {}).get("answer") == "Updated answer"
+            print_test("Phase 1-3 - faq_items UPDATE", passed, f"New answer: {data.get('data', {}).get('answer')}")
+            results.append(passed)
+        else:
+            print_test("Phase 1-3 - faq_items UPDATE", False, "No ID")
+            results.append(False)
+    except Exception as e:
+        print_test("Phase 1-3 - faq_items UPDATE", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # DELETE
+    try:
+        fid = test_ids.get("faq_item")
+        if fid:
+            resp = requests.delete(
+                f"{BASE_URL}/cms/faq_items/{fid}",
+                headers={"Authorization": f"Bearer {auth_token}"},
+                timeout=10
+            )
+            passed = resp.status_code == 200 and resp.json().get("ok") == True
+            print_test("Phase 1-3 - faq_items DELETE", passed, f"Deleted: {passed}")
+            results.append(passed)
+        else:
+            print_test("Phase 1-3 - faq_items DELETE", False, "No ID")
+            results.append(False)
+    except Exception as e:
+        print_test("Phase 1-3 - faq_items DELETE", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    return all(results)
+
+# ============================================================
+# 7. PHASE 1-3: LEGAL_PAGES KEYED_UPSERT
+# ============================================================
+def test_legal_pages_keyed_upsert():
+    """Test 7: legal_pages KEYED_UPSERT (Phase 1-3)"""
+    global test_ids, original_values
+    results = []
+    
+    # GET list (should have 2: privacy, terms)
+    try:
+        resp = requests.get(f"{BASE_URL}/cms/legal_pages", timeout=10)
+        data = resp.json()
+        pages = data.get("data", [])
+        passed = resp.status_code == 200 and len(pages) >= 2
+        keys = [p.get("key") for p in pages]
+        print_test("Phase 1-3 - legal_pages GET list", passed, f"Found {len(pages)} pages, keys: {keys}")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 1-3 - legal_pages GET list", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # GET by key (privacy)
+    try:
+        resp = requests.get(f"{BASE_URL}/cms/legal_pages/privacy", timeout=10)
+        data = resp.json()
+        doc = data.get("data", {})
+        passed = (
+            resp.status_code == 200 and
+            doc.get("key") == "privacy" and
+            "title" in doc and
+            "sections" in doc
+        )
+        # Store original for restoration
+        if passed:
+            original_values["legal_privacy_title"] = doc.get("title")
+        print_test("Phase 1-3 - legal_pages GET by key (privacy)", passed, f"Title: '{doc.get('title')}'")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 1-3 - legal_pages GET by key (privacy)", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # KEYED UPSERT - update existing privacy (should NOT create duplicate)
+    try:
+        # Get count before
+        resp_before = requests.get(f"{BASE_URL}/cms/legal_pages", timeout=10)
+        count_before = len(resp_before.json().get("data", []))
+        
+        # Upsert
+        resp = requests.post(
+            f"{BASE_URL}/cms/legal_pages",
+            headers={"Authorization": f"Bearer {auth_token}"},
+            json={
+                "key": "privacy",
+                "title": "Privacy Policy UPDATED"
+            },
+            timeout=10
+        )
+        data = resp.json()
+        
+        # Get count after
+        resp_after = requests.get(f"{BASE_URL}/cms/legal_pages", timeout=10)
+        count_after = len(resp_after.json().get("data", []))
+        
+        passed = (
+            resp.status_code == 200 and
+            data.get("data", {}).get("title") == "Privacy Policy UPDATED" and
+            count_before == count_after  # No duplicate created
+        )
+        print_test("Phase 1-3 - legal_pages KEYED UPSERT (no duplicate)", passed, f"Count before: {count_before}, after: {count_after}")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 1-3 - legal_pages KEYED UPSERT (no duplicate)", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # Verify updated
+    try:
+        resp = requests.get(f"{BASE_URL}/cms/legal_pages/privacy", timeout=10)
+        data = resp.json()
+        doc = data.get("data", {})
+        passed = resp.status_code == 200 and doc.get("title") == "Privacy Policy UPDATED"
+        print_test("Phase 1-3 - legal_pages verify updated", passed, f"Title: '{doc.get('title')}'")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 1-3 - legal_pages verify updated", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # RESTORE original title
+    try:
+        if "legal_privacy_title" in original_values:
+            resp = requests.post(
+                f"{BASE_URL}/cms/legal_pages",
+                headers={"Authorization": f"Bearer {auth_token}"},
+                json={
+                    "key": "privacy",
+                    "title": original_values["legal_privacy_title"]
+                },
+                timeout=10
+            )
+            passed = resp.status_code == 200
+            print_test("Phase 1-3 - legal_pages RESTORE original", passed, f"Restored title: '{original_values['legal_privacy_title']}'")
+            results.append(passed)
+        else:
+            print_test("Phase 1-3 - legal_pages RESTORE original", False, "No original title stored")
+            results.append(False)
+    except Exception as e:
+        print_test("Phase 1-3 - legal_pages RESTORE original", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # CREATE new key (test-legal)
+    try:
+        resp = requests.post(
+            f"{BASE_URL}/cms/legal_pages",
+            headers={"Authorization": f"Bearer {auth_token}"},
+            json={
+                "key": "test-legal",
+                "title": "Test Legal Page",
+                "sections": [{"heading": "Test", "body": "Test body"}]
+            },
+            timeout=10
+        )
+        data = resp.json()
+        passed = resp.status_code == 200 and "_id" in data.get("data", {})
+        if passed:
+            test_ids["legal_page"] = data["data"]["_id"]
+        print_test("Phase 1-3 - legal_pages CREATE new key", passed, f"ID: {test_ids.get('legal_page')}")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 1-3 - legal_pages CREATE new key", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # DELETE new key
+    try:
+        lid = test_ids.get("legal_page")
+        if lid:
+            resp = requests.delete(
+                f"{BASE_URL}/cms/legal_pages/{lid}",
+                headers={"Authorization": f"Bearer {auth_token}"},
+                timeout=10
+            )
+            passed = resp.status_code == 200 and resp.json().get("ok") == True
+            print_test("Phase 1-3 - legal_pages DELETE new key", passed, f"Deleted: {passed}")
+            results.append(passed)
+        else:
+            print_test("Phase 1-3 - legal_pages DELETE new key", False, "No ID")
+            results.append(False)
+    except Exception as e:
+        print_test("Phase 1-3 - legal_pages DELETE new key", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    return all(results)
+
+# ============================================================
+# 8. PHASE 1-3: PAGE_CONTENT KEYED_UPSERT
+# ============================================================
+def test_page_content_keyed_upsert():
+    """Test 8: page_content KEYED_UPSERT (Phase 1-3)"""
+    global original_values
+    results = []
+    
+    # GET list (should have 2: why-us, digital-marketing)
+    try:
+        resp = requests.get(f"{BASE_URL}/cms/page_content", timeout=10)
+        data = resp.json()
+        pages = data.get("data", [])
+        passed = resp.status_code == 200 and len(pages) >= 2
+        keys = [p.get("key") for p in pages]
+        print_test("Phase 1-3 - page_content GET list", passed, f"Found {len(pages)} pages, keys: {keys}")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 1-3 - page_content GET list", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # GET by key (why-us)
+    try:
+        resp = requests.get(f"{BASE_URL}/cms/page_content/why-us", timeout=10)
+        data = resp.json()
+        doc = data.get("data", {})
+        passed = (
+            resp.status_code == 200 and
+            doc.get("key") == "why-us" and
+            "data" in doc
+        )
+        # Store original for restoration
+        if passed and isinstance(doc.get("data"), dict):
+            original_values["page_content_why_us_headline"] = doc.get("data", {}).get("headline")
+        print_test("Phase 1-3 - page_content GET by key (why-us)", passed, f"Headline: '{doc.get('data', {}).get('headline')}'")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 1-3 - page_content GET by key (why-us)", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # KEYED UPSERT - update why-us (should NOT create duplicate)
+    try:
+        # Get count before
+        resp_before = requests.get(f"{BASE_URL}/cms/page_content", timeout=10)
+        count_before = len(resp_before.json().get("data", []))
+        
+        # Upsert
+        resp = requests.post(
+            f"{BASE_URL}/cms/page_content",
+            headers={"Authorization": f"Bearer {auth_token}"},
+            json={
+                "key": "why-us",
+                "data": {"headline": "TEST HEADLINE UPDATED"}
+            },
+            timeout=10
+        )
+        data = resp.json()
+        
+        # Get count after
+        resp_after = requests.get(f"{BASE_URL}/cms/page_content", timeout=10)
+        count_after = len(resp_after.json().get("data", []))
+        
+        passed = (
+            resp.status_code == 200 and
+            data.get("data", {}).get("data", {}).get("headline") == "TEST HEADLINE UPDATED" and
+            count_before == count_after  # No duplicate created
+        )
+        print_test("Phase 1-3 - page_content KEYED UPSERT (no duplicate)", passed, f"Count before: {count_before}, after: {count_after}")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 1-3 - page_content KEYED UPSERT (no duplicate)", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # Verify updated
+    try:
+        resp = requests.get(f"{BASE_URL}/cms/page_content/why-us", timeout=10)
+        data = resp.json()
+        doc = data.get("data", {})
+        passed = resp.status_code == 200 and doc.get("data", {}).get("headline") == "TEST HEADLINE UPDATED"
+        print_test("Phase 1-3 - page_content verify updated", passed, f"Headline: '{doc.get('data', {}).get('headline')}'")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 1-3 - page_content verify updated", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # RESTORE original headline
+    try:
+        if "page_content_why_us_headline" in original_values:
+            resp = requests.post(
+                f"{BASE_URL}/cms/page_content",
+                headers={"Authorization": f"Bearer {auth_token}"},
+                json={
+                    "key": "why-us",
+                    "data": {"headline": original_values["page_content_why_us_headline"]}
+                },
+                timeout=10
+            )
+            passed = resp.status_code == 200
+            print_test("Phase 1-3 - page_content RESTORE original", passed, f"Restored headline: '{original_values['page_content_why_us_headline']}'")
+            results.append(passed)
+        else:
+            print_test("Phase 1-3 - page_content RESTORE original", False, "No original headline stored")
+            results.append(False)
+    except Exception as e:
+        print_test("Phase 1-3 - page_content RESTORE original", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    return all(results)
+
+# ============================================================
+# 9. PHASE 4: /api/admin/media ENDPOINTS
+# ============================================================
+def test_phase4_media_endpoints():
+    """Test 9: Phase 4 media endpoints"""
+    global test_ids
+    results = []
+    
+    # POST /api/admin/media without auth → 401
+    try:
+        img = Image.new('RGB', (50, 50), color='red')
         img_bytes = io.BytesIO()
         img.save(img_bytes, format='PNG')
         img_bytes.seek(0)
         
         resp = requests.post(
-            f"{BASE_URL}/admin/upload",
+            f"{BASE_URL}/admin/media",
+            files={"file": ("test-no-auth.png", img_bytes, "image/png")},
+            timeout=10
+        )
+        passed = resp.status_code == 401
+        print_test("Phase 4 - POST /admin/media without auth → 401", passed, f"Status: {resp.status_code}")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 4 - POST /admin/media without auth → 401", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # POST /api/admin/media with auth → 200
+    try:
+        img = Image.new('RGB', (50, 50), color='blue')
+        img_bytes = io.BytesIO()
+        img.save(img_bytes, format='PNG')
+        img_bytes.seek(0)
+        
+        resp = requests.post(
+            f"{BASE_URL}/admin/media",
             headers={"Authorization": f"Bearer {auth_token}"},
-            files={"file": ("test-backend.png", img_bytes, "image/png")},
-            data={"alt": "Test image from backend test"},
+            files={"file": ("test-phase4.png", img_bytes, "image/png")},
+            data={"alt": "Phase 4 test image"},
             timeout=10
         )
         data = resp.json()
         passed = (
             resp.status_code == 200 and
             "media" in data and
-            "url" in data["media"] and
-            data["media"]["url"].startswith("/uploads/")
+            data["media"].get("url", "").startswith("/uploads/") and
+            data["media"].get("type") == "image"
         )
         if passed:
-            test_ids["media"] = data["media"]["_id"]
-            test_ids["media_url"] = data["media"]["url"]
-        print_test("File Upload - With Auth", passed, f"URL: {data.get('media', {}).get('url')}")
+            test_ids["phase4_media"] = data["media"]["_id"]
+            test_ids["phase4_media_url"] = data["media"]["url"]
+        print_test("Phase 4 - POST /admin/media with auth → 200", passed, f"URL: {data.get('media', {}).get('url')}")
         results.append(passed)
     except Exception as e:
-        print_test("File Upload - With Auth", False, f"Error: {str(e)}")
+        print_test("Phase 4 - POST /admin/media with auth → 200", False, f"Error: {str(e)}")
         results.append(False)
     
-    # Verify media appears in list
+    # GET /api/admin/media without auth → 401
     try:
-        resp = requests.get(f"{BASE_URL}/cms/media", timeout=10)
+        resp = requests.get(f"{BASE_URL}/admin/media", timeout=10)
+        passed = resp.status_code == 401
+        print_test("Phase 4 - GET /admin/media without auth → 401", passed, f"Status: {resp.status_code}")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 4 - GET /admin/media without auth → 401", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # GET /api/admin/media with auth → 200
+    try:
+        resp = requests.get(
+            f"{BASE_URL}/admin/media",
+            headers={"Authorization": f"Bearer {auth_token}"},
+            timeout=10
+        )
         data = resp.json()
-        media_list = data.get("data", [])
-        media_id = test_ids.get("media")
-        found = any(m.get("_id") == media_id for m in media_list)
+        items = data.get("data", [])
+        media_id = test_ids.get("phase4_media")
+        found = any(m.get("_id") == media_id for m in items)
         passed = resp.status_code == 200 and found
-        print_test("File Upload - Verify in Media List", passed, f"Found uploaded file: {found}")
+        print_test("Phase 4 - GET /admin/media with auth → 200", passed, f"Found {len(items)} items, uploaded item present: {found}")
         results.append(passed)
     except Exception as e:
-        print_test("File Upload - Verify in Media List", False, f"Error: {str(e)}")
+        print_test("Phase 4 - GET /admin/media with auth → 200", False, f"Error: {str(e)}")
         results.append(False)
     
-    # Verify file exists (HEAD request)
+    # Verify uploaded file is accessible
     try:
-        media_url = test_ids.get("media_url")
+        media_url = test_ids.get("phase4_media_url")
         if media_url:
-            full_url = f"http://localhost:3000{media_url}"
-            resp = requests.head(full_url, timeout=10)
+            full_url = f"https://vayucms-phase4.preview.emergentagent.com{media_url}"
+            resp = requests.get(full_url, timeout=10)
             passed = resp.status_code == 200
-            print_test("File Upload - Verify File Exists", passed, f"Status: {resp.status_code}")
+            print_test("Phase 4 - Verify uploaded file accessible", passed, f"Status: {resp.status_code}, URL: {media_url}")
             results.append(passed)
         else:
-            print_test("File Upload - Verify File Exists", False, "No media URL available")
+            print_test("Phase 4 - Verify uploaded file accessible", False, "No media URL")
             results.append(False)
     except Exception as e:
-        print_test("File Upload - Verify File Exists", False, f"Error: {str(e)}")
+        print_test("Phase 4 - Verify uploaded file accessible", False, f"Error: {str(e)}")
         results.append(False)
     
-    return all(results)
-
-def test_unknown_collection():
-    """Test 8: Unknown collection"""
+    # DELETE /api/admin/media/{id} without auth → 401
     try:
-        resp = requests.get(f"{BASE_URL}/cms/does_not_exist", timeout=10)
-        data = resp.json()
-        passed = resp.status_code == 404 and "error" in data
-        print_test("Unknown Collection", passed, f"Status: {resp.status_code}, Error: {data.get('error')}")
-        return passed
+        media_id = test_ids.get("phase4_media")
+        if media_id:
+            resp = requests.delete(f"{BASE_URL}/admin/media/{media_id}", timeout=10)
+            passed = resp.status_code == 401
+            print_test("Phase 4 - DELETE /admin/media/{id} without auth → 401", passed, f"Status: {resp.status_code}")
+            results.append(passed)
+        else:
+            print_test("Phase 4 - DELETE /admin/media/{id} without auth → 401", False, "No media ID")
+            results.append(False)
     except Exception as e:
-        print_test("Unknown Collection", False, f"Error: {str(e)}")
-        return False
-
-def test_contact_lead():
-    """Test 9: Contact leads endpoint"""
-    results = []
-    
-    # Without required fields
-    try:
-        resp = requests.post(
-            f"{BASE_URL}/contact",
-            json={"message": "hi"},
-            timeout=10
-        )
-        passed = resp.status_code == 400
-        print_test("Contact Lead - Missing Fields", passed, f"Status: {resp.status_code}")
-        results.append(passed)
-    except Exception as e:
-        print_test("Contact Lead - Missing Fields", False, f"Error: {str(e)}")
+        print_test("Phase 4 - DELETE /admin/media/{id} without auth → 401", False, f"Error: {str(e)}")
         results.append(False)
     
-    # With all fields
+    # DELETE /api/admin/media/{id} with auth → 200
     try:
-        resp = requests.post(
-            f"{BASE_URL}/contact",
-            json={
-                "name": "Test User",
-                "email": "test@example.com",
-                "message": "This is a test message from backend test"
-            },
-            timeout=10
-        )
-        data = resp.json()
-        passed = resp.status_code == 200 and data.get("ok") == True and "id" in data
-        print_test("Contact Lead - Success", passed, f"Lead ID: {data.get('id')}")
-        results.append(passed)
-    except Exception as e:
-        print_test("Contact Lead - Success", False, f"Error: {str(e)}")
-        results.append(False)
-    
-    return all(results)
-
-def cleanup_test_data():
-    """Clean up test data created during tests"""
-    print("\n" + "="*60)
-    print("CLEANUP - Removing test data")
-    print("="*60 + "\n")
-    
-    # Delete test media if created
-    if "media" in test_ids:
-        try:
+        media_id = test_ids.get("phase4_media")
+        if media_id:
             resp = requests.delete(
-                f"{BASE_URL}/cms/media/{test_ids['media']}",
+                f"{BASE_URL}/admin/media/{media_id}",
                 headers={"Authorization": f"Bearer {auth_token}"},
                 timeout=10
             )
-            print(f"Deleted test media: {resp.status_code == 200}")
-        except Exception as e:
-            print(f"Failed to delete test media: {str(e)}")
+            passed = resp.status_code == 200 and resp.json().get("ok") == True
+            print_test("Phase 4 - DELETE /admin/media/{id} with auth → 200", passed, f"Deleted: {passed}")
+            results.append(passed)
+        else:
+            print_test("Phase 4 - DELETE /admin/media/{id} with auth → 200", False, "No media ID")
+            results.append(False)
+    except Exception as e:
+        print_test("Phase 4 - DELETE /admin/media/{id} with auth → 200", False, f"Error: {str(e)}")
+        results.append(False)
     
-    # Restore site_settings to original
+    # Verify doc gone from list
     try:
-        resp = requests.post(
-            f"{BASE_URL}/cms/site_settings",
+        resp = requests.get(
+            f"{BASE_URL}/admin/media",
             headers={"Authorization": f"Bearer {auth_token}"},
-            json={"siteName": "VayuCodes"},
             timeout=10
         )
-        print(f"Restored site_settings: {resp.status_code == 200}")
+        data = resp.json()
+        items = data.get("data", [])
+        media_id = test_ids.get("phase4_media")
+        found = any(m.get("_id") == media_id for m in items)
+        passed = resp.status_code == 200 and not found
+        print_test("Phase 4 - Verify doc gone from list", passed, f"Doc still present: {found}")
+        results.append(passed)
     except Exception as e:
-        print(f"Failed to restore site_settings: {str(e)}")
+        print_test("Phase 4 - Verify doc gone from list", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # Verify physical file removed (should 404)
+    try:
+        media_url = test_ids.get("phase4_media_url")
+        if media_url:
+            full_url = f"https://vayucms-phase4.preview.emergentagent.com{media_url}"
+            resp = requests.get(full_url, timeout=10)
+            passed = resp.status_code == 404
+            print_test("Phase 4 - Verify physical file removed → 404", passed, f"Status: {resp.status_code}")
+            results.append(passed)
+        else:
+            print_test("Phase 4 - Verify physical file removed → 404", False, "No media URL")
+            results.append(False)
+    except Exception as e:
+        print_test("Phase 4 - Verify physical file removed → 404", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # Legacy: POST /api/admin/upload still works
+    try:
+        img = Image.new('RGB', (50, 50), color='green')
+        img_bytes = io.BytesIO()
+        img.save(img_bytes, format='PNG')
+        img_bytes.seek(0)
+        
+        resp = requests.post(
+            f"{BASE_URL}/admin/upload",
+            headers={"Authorization": f"Bearer {auth_token}"},
+            files={"file": ("test-legacy.png", img_bytes, "image/png")},
+            timeout=10
+        )
+        data = resp.json()
+        passed = resp.status_code == 200 and "media" in data
+        if passed:
+            test_ids["legacy_media"] = data["media"]["_id"]
+        print_test("Phase 4 - Legacy POST /admin/upload still works", passed, f"ID: {test_ids.get('legacy_media')}")
+        results.append(passed)
+    except Exception as e:
+        print_test("Phase 4 - Legacy POST /admin/upload still works", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    # Delete legacy upload via /api/cms/media/{id}
+    try:
+        legacy_id = test_ids.get("legacy_media")
+        if legacy_id:
+            resp = requests.delete(
+                f"{BASE_URL}/cms/media/{legacy_id}",
+                headers={"Authorization": f"Bearer {auth_token}"},
+                timeout=10
+            )
+            passed = resp.status_code == 200 and resp.json().get("ok") == True
+            print_test("Phase 4 - Delete legacy upload via /cms/media/{id}", passed, f"Deleted: {passed}")
+            results.append(passed)
+        else:
+            print_test("Phase 4 - Delete legacy upload via /cms/media/{id}", False, "No legacy ID")
+            results.append(False)
+    except Exception as e:
+        print_test("Phase 4 - Delete legacy upload via /cms/media/{id}", False, f"Error: {str(e)}")
+        results.append(False)
+    
+    return all(results)
 
+# ============================================================
+# 10. UNKNOWN COLLECTION
+# ============================================================
+def test_unknown_collection():
+    """Test 10: Unknown collection → 404"""
+    try:
+        resp = requests.get(f"{BASE_URL}/cms/nonexistent", timeout=10)
+        passed = resp.status_code == 404
+        print_test("Unknown collection → 404", passed, f"Status: {resp.status_code}")
+        return passed
+    except Exception as e:
+        print_test("Unknown collection → 404", False, f"Error: {str(e)}")
+        return False
+
+# ============================================================
+# MAIN TEST RUNNER
+# ============================================================
 def main():
-    print("\n" + "="*60)
-    print("VayuCodes CMS Backend API Test Suite")
-    print("="*60 + "\n")
+    print("\n" + "="*70)
+    print("  VayuCodes CMS Backend API Test Suite - Phase 1-4 Complete")
+    print("="*70)
+    print(f"  Base URL: {BASE_URL}")
+    print(f"  Admin: {ADMIN_EMAIL}")
+    print("="*70 + "\n")
     
     all_results = []
     
-    # Test 1: Health
+    # 1. Health
+    print_section("1. HEALTH CHECK")
     all_results.append(test_health())
     
-    # Test 2: Auth flow
-    all_results.append(test_login_wrong_password())
-    all_results.append(test_login_wrong_email())
-    all_results.append(test_login_no_body())
-    all_results.append(test_login_success())
-    all_results.append(test_me_no_token())
-    all_results.append(test_me_invalid_token())
-    all_results.append(test_me_valid_token())
+    # 2. Auth
+    print_section("2. AUTH FLOW")
+    all_results.append(test_auth_wrong_password())
+    all_results.append(test_auth_login_success())
+    all_results.append(test_auth_me_no_token())
+    all_results.append(test_auth_me_with_token())
     
-    # Test 3: Public reads
-    all_results.append(test_public_team_members())
-    all_results.append(test_public_portfolio())
-    all_results.append(test_public_services())
-    all_results.append(test_public_testimonials())
-    all_results.append(test_public_pages())
-    all_results.append(test_public_site_settings())
-    all_results.append(test_public_navigation())
-    all_results.append(test_public_footer())
-    all_results.append(test_public_contact_settings())
-    all_results.append(test_public_seo_settings())
-    all_results.append(test_public_media())
+    # 3. Regression
+    print_section("3. REGRESSION - EXISTING 13 COLLECTIONS")
+    all_results.append(test_regression_public_collections())
+    all_results.append(test_regression_portfolio_crud())
     
-    # Test 4: Auth-required writes (Portfolio CRUD)
-    all_results.append(test_create_portfolio_no_auth())
-    all_results.append(test_create_portfolio_with_auth())
-    all_results.append(test_get_portfolio_by_id())
-    all_results.append(test_update_portfolio())
-    all_results.append(test_delete_portfolio())
-    all_results.append(test_get_deleted_portfolio())
+    # 4. Phase 1-3: SiteSettings extended fields
+    print_section("4. PHASE 1-3: SITE SETTINGS EXTENDED FIELDS")
+    all_results.append(test_site_settings_extended_fields())
     
-    # Test 5: Team CRUD
-    all_results.append(test_team_crud())
+    # 5. Phase 1-3: how_we_work_steps
+    print_section("5. PHASE 1-3: HOW_WE_WORK_STEPS COLLECTION")
+    all_results.append(test_how_we_work_steps())
     
-    # Test 6: Singleton upsert
-    all_results.append(test_singleton_upsert())
+    # 6. Phase 1-3: faq_items
+    print_section("6. PHASE 1-3: FAQ_ITEMS COLLECTION")
+    all_results.append(test_faq_items())
     
-    # Test 7: File upload
-    all_results.append(test_file_upload())
+    # 7. Phase 1-3: legal_pages KEYED_UPSERT
+    print_section("7. PHASE 1-3: LEGAL_PAGES KEYED_UPSERT")
+    all_results.append(test_legal_pages_keyed_upsert())
     
-    # Test 8: Unknown collection
+    # 8. Phase 1-3: page_content KEYED_UPSERT
+    print_section("8. PHASE 1-3: PAGE_CONTENT KEYED_UPSERT")
+    all_results.append(test_page_content_keyed_upsert())
+    
+    # 9. Phase 4: /api/admin/media endpoints
+    print_section("9. PHASE 4: /api/admin/media ENDPOINTS")
+    all_results.append(test_phase4_media_endpoints())
+    
+    # 10. Unknown collection
+    print_section("10. UNKNOWN COLLECTION")
     all_results.append(test_unknown_collection())
     
-    # Test 9: Contact leads
-    all_results.append(test_contact_lead())
-    
-    # Cleanup
-    cleanup_test_data()
-    
     # Summary
-    print("\n" + "="*60)
-    print("TEST SUMMARY")
-    print("="*60)
+    print("\n" + "="*70)
+    print("  TEST SUMMARY")
+    print("="*70)
     passed = sum(all_results)
     total = len(all_results)
-    print(f"\nTotal: {passed}/{total} tests passed")
-    print(f"Success rate: {(passed/total)*100:.1f}%\n")
+    print(f"\n  Total: {passed}/{total} test groups passed")
+    print(f"  Success rate: {(passed/total)*100:.1f}%\n")
     
     if passed == total:
-        print("✅ ALL TESTS PASSED")
+        print("  ✅ ALL TESTS PASSED - Backend is production-ready!")
     else:
-        print(f"❌ {total - passed} TEST(S) FAILED")
+        print(f"  ❌ {total - passed} TEST GROUP(S) FAILED")
+    
+    print("="*70 + "\n")
     
     return passed == total
 

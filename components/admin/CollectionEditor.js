@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useAdmin } from '@/components/admin/AdminProvider'
 import AdminShell from '@/components/admin/AdminShell'
+import { MediaInput } from '@/components/admin/MediaPicker'
 import { Loader2, Plus, Trash2, Save, X, Search, Copy, Image as ImageIcon, ChevronDown } from 'lucide-react'
 
 /*
@@ -11,7 +12,79 @@ import { Loader2, Plus, Trash2, Save, X, Search, Copy, Image as ImageIcon, Chevr
   Field types are inferred from the schemaHint prop.
 */
 
-function FieldInput({ type = 'text', value, onChange, placeholder, textarea, options, rows = 4 }) {
+// JSON field — local text state, only propagates valid JSON
+function JsonField({ value, onChange, rows = 10 }) {
+  const [text, setText] = useState(() => JSON.stringify(value ?? {}, null, 2))
+  const [err, setErr] = useState('')
+  return (
+    <div>
+      <textarea rows={rows} value={text}
+        onChange={(e) => {
+          const t = e.target.value
+          setText(t)
+          try { onChange(JSON.parse(t)); setErr('') } catch { setErr('Invalid JSON — not saved until valid') }
+        }}
+        className={`w-full px-3 py-2.5 rounded-md bg-white/[0.04] border text-sm outline-none font-mono leading-relaxed ${err ? 'border-amber-500/60' : 'border-white/10 focus:border-white/40'}`} />
+      {err && <div className="text-[10px] text-amber-400 mt-1">{err}</div>}
+    </div>
+  )
+}
+
+// Repeater field — list of objects with sub-fields (e.g. legal page sections)
+function RepeaterField({ value, onChange, itemFields = [] }) {
+  const items = Array.isArray(value) ? value : []
+  function setItem(idx, key, v) {
+    const next = items.map((it, i) => (i === idx ? { ...it, [key]: v } : it))
+    onChange(next)
+  }
+  return (
+    <div className="space-y-3">
+      {items.map((it, idx) => (
+        <div key={idx} className="rounded-lg border border-white/10 bg-white/[0.02] p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="text-[10px] tracking-[0.2em] uppercase text-white/40">Item {idx + 1}</div>
+            <div className="flex items-center gap-1">
+              <button type="button" disabled={idx === 0} onClick={() => { const n = [...items]; [n[idx-1], n[idx]] = [n[idx], n[idx-1]]; onChange(n) }} className="px-2 py-1 rounded border border-white/10 text-white/50 hover:text-white text-[10px] disabled:opacity-30">↑</button>
+              <button type="button" disabled={idx === items.length - 1} onClick={() => { const n = [...items]; [n[idx+1], n[idx]] = [n[idx], n[idx+1]]; onChange(n) }} className="px-2 py-1 rounded border border-white/10 text-white/50 hover:text-white text-[10px] disabled:opacity-30">↓</button>
+              <button type="button" onClick={() => onChange(items.filter((_, i) => i !== idx))} className="p-1.5 rounded border border-white/10 text-white/50 hover:text-red-400 hover:border-red-500/30"><Trash2 size={11} /></button>
+            </div>
+          </div>
+          {itemFields.map((sf) => (
+            <div key={sf.key}>
+              <label className="block text-[10px] tracking-[0.2em] uppercase text-white/50 mb-1.5">{sf.label}</label>
+              {sf.textarea ? (
+                <textarea rows={sf.rows || 3} value={it[sf.key] ?? ''} onChange={(e) => setItem(idx, sf.key, e.target.value)} className="w-full px-3 py-2.5 rounded-md bg-white/[0.04] border border-white/10 text-sm outline-none focus:border-white/40 leading-relaxed" />
+              ) : (
+                <input type="text" value={it[sf.key] ?? ''} onChange={(e) => setItem(idx, sf.key, e.target.value)} className="w-full px-3 py-2.5 rounded-md bg-white/[0.04] border border-white/10 text-sm outline-none focus:border-white/40" />
+              )}
+            </div>
+          ))}
+        </div>
+      ))}
+      <button type="button" onClick={() => onChange([...items, {}])} className="inline-flex items-center gap-2 border border-white/15 text-white/70 hover:text-white hover:border-white/40 text-[10px] font-semibold tracking-[0.2em] uppercase px-3 py-2 rounded-md transition">
+        <Plus size={11} /> Add item
+      </button>
+    </div>
+  )
+}
+
+function FieldInput({ type = 'text', value, onChange, placeholder, textarea, options, rows = 4, mediaType, itemFields }) {
+  if (type === 'media') {
+    return <MediaInput value={value} onChange={onChange} accept={mediaType || 'image'} placeholder={placeholder} />
+  }
+  if (type === 'json') {
+    return <JsonField value={value} onChange={onChange} rows={rows} />
+  }
+  if (type === 'repeater') {
+    return <RepeaterField value={value} onChange={onChange} itemFields={itemFields} />
+  }
+  if (type === 'stringlist') {
+    const text = Array.isArray(value) ? value.join('\n') : (value ?? '')
+    return (
+      <textarea rows={rows} value={text} onChange={(e) => onChange(e.target.value.split('\n'))} placeholder={placeholder}
+        className="w-full px-3 py-2.5 rounded-md bg-white/[0.04] border border-white/10 text-sm outline-none focus:border-white/40 font-mono leading-relaxed" />
+    )
+  }
   if (type === 'boolean') {
     return (
       <button type="button" onClick={() => onChange(!value)} className={`inline-flex items-center gap-2 px-3 py-2 rounded-md border text-xs ${value ? 'bg-white text-black border-white' : 'border-white/15 text-white/70'}`}>
@@ -199,6 +272,7 @@ export default function CollectionEditor({
                   <div key={f.key} className={f.wide ? 'md:col-span-2' : ''}>
                     <label className="block text-[10px] tracking-[0.2em] uppercase text-white/50 mb-1.5">{f.label}</label>
                     <FieldInput
+                      key={`${f.key}-${draft?._id || 'new'}`}
                       type={f.type}
                       value={getField(f.key)}
                       onChange={(v) => updateField(f.key, v)}
@@ -206,6 +280,8 @@ export default function CollectionEditor({
                       textarea={f.textarea}
                       rows={f.rows}
                       options={f.options}
+                      mediaType={f.mediaType}
+                      itemFields={f.itemFields}
                     />
                     {f.help && <div className="text-[10px] text-white/40 mt-1">{f.help}</div>}
                   </div>
