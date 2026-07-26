@@ -12,6 +12,25 @@ import { PageWrapper, useCmsPageContent } from '@/components/site/Shared'
 const SLIDE_ICONS = [TrendingUp, Sparkles, Camera, Megaphone, MessagesSquare]
 const PILLAR_ICONS = [BarChart3, TargetIcon, Zap]
 
+const DEFAULT_PILLARS = [
+  { code: '01', title: 'Data-first', body: 'Every rupee tracked with proper attribution. Meta, Google, GA4, server-side events — we set up the plumbing so decisions are made on facts, not feelings.', points: ['GA4 + Meta CAPI', 'UTM discipline', 'Weekly P&L reviews'] },
+  { code: '02', title: 'Creative velocity', body: 'Content is the new targeting. We produce 40+ variants weekly, test aggressively, and let the winners scale. Slow creative teams lose — always.', points: ['Weekly creative sprints', 'Hook library', 'UGC network across India'] },
+  { code: '03', title: 'Full-funnel thinking', body: 'From awareness ad to WhatsApp close. We connect brand, performance, and sales into one integrated system — no more paying to fill a leaky bucket.', points: ['Awareness → close mapping', 'CRM + WhatsApp automation', 'Retention loops built-in'] },
+]
+
+const DEFAULT_CASE = {
+  headline1: 'Sanskar Handlooms saw their',
+  headlineItalic: 'footfall multiply',
+  headline2: 'in a single festive season.',
+  body: 'We built their storefront, ran creative, closed on WhatsApp — all under one roof. One team, one goal, one accountability line.',
+  stats: [
+    { v: '4×', l: 'Store footfall growth' },
+    { v: '3.6×', l: 'Repeat visitors' },
+    { v: '2.3 M', l: 'Impressions served' },
+    { v: '62%', l: 'WhatsApp close rate' },
+  ],
+}
+
 const DEFAULT_SLIDES = [
   { code: '01', title: 'Performance', italic: 'Marketing', tag: 'Meta · Google · LinkedIn', body: 'Creative-led performance campaigns. We test 40 variants a week, kill losers fast, scale winners harder — every rupee measured, every click accountable.', img: 'https://images.unsplash.com/photo-1529078155058-5d716f45d604?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400', stats: [{ v: '4.2x', l: 'Avg ROAS' }, { v: '↓ 38%', l: 'CAC drop' }, { v: '40+', l: 'Creatives / week' }] },
   { code: '02', title: 'Brand', italic: 'Marketing', tag: 'Positioning · Voice · Story', body: 'Naming, identity, and messaging that make your business memorable. We turn positioning workshops into deliverables you can actually deploy across every channel.', img: 'https://images.unsplash.com/photo-1698328722160-7ecf41b789c5?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400', stats: [{ v: '12', l: 'Brand systems' }, { v: '6+', l: 'Industries' }, { v: '100%', l: 'Fixed-scope' }] },
@@ -147,7 +166,7 @@ function MarketingPhilosophy() {
 
 function ServicePillars() {
   const d = useCmsPageContent('digital-marketing') || {}
-  const pillars = Array.isArray(d.pillars) && d.pillars.length ? d.pillars : []
+  const pillars = Array.isArray(d.pillars) && d.pillars.length ? d.pillars : DEFAULT_PILLARS
   return (
     <section className="relative bg-white py-24 md:py-32 px-6 md:px-10 border-t border-black/8">
       <div className="max-w-[1400px] mx-auto">
@@ -199,7 +218,11 @@ function ServicePillars() {
 
 function CaseHighlight() {
   const d = useCmsPageContent('digital-marketing') || {}
-  const stats = Array.isArray(d.caseStats) && d.caseStats.length ? d.caseStats : []
+  const stats = Array.isArray(d.caseStats) && d.caseStats.length ? d.caseStats : DEFAULT_CASE.stats
+  const headline1 = d.caseHeadline1 || DEFAULT_CASE.headline1
+  const headlineItalic = d.caseHeadlineItalic || DEFAULT_CASE.headlineItalic
+  const headline2 = d.caseHeadline2 || DEFAULT_CASE.headline2
+  const bodyText = d.caseBody || DEFAULT_CASE.body
   return (
     <section className="relative bg-[#FAFAF7] py-24 md:py-32 px-6 md:px-10">
       <div className="max-w-[1400px] mx-auto">
@@ -210,9 +233,9 @@ function CaseHighlight() {
             <div className="text-[10px] tracking-[0.35em] uppercase text-[#6B6B6B] mb-4">{d.caseEyebrow || '— Case in point'}</div>
             <h2 className="text-[#0A0A0A] leading-[1.02] tracking-[-0.02em] mb-6"
                 style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(30px,4vw,54px)' }}>
-              {d.caseHeadline1 || ''} <span className="italic text-[#0A0A0A]/60">{d.caseHeadlineItalic || ''}</span> {d.caseHeadline2 || ''}
+              {headline1} <span className="italic text-[#0A0A0A]/60">{headlineItalic}</span> {headline2}
             </h2>
-            <p className="text-[15px] text-[#525252] leading-relaxed max-w-md mb-6">{d.caseBody || ''}</p>
+            <p className="text-[15px] text-[#525252] leading-relaxed max-w-md mb-6">{bodyText}</p>
             <Link href="/our-work" className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase font-semibold text-[#0A0A0A] hover:underline underline-offset-4">
               See more work <ArrowRight size={13} />
             </Link>
