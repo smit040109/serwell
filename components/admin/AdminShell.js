@@ -8,6 +8,7 @@ import {
   Briefcase, Wrench, Users, MessageSquareQuote, Mail,
   Navigation as NavIcon, PanelBottom, Search, LogOut, ExternalLink, Layers,
   ListOrdered, HelpCircle, ScrollText, LayoutTemplate, Home, Sparkles, Grid3x3, Building2,
+  BarChart3,
 } from 'lucide-react'
 
 // Grouped navigation — organized by what's on the WEBSITE
@@ -16,6 +17,7 @@ const NAV_GROUPS = [
     heading: 'Overview',
     items: [
       { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+      { href: '/admin/analytics', label: 'Analytics & Visitors', icon: BarChart3 },
     ],
   },
   {

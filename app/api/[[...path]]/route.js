@@ -13,6 +13,9 @@ import {
   sanitizeInput, checkRateLimit, rateLimitHeaders, corsHeaders, getClientIp,
   validateEmail, validatePasswordStrength, validateName, validatePhone,
 } from '@/lib/security'
+import { getAnalyticsModels, classifySource, referrerHost } from '@/lib/analyticsModels'
+import { geolocateIp } from '@/lib/geo'
+import UAParser from 'ua-parser-js'
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads')
 
@@ -26,6 +29,7 @@ const RL = {
   global:  { limit: 100, windowMs: 15 * 60 * 1000 },
   login:   { limit: 5,   windowMs: 15 * 60 * 1000 },
   contact: { limit: 20,  windowMs: 15 * 60 * 1000 },
+  track:   { limit: 600, windowMs: 15 * 60 * 1000 },  // 40/min avg per IP — page views + events
 }
 
 function json(data, status = 200, extraHeaders = {}) {
@@ -252,27 +256,254 @@ async function handleContactLead(request) {
   if (msgT.length > 5000) return json({ error: 'Message is too long' }, 400)
   const bizT = typeof business === 'string' ? business.trim().slice(0, 200) : ''
 
+  // Attribution — pulled from body (client sends it) + IP geo enrichment.
+  const sessionId = typeof body.sessionId === 'string' ? body.sessionId.slice(0, 80) : ''
+  const visitorId = typeof body.visitorId === 'string' ? body.visitorId.slice(0, 80) : ''
+  const referrer = typeof body.referrer === 'string' ? body.referrer.slice(0, 500) : ''
+  const utm_source = typeof body.utm_source === 'string' ? body.utm_source.slice(0, 100) : ''
+  const utm_medium = typeof body.utm_medium === 'string' ? body.utm_medium.slice(0, 100) : ''
+  const utm_campaign = typeof body.utm_campaign === 'string' ? body.utm_campaign.slice(0, 100) : ''
+  const source = classifySource({ referrer, utm_source })
+  const geo = await geolocateIp(ip)
+
   await connectDb()
-  const mongoose = (await import('mongoose')).default
-  const LeadSchema = new mongoose.Schema({
-    _id: { type: String, default: () => uuidv4() },
-    name: String, email: String, phone: String, business: String, message: String,
-    createdAt: { type: Date, default: Date.now },
-  }, { _id: false })
-  const Lead = mongoose.models.Lead || mongoose.model('Lead', LeadSchema, 'leads')
+  const { Lead } = getAnalyticsModels()
   const doc = await Lead.create({
     name: nameV.value,
     email: emailV.value,
     phone: phoneV.value,
     business: bizT,
     message: msgT,
+    sessionId,
+    visitorId,
+    source,
+    referrer,
+    utm_source,
+    utm_medium,
+    utm_campaign,
+    country: geo.country || '',
+    city: geo.city || '',
   })
   return json({ ok: true, id: doc._id }, 200, rateLimitHeaders(rl, RL.contact.limit))
 }
 
 /* ============================================================
-   MAIN HANDLER
+   FIRST-PARTY ANALYTICS \u2014 /api/track  (public, unauth)
 ============================================================ */
+async function handleTrack(request) {
+  const ip = getClientIp(request)
+  const rl = checkRateLimit(`track:${ip}`, RL.track.limit, RL.track.windowMs)
+  if (!rl.allowed) return tooMany(rl, RL.track.limit)
+
+  let raw = null
+  try {
+    // sendBeacon sends a Blob with content-type application/json
+    raw = await request.json()
+  } catch { raw = null }
+  const body = sanitizeInput(raw) || {}
+  const { type, visitorId, sessionId, path: eventPath } = body
+  if (!type || !visitorId || !sessionId) return json({ ok: false }, 400)
+  if (typeof visitorId !== 'string' || typeof sessionId !== 'string') return json({ ok: false }, 400)
+
+  await connectDb()
+  const { Session, Event } = getAnalyticsModels()
+
+  // Bootstrap/update the session row for every event.
+  const existing = await Session.findOne({ sessionId }).lean()
+  if (!existing) {
+    const ua = typeof body.ua === 'string' ? body.ua : (request.headers.get('user-agent') || '')
+    const parser = new UAParser(ua)
+    const b = parser.getBrowser()
+    const o = parser.getOS()
+    const d = parser.getDevice()
+    const deviceType = d.type ? d.type.charAt(0).toUpperCase() + d.type.slice(1) : 'Desktop'
+
+    const referrer = typeof body.referrer === 'string' ? body.referrer.slice(0, 500) : ''
+    const utm = (body.utm && typeof body.utm === 'object') ? body.utm : {}
+    const source = classifySource({ referrer, utm_source: utm.utm_source })
+    const geo = await geolocateIp(ip)
+
+    // A visitor is "returning" if we've seen this visitorId before in another session.
+    const priorAny = await Session.exists({ visitorId, sessionId: { $ne: sessionId } })
+
+    await Session.create({
+      visitorId,
+      sessionId,
+      referrer,
+      referrerHost: referrerHost(referrer),
+      source,
+      utm_source: utm.utm_source || '',
+      utm_medium: utm.utm_medium || '',
+      utm_campaign: utm.utm_campaign || '',
+      utm_term: utm.utm_term || '',
+      utm_content: utm.utm_content || '',
+      ua: ua.slice(0, 500),
+      device: deviceType,
+      browser: [b.name, b.version].filter(Boolean).join(' ').slice(0, 80),
+      os: [o.name, o.version].filter(Boolean).join(' ').slice(0, 80),
+      language: typeof body.language === 'string' ? body.language.slice(0, 20) : '',
+      tz: typeof body.tz === 'string' ? body.tz.slice(0, 60) : '',
+      screen: typeof body.screen === 'string' ? body.screen.slice(0, 20) : '',
+      ip,
+      country: geo.country || '',
+      region: geo.region || '',
+      city: geo.city || '',
+      firstSeen: new Date(),
+      lastSeen: new Date(),
+      pageviews: type === 'pageview' || type === 'session_start' ? 1 : 0,
+      isReturning: Boolean(priorAny),
+    })
+  } else {
+    // Touch lastSeen; bump pageviews on pageview.
+    const update = { lastSeen: new Date() }
+    if (type === 'pageview') update.pageviews = (existing.pageviews || 0) + 1
+    await Session.updateOne({ sessionId }, { $set: update })
+  }
+
+  // Persist the event itself (except session_start, which is metadata-only).
+  if (type !== 'session_start') {
+    const doc = {
+      visitorId,
+      sessionId,
+      type,
+      path: typeof eventPath === 'string' ? eventPath.slice(0, 500) : '',
+    }
+    if (type === 'click') {
+      doc.name = String(body.name || '').slice(0, 80)
+      doc.label = String(body.label || '').slice(0, 200)
+      doc.href = String(body.href || '').slice(0, 500)
+    } else if (type === 'section_time') {
+      doc.sections = Array.isArray(body.sections)
+        ? body.sections.slice(0, 20).map(s => ({
+            id: String(s.id || '').slice(0, 60),
+            ms: Math.max(0, Math.min(Number(s.ms) || 0, 24 * 3600 * 1000)),
+          }))
+        : []
+    } else if (type === 'page_time') {
+      doc.ms = Math.max(0, Math.min(Number(body.ms) || 0, 24 * 3600 * 1000))
+    }
+    try { await Event.create(doc) } catch { /* one-off failures shouldn't 500 */ }
+  }
+
+  return json({ ok: true }, 200, rateLimitHeaders(rl, RL.track.limit))
+}
+
+/* ============================================================
+   ADMIN ANALYTICS SUMMARY  \u2014 /api/admin/analytics
+============================================================ */
+function parseRange(request) {
+  const url = new URL(request.url)
+  const days = Math.max(1, Math.min(365, parseInt(url.searchParams.get('days') || '7', 10)))
+  const to = new Date()
+  const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000)
+  return { from, to, days }
+}
+
+async function handleAnalyticsSummary(request) {
+  const auth = requireAdmin(request)
+  if (!auth.ok) return json({ error: auth.error }, auth.status)
+  await connectDb()
+  const { Session, Event, Lead } = getAnalyticsModels()
+  const { from, to, days } = parseRange(request)
+
+  const dateMatch = { firstSeen: { $gte: from, $lte: to } }
+
+  const [
+    totalSessions,
+    uniqueVisitors,
+    returningSessions,
+    leadsCount,
+    byDay,
+    byDevice,
+    byBrowser,
+    byOs,
+    bySource,
+    byCountry,
+    byCity,
+    byPage,
+    byClick,
+    recentLeads,
+    latestSessions,
+  ] = await Promise.all([
+    Session.countDocuments(dateMatch),
+    Session.distinct('visitorId', dateMatch).then(a => a.length),
+    Session.countDocuments({ ...dateMatch, isReturning: true }),
+    Lead.countDocuments({ createdAt: { $gte: from, $lte: to } }),
+    Session.aggregate([
+      { $match: dateMatch },
+      { $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$firstSeen' } },
+          sessions: { $sum: 1 },
+          visitors: { $addToSet: '$visitorId' },
+      }},
+      { $project: { day: '$_id', _id: 0, sessions: 1, visitors: { $size: '$visitors' } } },
+      { $sort: { day: 1 } },
+    ]),
+    Session.aggregate([{ $match: dateMatch }, { $group: { _id: '$device', c: { $sum: 1 } } }, { $sort: { c: -1 } }]),
+    Session.aggregate([{ $match: dateMatch }, { $group: { _id: '$browser', c: { $sum: 1 } } }, { $sort: { c: -1 } }, { $limit: 8 }]),
+    Session.aggregate([{ $match: dateMatch }, { $group: { _id: '$os', c: { $sum: 1 } } }, { $sort: { c: -1 } }, { $limit: 8 }]),
+    Session.aggregate([{ $match: dateMatch }, { $group: { _id: '$source', c: { $sum: 1 } } }, { $sort: { c: -1 } }]),
+    Session.aggregate([{ $match: dateMatch }, { $group: { _id: '$country', c: { $sum: 1 } } }, { $sort: { c: -1 } }, { $limit: 10 }]),
+    Session.aggregate([{ $match: dateMatch }, { $group: { _id: { country: '$country', city: '$city' }, c: { $sum: 1 } } }, { $sort: { c: -1 } }, { $limit: 15 }]),
+    Event.aggregate([
+      { $match: { type: 'pageview', createdAt: { $gte: from, $lte: to } } },
+      { $group: { _id: '$path', c: { $sum: 1 } } },
+      { $sort: { c: -1 } }, { $limit: 15 },
+    ]),
+    Event.aggregate([
+      { $match: { type: 'click', createdAt: { $gte: from, $lte: to } } },
+      { $group: { _id: '$name', c: { $sum: 1 } } },
+      { $sort: { c: -1 } }, { $limit: 15 },
+    ]),
+    Lead.find({ createdAt: { $gte: from, $lte: to } }).sort({ createdAt: -1 }).limit(20).lean(),
+    Session.find(dateMatch).sort({ lastSeen: -1 }).limit(30).lean(),
+  ])
+
+  // Fill missing days with zero for a clean chart.
+  const dayMap = new Map(byDay.map(d => [d.day, d]))
+  const series = []
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(to.getTime() - i * 24 * 60 * 60 * 1000)
+    const key = d.toISOString().slice(0, 10)
+    series.push(dayMap.get(key) || { day: key, sessions: 0, visitors: 0 })
+  }
+
+  return json({
+    range: { from, to, days },
+    totals: {
+      sessions: totalSessions,
+      uniqueVisitors,
+      returningSessions,
+      leads: leadsCount,
+    },
+    series,
+    breakdowns: {
+      device: byDevice.map(x => ({ label: x._id || 'Unknown', value: x.c })),
+      browser: byBrowser.map(x => ({ label: x._id || 'Unknown', value: x.c })),
+      os: byOs.map(x => ({ label: x._id || 'Unknown', value: x.c })),
+      source: bySource.map(x => ({ label: x._id || 'Direct', value: x.c })),
+      country: byCountry.map(x => ({ label: x._id || 'Unknown', value: x.c })),
+      city: byCity.map(x => ({ label: [x._id.city, x._id.country].filter(Boolean).join(', ') || 'Unknown', value: x.c })),
+      pages: byPage.map(x => ({ label: x._id || '/', value: x.c })),
+      clicks: byClick.map(x => ({ label: x._id || 'unknown', value: x.c })),
+    },
+    recentLeads,
+    latestSessions,
+  })
+}
+
+async function handleSessionJourney(request, sessionId) {
+  const auth = requireAdmin(request)
+  if (!auth.ok) return json({ error: auth.error }, auth.status)
+  await connectDb()
+  const { Session, Event } = getAnalyticsModels()
+  const session = await Session.findOne({ sessionId }).lean()
+  if (!session) return json({ error: 'Not found' }, 404)
+  const events = await Event.find({ sessionId }).sort({ createdAt: 1 }).lean()
+  return json({ session, events })
+}
+
+
 async function handler(request, { params }) {
   const segs = params?.path || []
   const method = request.method
@@ -294,6 +525,21 @@ async function handler(request, { params }) {
     // health
     if (segs.length === 0 || segs[0] === 'health') {
       return json({ status: 'ok', app: 'vayucodes-cms', time: new Date().toISOString() }, 200, cHeaders)
+    }
+
+    // FIRST-PARTY TRACKING (public, no auth) — /api/track
+    if (segs[0] === 'track' && method === 'POST') {
+      // Skip the earlier global rate limit — we have our own track bucket.
+      const res = await handleTrack(request)
+      Object.entries(cHeaders).forEach(([k, v]) => res.headers.set(k, v))
+      return res
+    }
+
+    // ADMIN ANALYTICS — /api/admin/analytics(?days=N) and /api/admin/analytics/session/:sessionId
+    if (segs[0] === 'admin' && segs[1] === 'analytics') {
+      if (method !== 'GET') return json({ error: 'Method not allowed' }, 405, cHeaders)
+      if (segs[2] === 'session' && segs[3]) return handleSessionJourney(request, segs[3])
+      return handleAnalyticsSummary(request)
     }
 
     // AUTH

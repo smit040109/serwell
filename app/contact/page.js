@@ -47,16 +47,47 @@ function ContactHero() {
     if (Object.keys(eMap).length) { setStatus({ loading: false, ok: false, err: '' }); return }
     setStatus({ loading: true, ok: false, err: '' })
     try {
+      // Attach attribution: session/visitor ids from cookies, plus current UTM + referrer.
+      const readCookie = (n) => {
+        try {
+          const m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)'))
+          return m ? decodeURIComponent(m[1]) : ''
+        } catch { return '' }
+      }
+      const utm = (() => { try { return JSON.parse(readCookie('vc_utm') || '{}') } catch { return {} } })()
+      let sessionId = ''
+      try { sessionId = sessionStorage.getItem('vc_sid') || '' } catch { /* ignore */ }
+      const payload = {
+        ...form,
+        sessionId,
+        visitorId: readCookie('vc_vid'),
+        referrer: readCookie('vc_ref') || document.referrer || '',
+        utm_source: utm.utm_source || '',
+        utm_medium: utm.utm_medium || '',
+        utm_campaign: utm.utm_campaign || '',
+      }
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Something went wrong')
       setStatus({ loading: false, ok: true, err: '' })
       setForm({ name: '', email: '', phone: '', business: '', message: '' })
       setErrors({})
+      // Fire a click event so admin can attribute the conversion cleanly.
+      try {
+        navigator.sendBeacon?.('/api/track', new Blob([JSON.stringify({
+          type: 'click',
+          visitorId: readCookie('vc_vid'),
+          sessionId,
+          path: location.pathname,
+          name: 'lead_submit',
+          label: 'contact_form',
+          ts: Date.now(),
+        })], { type: 'application/json' }))
+      } catch { /* ignore */ }
     } catch (err) {
       setStatus({ loading: false, ok: false, err: err.message })
     }

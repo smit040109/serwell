@@ -47,6 +47,7 @@ export default function Navbar() {
         {/* Right: CTA */}
         <Link
           href="/contact"
+          data-track="start_project_nav"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-btn bg-pure-white text-vc-ink text-[13px] tracking-[0.18em] uppercase font-medium hover:bg-vc-cream transition-colors"
         >
           Start Project
