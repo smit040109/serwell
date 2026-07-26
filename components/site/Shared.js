@@ -155,16 +155,57 @@ export function Navbar({ darkHero = false }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
 
-  // Lock body scroll while mobile menu is open (prevents underlying content from showing through)
+  // Lock body scroll while the mobile menu is open. Because the site uses
+  // Lenis smooth-scroll, `overflow: hidden` on <body> alone isn't enough —
+  // Lenis intercepts wheel/touch events directly. We also stop Lenis and
+  // pin <body> to the current scrollY via position: fixed so the underlying
+  // page cannot move at all. On close we restore both.
   useEffect(() => {
     if (typeof document === 'undefined') return
-    if (open) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
+    if (!open) return
+
+    const scrollY = window.scrollY || window.pageYOffset || 0
+    const body = document.body
+    const html = document.documentElement
+    const prev = {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      htmlOverflow: html.style.overflow,
     }
-    return () => { document.body.style.overflow = '' }
+
+    // Pause Lenis so wheel/touch events on the menu can't scroll the page behind it.
+    const lenis = typeof window !== 'undefined' ? window.__lenis : null
+    if (lenis && typeof lenis.stop === 'function') lenis.stop()
+
+    body.style.overflow = 'hidden'
+    body.style.position = 'fixed'
+    body.style.top = `-${scrollY}px`
+    body.style.width = '100%'
+    html.style.overflow = 'hidden'
+
+    return () => {
+      body.style.overflow = prev.overflow
+      body.style.position = prev.position
+      body.style.top = prev.top
+      body.style.width = prev.width
+      html.style.overflow = prev.htmlOverflow
+      // Restore scroll position that was frozen.
+      window.scrollTo(0, scrollY)
+      if (lenis && typeof lenis.start === 'function') {
+        lenis.start()
+        // Sync Lenis' virtual scroll with the restored native scroll so it
+        // doesn't try to lerp back to the pre-lock position.
+        if (typeof lenis.scrollTo === 'function') {
+          lenis.scrollTo(scrollY, { immediate: true, force: true })
+        }
+      }
+    }
   }, [open])
+
+  // Auto-close mobile menu on route change (so navigating from menu doesn't leave it open).
+  useEffect(() => { setOpen(false) }, [pathname])
 
   return (
     <>
