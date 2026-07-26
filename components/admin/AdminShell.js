@@ -7,27 +7,58 @@ import {
   LayoutDashboard, Settings, FileText, Image as ImageIcon,
   Briefcase, Wrench, Users, MessageSquareQuote, Mail,
   Navigation as NavIcon, PanelBottom, Search, LogOut, ExternalLink, Layers,
-  ListOrdered, HelpCircle, ScrollText, LayoutTemplate,
+  ListOrdered, HelpCircle, ScrollText, LayoutTemplate, Home, Sparkles, Grid3x3, Building2,
 } from 'lucide-react'
 
-const NAV = [
-  { href: '/admin', label: 'Overview', icon: LayoutDashboard, exact: true },
-  { href: '/admin/site-settings', label: 'Site Settings', icon: Settings },
-  { href: '/admin/pages', label: 'Pages', icon: FileText },
-  { href: '/admin/sections', label: 'Sections', icon: Layers },
-  { href: '/admin/page-content', label: 'Page Content', icon: LayoutTemplate },
-  { href: '/admin/media', label: 'Media Library', icon: ImageIcon },
-  { href: '/admin/how-we-work', label: 'How We Work', icon: ListOrdered },
-  { href: '/admin/faq', label: 'FAQ', icon: HelpCircle },
-  { href: '/admin/legal', label: 'Legal Pages', icon: ScrollText },
-  { href: '/admin/portfolio', label: 'Portfolio', icon: Briefcase },
-  { href: '/admin/services', label: 'Services', icon: Wrench },
-  { href: '/admin/team', label: 'Team', icon: Users },
-  { href: '/admin/testimonials', label: 'Testimonials', icon: MessageSquareQuote },
-  { href: '/admin/contact-settings', label: 'Contact', icon: Mail },
-  { href: '/admin/navigation', label: 'Navigation', icon: NavIcon },
-  { href: '/admin/footer', label: 'Footer', icon: PanelBottom },
-  { href: '/admin/seo-settings', label: 'SEO', icon: Search },
+// Grouped navigation — organized by what's on the WEBSITE
+const NAV_GROUPS = [
+  {
+    heading: 'Overview',
+    items: [
+      { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+    ],
+  },
+  {
+    heading: 'Website Pages',
+    items: [
+      { href: '/admin/home', label: 'Home', icon: Home },
+      { href: '/admin/why-us', label: 'Why Us', icon: Building2 },
+      { href: '/admin/digital-marketing', label: 'Digital Marketing', icon: Sparkles },
+      { href: '/admin/our-work', label: 'Our Work', icon: Grid3x3 },
+      { href: '/admin/contact-page', label: 'Contact Page', icon: Mail },
+    ],
+  },
+  {
+    heading: 'Content Library',
+    items: [
+      { href: '/admin/portfolio', label: 'Portfolio Projects', icon: Briefcase },
+      { href: '/admin/team', label: 'Team Members', icon: Users },
+      { href: '/admin/services', label: 'Services', icon: Wrench },
+      { href: '/admin/testimonials', label: 'Testimonials', icon: MessageSquareQuote },
+      { href: '/admin/how-we-work', label: 'How We Work Steps', icon: ListOrdered },
+      { href: '/admin/faq', label: 'FAQ Items', icon: HelpCircle },
+      { href: '/admin/legal', label: 'Legal Pages', icon: ScrollText },
+      { href: '/admin/media', label: 'Media Library', icon: ImageIcon },
+    ],
+  },
+  {
+    heading: 'Global Settings',
+    items: [
+      { href: '/admin/site-settings', label: 'Site Settings', icon: Settings },
+      { href: '/admin/contact-settings', label: 'Contact Settings', icon: Mail },
+      { href: '/admin/navigation', label: 'Navigation', icon: NavIcon },
+      { href: '/admin/footer', label: 'Footer', icon: PanelBottom },
+      { href: '/admin/seo-settings', label: 'SEO', icon: Search },
+    ],
+  },
+  {
+    heading: 'Advanced',
+    items: [
+      { href: '/admin/pages', label: 'Pages (raw)', icon: FileText },
+      { href: '/admin/sections', label: 'Sections (raw)', icon: Layers },
+      { href: '/admin/page-content', label: 'Page Content (raw JSON)', icon: LayoutTemplate },
+    ],
+  },
 ]
 
 export default function AdminShell({ children, title, description, action }) {
@@ -37,28 +68,35 @@ export default function AdminShell({ children, title, description, action }) {
   return (
     <div className="min-h-screen flex">
       {/* SIDEBAR */}
-      <aside className="w-60 shrink-0 border-r border-white/8 bg-black/40 sticky top-0 h-screen overflow-y-auto">
+      <aside className="w-64 shrink-0 border-r border-white/8 bg-black/40 sticky top-0 h-screen overflow-y-auto">
         <div className="px-5 py-6 border-b border-white/8">
           <div className="text-[10px] tracking-[0.3em] uppercase text-white/40">VayuCodes</div>
           <div className="text-sm font-semibold mt-0.5">CMS Console</div>
         </div>
-        <nav className="px-3 py-4 space-y-0.5">
-          {NAV.map((item) => {
-            const Icon = item.icon
-            const active = item.exact ? pathname === item.href : pathname.startsWith(item.href)
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] transition ${
-                  active ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <Icon size={14} />
-                {item.label}
-              </Link>
-            )
-          })}
+        <nav className="px-3 py-4 space-y-5">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.heading}>
+              <div className="px-2 mb-1.5 text-[9px] tracking-[0.28em] uppercase text-white/30 font-semibold">{group.heading}</div>
+              <div className="space-y-0.5">
+                {group.items.map((item) => {
+                  const Icon = item.icon
+                  const active = item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(item.href + '/')
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] transition ${
+                        active ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      <Icon size={14} />
+                      {item.label}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
         <div className="px-5 py-4 border-t border-white/8 mt-auto">
           <div className="text-[10px] tracking-[0.15em] uppercase text-white/40">Signed in as</div>

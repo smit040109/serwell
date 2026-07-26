@@ -6,7 +6,7 @@ import Link from 'next/link'
 import {
   ArrowRight, ArrowUpRight, MessageSquare, Search, PenTool, RefreshCw, Rocket, ChevronRight,
 } from 'lucide-react'
-import { PageWrapper, LandingFlow, useLandingStage, useCmsSiteSettings } from '@/components/site/Shared'
+import { PageWrapper, LandingFlow, useLandingStage, useCmsSiteSettings, useCmsPageContent } from '@/components/site/Shared'
 
 /* ============================================================
    1 · HERO — white bg, rotating word, ambient video, subtle 3D scroll
@@ -25,6 +25,7 @@ function Hero() {
   const [idx, setIdx] = useState(0)
   const [videoReady, setVideoReady] = useState(false)
   const [settings, setSettings] = useState(null)
+  const pc = useCmsPageContent('home')
   const videoRef = useRef(null)
   const ref = useRef(null)
   const stage = useLandingStage()
@@ -33,7 +34,6 @@ function Hero() {
   const y = useTransform(scrollYProgress, [0, 1], [0, 180])
   const scale = useTransform(scrollYProgress, [0, 1], [1, 0.92])
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
-  // Subtle parallax on the video itself for cinematic depth
   const videoY = useTransform(scrollYProgress, [0, 1], [0, 80])
   const videoScale = useTransform(scrollYProgress, [0, 1], [1.06, 1.14])
 
@@ -42,8 +42,6 @@ function Hero() {
     return () => clearInterval(id)
   }, [])
 
-  // Fetch CMS site settings (hero headline/subtitle/video) — falls back to
-  // the hardcoded defaults until the fetch resolves, so nothing flashes.
   useEffect(() => {
     fetch('/api/cms/site_settings')
       .then(r => r.json())
@@ -51,14 +49,14 @@ function Hero() {
       .catch(() => {})
   }, [])
 
-  const heroLine1 = settings?.hero?.headlineLine1 || 'We design, engineer'
+  const heroLine1 = pc?.heroLine1 || settings?.hero?.headlineLine1 || 'We design, engineer'
   const heroItalicWord = settings?.hero?.headlineItalicWord || null
-  const heroSubtitle = settings?.hero?.subtitle || ''
+  const heroSubtitle = pc?.heroSubtitle || settings?.hero?.subtitle || ''
   const rotatingWords = (Array.isArray(settings?.rotatingWords) && settings.rotatingWords.filter(Boolean).length)
     ? settings.rotatingWords.filter(Boolean)
     : ROTATING_WORDS
-  const videoEnabled = settings?.hero ? settings.hero.videoEnabled : true
-  const videoSrc = (settings?.hero?.videoEnabled && settings?.hero?.videoUrl) || HERO_VIDEO_SRC
+  const videoEnabled = pc ? !!pc.heroVideoEnabled : (settings?.hero ? settings.hero.videoEnabled : true)
+  const videoSrc = pc?.heroVideoUrl || (settings?.hero?.videoEnabled && settings?.hero?.videoUrl) || HERO_VIDEO_SRC
   const videoLoop = settings?.hero ? settings.hero.videoLoop : true
 
   // Force-play on mount for some mobile browsers so the browser preloads/decodes
@@ -264,6 +262,7 @@ const STEPS = [
 function HowWeWork() {
   // CMS-driven steps — falls back to the hardcoded STEPS until fetch resolves
   const [cmsSteps, setCmsSteps] = useState(null)
+  const pc = useCmsPageContent('home')
   useEffect(() => {
     fetch('/api/cms/how_we_work_steps')
       .then(r => r.json())
@@ -293,13 +292,13 @@ function HowWeWork() {
           transition={{ duration: 0.9 }}
           className="max-w-3xl mb-16 md:mb-24"
         >
-          <div className="text-[10px] tracking-[0.3em] uppercase text-[#6B6B6B] mb-4">— How We Work</div>
+          <div className="text-[10px] tracking-[0.3em] uppercase text-[#6B6B6B] mb-4">{pc?.howWeWorkEyebrow || '— How We Work'}</div>
           <h2 className="text-[#0A0A0A] leading-[1.0] tracking-[-0.02em]"
               style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(34px,5.5vw,72px)' }}>
-            Five steps. <span className="italic text-[#0A0A0A]/60">Zero mystery.</span>
+            {pc?.howWeWorkHeadline1 || 'Five steps.'} <span className="italic text-[#0A0A0A]/60">{pc?.howWeWorkHeadlineItalic || 'Zero mystery.'}</span>
           </h2>
           <p className="mt-6 text-[#525252] leading-relaxed max-w-xl">
-            Every project follows the same rhythm. Whether it&apos;s a website or a 6-month platform build, the process is transparent from day one.
+            {pc?.howWeWorkSubtitle || "Every project follows the same rhythm. Whether it's a website or a 6-month platform build, the process is transparent from day one."}
           </p>
         </motion.div>
 
@@ -391,6 +390,7 @@ function StepBlock({ step, index }) {
 function SelectedWork() {
   const [projects, setProjects] = useState([])
   const [active, setActive] = useState(0)
+  const pc = useCmsPageContent('home')
 
   useEffect(() => {
     let cancel = false
@@ -416,10 +416,10 @@ function SelectedWork() {
           className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 md:mb-20"
         >
           <div className="max-w-2xl">
-            <div className="text-[10px] tracking-[0.35em] uppercase opacity-60 mb-4">— Selected Work</div>
+            <div className="text-[10px] tracking-[0.35em] uppercase opacity-60 mb-4">{pc?.selectedWorkEyebrow || '— Selected Work'}</div>
             <h2 className="leading-[1.02] tracking-[-0.02em]"
                 style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(36px,5.5vw,76px)' }}>
-              Products that <span className="italic opacity-70">actually shipped.</span>
+              {pc?.selectedWorkHeadline1 || 'Products that'} <span className="italic opacity-70">{pc?.selectedWorkHeadlineItalic || 'actually shipped.'}</span>
             </h2>
           </div>
           <Link href="/our-work" className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase font-semibold underline-offset-4 hover:underline">

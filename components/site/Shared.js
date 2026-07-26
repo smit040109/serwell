@@ -508,6 +508,52 @@ export function useCmsSiteSettings() {
   return s
 }
 
+/* ------------------------------------------------------------
+   CMS page_content by key — shared cache per key. Returns
+   { key, title, data } once loaded, or null while loading.
+------------------------------------------------------------ */
+const __cmsPageCache = {}
+const __cmsPagePromise = {}
+export function useCmsPageContent(key) {
+  const [d, setD] = useState(__cmsPageCache[key] || null)
+  useEffect(() => {
+    if (!key) return
+    if (__cmsPageCache[key]) { setD(__cmsPageCache[key]); return }
+    if (!__cmsPagePromise[key]) {
+      __cmsPagePromise[key] = fetch(`/api/cms/page_content/${key}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(j => { __cmsPageCache[key] = j?.data?.data || null; return __cmsPageCache[key] })
+        .catch(() => null)
+    }
+    let mounted = true
+    __cmsPagePromise[key].then(v => { if (mounted && v) setD(v) })
+    return () => { mounted = false }
+  }, [key])
+  return d
+}
+
+/* ------------------------------------------------------------
+   CMS contact_settings — shared cache. Returns settings doc.
+------------------------------------------------------------ */
+let __cmsContactCache = null
+let __cmsContactPromise = null
+export function useCmsContactSettings() {
+  const [s, setS] = useState(__cmsContactCache)
+  useEffect(() => {
+    if (__cmsContactCache) { setS(__cmsContactCache); return }
+    if (!__cmsContactPromise) {
+      __cmsContactPromise = fetch('/api/cms/contact_settings')
+        .then(r => r.json())
+        .then(d => { __cmsContactCache = d?.data || null; return __cmsContactCache })
+        .catch(() => null)
+    }
+    let mounted = true
+    __cmsContactPromise.then(v => { if (mounted && v) setS(v) })
+    return () => { mounted = false }
+  }, [])
+  return s
+}
+
 // Typing-sound: synthesized via Web Audio API for crisp mechanical clicks
 function useTypingSound() {
   const ctxRef = useRef(null)

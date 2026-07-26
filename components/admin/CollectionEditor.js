@@ -127,6 +127,7 @@ export default function CollectionEditor({
   description,
   fields,
   singleton = false,
+  keyed = null, // { key: 'why-us', defaults: {...} } — keyed upsert (like singleton but with key field)
   itemDisplay = (i) => i.title || i.name || i.slug || i._id,
   itemSubtitle = (i) => i.category || i.role || i.slug || '',
   newItemDefaults = {},
@@ -140,22 +141,40 @@ export default function CollectionEditor({
   const [msg, setMsg] = useState('')
   const [q, setQ] = useState('')
 
+  const asSingleton = singleton || !!keyed
+
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const r = await apiFetch(`/api/cms/${collection}`)
-      if (singleton) {
-        setItems([r.data])
-        setSelected(r.data)
-        setDraft(r.data)
+      if (keyed?.key) {
+        // Load by key
+        try {
+          const r = await apiFetch(`/api/cms/${collection}/${keyed.key}`)
+          setItems([r.data])
+          setSelected(r.data)
+          setDraft(r.data)
+        } catch {
+          // Not found — start with defaults
+          const d = { key: keyed.key, ...(keyed.defaults || {}) }
+          setItems([d])
+          setSelected(d)
+          setDraft(d)
+        }
       } else {
-        setItems(r.data || [])
+        const r = await apiFetch(`/api/cms/${collection}`)
+        if (singleton) {
+          setItems([r.data])
+          setSelected(r.data)
+          setDraft(r.data)
+        } else {
+          setItems(r.data || [])
+        }
       }
     } catch (e) {
       setMsg('Failed to load: ' + e.message)
     }
     setLoading(false)
-  }, [apiFetch, collection, singleton])
+  }, [apiFetch, collection, singleton, keyed])
 
   useEffect(() => { if (!authLoading && apiFetch) load() }, [authLoading, apiFetch, load])
 
@@ -195,7 +214,9 @@ export default function CollectionEditor({
     setMsg('')
     try {
       let r
-      if (singleton) {
+      if (keyed?.key) {
+        r = await apiFetch(`/api/cms/${collection}`, { method: 'POST', body: JSON.stringify({ ...draft, key: keyed.key }) })
+      } else if (singleton) {
         r = await apiFetch(`/api/cms/${collection}`, { method: 'POST', body: JSON.stringify(draft) })
       } else if (draft._id && items.find(i => i._id === draft._id)) {
         r = await apiFetch(`/api/cms/${collection}/${draft._id}`, { method: 'PUT', body: JSON.stringify(draft) })
@@ -204,7 +225,7 @@ export default function CollectionEditor({
       }
       setMsg('Saved ✓')
       await load()
-      if (!singleton) select(r.data)
+      if (!asSingleton) select(r.data)
     } catch (e) {
       setMsg('Error: ' + e.message)
     }
@@ -212,7 +233,7 @@ export default function CollectionEditor({
   }
 
   async function remove() {
-    if (!draft?._id || singleton) return
+    if (!draft?._id || asSingleton) return
     if (!confirm('Delete this item?')) return
     try {
       await apiFetch(`/api/cms/${collection}/${draft._id}`, { method: 'DELETE' })
@@ -237,14 +258,14 @@ export default function CollectionEditor({
     <AdminShell
       title={title}
       description={description}
-      action={!singleton && (
+      action={!asSingleton && (
         <button onClick={newItem} className="inline-flex items-center gap-2 bg-white text-black text-xs font-semibold tracking-[0.2em] uppercase px-4 py-2.5 rounded-md hover:bg-white/90 transition">
           <Plus size={13} /> New
         </button>
       )}
     >
-      <div className={`grid ${singleton ? 'grid-cols-1' : 'lg:grid-cols-[280px_1fr]'} gap-6`}>
-        {!singleton && (
+      <div className={`grid ${asSingleton ? 'grid-cols-1' : 'lg:grid-cols-[280px_1fr]'} gap-6`}>
+        {!asSingleton && (
           <div className="space-y-2">
             <div className="relative">
               <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
@@ -263,8 +284,8 @@ export default function CollectionEditor({
           </div>
         )}
 
-        <div className={`rounded-xl border border-white/10 bg-white/[0.02] ${!draft && !singleton ? 'flex items-center justify-center min-h-[300px] text-sm text-white/40' : ''}`}>
-          {!draft && !singleton && <div>Select an item or click New</div>}
+        <div className={`rounded-xl border border-white/10 bg-white/[0.02] ${!draft && !asSingleton ? 'flex items-center justify-center min-h-[300px] text-sm text-white/40' : ''}`}>
+          {!draft && !asSingleton && <div>Select an item or click New</div>}
           {draft && (
             <div className="p-6">
               <div className="grid md:grid-cols-2 gap-x-6 gap-y-5">
@@ -272,7 +293,7 @@ export default function CollectionEditor({
                   <div key={f.key} className={f.wide ? 'md:col-span-2' : ''}>
                     <label className="block text-[10px] tracking-[0.2em] uppercase text-white/50 mb-1.5">{f.label}</label>
                     <FieldInput
-                      key={`${f.key}-${draft?._id || 'new'}`}
+                      key={`${f.key}-${draft?._id || keyed?.key || 'new'}`}
                       type={f.type}
                       value={getField(f.key)}
                       onChange={(v) => updateField(f.key, v)}
@@ -291,7 +312,7 @@ export default function CollectionEditor({
               <div className="mt-8 pt-6 border-t border-white/8 flex items-center justify-between">
                 <div className="text-xs text-white/50">{msg}</div>
                 <div className="flex items-center gap-2">
-                  {!singleton && draft?._id && (
+                  {!asSingleton && draft?._id && (
                     <button onClick={remove} className="inline-flex items-center gap-2 border border-red-500/40 text-red-400 hover:bg-red-500/10 text-xs font-semibold tracking-[0.15em] uppercase px-4 py-2.5 rounded-md transition">
                       <Trash2 size={12} /> Delete
                     </button>
