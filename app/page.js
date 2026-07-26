@@ -25,6 +25,7 @@ function Hero() {
   const [idx, setIdx] = useState(0)
   const [videoReady, setVideoReady] = useState(false)
   const [settings, setSettings] = useState(null)
+  const [isMobile, setIsMobile] = useState(false)
   const pc = useCmsPageContent('home')
   const videoRef = useRef(null)
   const ref = useRef(null)
@@ -49,6 +50,16 @@ function Hero() {
       .catch(() => {})
   }, [])
 
+  // Detect mobile viewport (< 768px) — used to swap hero video to a mobile-optimised cut
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handler = () => setIsMobile(mq.matches)
+    handler()
+    mq.addEventListener ? mq.addEventListener('change', handler) : mq.addListener(handler)
+    return () => { mq.removeEventListener ? mq.removeEventListener('change', handler) : mq.removeListener(handler) }
+  }, [])
+
   const heroLine1 = pc?.heroLine1 || settings?.hero?.headlineLine1 || 'We design, engineer'
   const heroItalicWord = settings?.hero?.headlineItalicWord || null
   const heroSubtitle = pc?.heroSubtitle || settings?.hero?.subtitle || ''
@@ -56,8 +67,18 @@ function Hero() {
     ? settings.rotatingWords.filter(Boolean)
     : ROTATING_WORDS
   const videoEnabled = pc ? !!pc.heroVideoEnabled : (settings?.hero ? settings.hero.videoEnabled : true)
-  const videoSrc = pc?.heroVideoUrl || (settings?.hero?.videoEnabled && settings?.hero?.videoUrl) || HERO_VIDEO_SRC
+  const desktopVideo = pc?.heroVideoUrl || (settings?.hero?.videoEnabled && settings?.hero?.videoUrl) || HERO_VIDEO_SRC
+  const mobileVideo = pc?.heroVideoUrlMobile || null
+  const videoSrc = (isMobile && mobileVideo) ? mobileVideo : desktopVideo
   const videoLoop = settings?.hero ? settings.hero.videoLoop : true
+
+  // When the video source changes (mobile ↔ desktop), reload the video element so the new src plays
+  useEffect(() => {
+    const v = videoRef.current
+    if (!v) return
+    setVideoReady(false)
+    try { v.load() } catch { /* ignore */ }
+  }, [videoSrc])
 
   // Force-play on mount for some mobile browsers so the browser preloads/decodes
   // the file even while the intro plays. The video is kept invisible until
@@ -104,7 +125,7 @@ function Hero() {
             transition: 'opacity 900ms ease-out',
           }}
         >
-          <source src={videoSrc} type="video/mp4" />
+          <source key={videoSrc} src={videoSrc} type="video/mp4" />
         </video>
 
         {/* Cinematic legibility overlays — very subtle so video is clearly visible */}

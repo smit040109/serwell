@@ -45,7 +45,6 @@ const NAV_GROUPS = [
     heading: 'Global Settings',
     items: [
       { href: '/admin/site-settings', label: 'Site Settings', icon: Settings },
-      { href: '/admin/contact-settings', label: 'Contact Settings', icon: Mail },
       { href: '/admin/navigation', label: 'Navigation', icon: NavIcon },
       { href: '/admin/footer', label: 'Footer', icon: PanelBottom },
       { href: '/admin/seo-settings', label: 'SEO', icon: Search },

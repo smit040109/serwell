@@ -158,6 +158,8 @@ export default function PortfolioSlider() {
         .ps-scroll-container {
           position: relative;
           width: 100%;
+          background: var(--stage-bg, #0A0A0A);
+          transition: background 800ms cubic-bezier(0.22, 1, 0.36, 1);
         }
         .ps-stage {
           position: sticky;

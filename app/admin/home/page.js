@@ -14,7 +14,8 @@ export default function AdminHomePage() {
         // HERO
         { key: 'data.heroLine1', label: 'HERO — headline (line 1)', type: 'text', wide: true, help: 'Big serif line at the top. The rotating word ("digital systems / AI workflows / ...") comes from Site Settings → Hero rotating words.' },
         { key: 'data.heroSubtitle', label: 'HERO — subtitle', textarea: true, wide: true, rows: 3 },
-        { key: 'data.heroVideoUrl', label: 'HERO — background video', type: 'media', mediaType: 'video', wide: true, help: 'Full-bleed cinematic video behind the hero. Upload/pick from Media Library.' },
+        { key: 'data.heroVideoUrl', label: 'HERO — desktop video', type: 'media', mediaType: 'video', wide: true, help: 'Full-bleed cinematic video behind the hero on DESKTOP / tablet. Upload/pick from Media Library.' },
+        { key: 'data.heroVideoUrlMobile', label: 'HERO — mobile video (optional)', type: 'media', mediaType: 'video', wide: true, help: 'Alternate video shown ONLY on mobile (< 768px). Leave empty to use desktop video everywhere. Recommend vertical 9:16 for best mobile framing.' },
         { key: 'data.heroVideoEnabled', label: 'HERO — show video?', type: 'boolean' },
 
         // HOW WE WORK
