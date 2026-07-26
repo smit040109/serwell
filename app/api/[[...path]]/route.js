@@ -26,7 +26,7 @@ const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads')
    - CONTACT: 20 req / 15 min / IP   (contact-form spam brake)
 --------------------------------------------------------------- */
 const RL = {
-  global:  { limit: 100, windowMs: 15 * 60 * 1000 },
+  global:  { limit: 1000, windowMs: 15 * 60 * 1000 },
   login:   { limit: 5,   windowMs: 15 * 60 * 1000 },
   contact: { limit: 20,  windowMs: 15 * 60 * 1000 },
   track:   { limit: 600, windowMs: 15 * 60 * 1000 },  // 40/min avg per IP — page views + events
