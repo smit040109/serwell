@@ -14,8 +14,38 @@ const instrument = Instrument_Serif({
 })
 
 export const metadata = {
+  metadataBase: new URL('https://vayucodes.com'),
   title: 'VayuCodes — An independent design & engineering studio',
   description: 'We design, engineer and scale digital systems for businesses built to move forward.',
+  applicationName: 'VayuCodes',
+  authors: [{ name: 'VayuCodes' }],
+  keywords: ['VayuCodes', 'design studio', 'engineering', 'web development', 'digital marketing', 'India'],
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+      { url: '/icon-512.png', type: 'image/png', sizes: '512x512' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
+  manifest: '/site.webmanifest',
+  openGraph: {
+    title: 'VayuCodes — An independent design & engineering studio',
+    description: 'We design, engineer and scale digital systems for businesses built to move forward.',
+    url: 'https://vayucodes.com',
+    siteName: 'VayuCodes',
+    images: [{ url: '/icon-512.png', width: 512, height: 512, alt: 'VayuCodes' }],
+    locale: 'en_IN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'VayuCodes — An independent design & engineering studio',
+    description: 'We design, engineer and scale digital systems for businesses built to move forward.',
+    images: ['/icon-512.png'],
+  },
 }
 
 export default function RootLayout({ children }) {

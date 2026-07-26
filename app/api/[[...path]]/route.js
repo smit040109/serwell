@@ -9,28 +9,68 @@ import {
 } from '@/lib/models'
 import { hashPassword, verifyPassword, signToken, requireAdmin } from '@/lib/auth'
 import { v4 as uuidv4 } from 'uuid'
+import {
+  sanitizeInput, checkRateLimit, rateLimitHeaders, corsHeaders, getClientIp,
+  validateEmail, validatePasswordStrength, validateName, validatePhone,
+} from '@/lib/security'
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads')
 
-function json(data, status = 200) {
-  return NextResponse.json(data, { status })
+/* ---------------------------------------------------------------
+   Rate limit buckets.
+   - GLOBAL: 100 req / 15 min / IP
+   - LOGIN:    5 req / 15 min / IP   (brute-force protection)
+   - CONTACT: 20 req / 15 min / IP   (contact-form spam brake)
+--------------------------------------------------------------- */
+const RL = {
+  global:  { limit: 100, windowMs: 15 * 60 * 1000 },
+  login:   { limit: 5,   windowMs: 15 * 60 * 1000 },
+  contact: { limit: 20,  windowMs: 15 * 60 * 1000 },
+}
+
+function json(data, status = 200, extraHeaders = {}) {
+  return NextResponse.json(data, { status, headers: extraHeaders })
+}
+
+function tooMany(result, limit, extraHeaders = {}) {
+  return json(
+    { error: 'Too many requests. Please try again later.' },
+    429,
+    { ...rateLimitHeaders(result, limit), ...extraHeaders }
+  )
 }
 
 /* ============================================================
    ADMIN AUTH ENDPOINTS
 ============================================================ */
 async function handleLogin(request) {
-  const { email, password } = await request.json()
-  if (!email || !password) return json({ error: 'email and password required' }, 400)
+  const ip = getClientIp(request)
+  const rl = checkRateLimit(`login:${ip}`, RL.login.limit, RL.login.windowMs)
+  if (!rl.allowed) return tooMany(rl, RL.login.limit)
+
+  const raw = await request.json().catch(() => null)
+  const body = sanitizeInput(raw) || {}
+  const emailV = validateEmail(body.email)
+  if (!emailV.ok) return json({ error: emailV.error }, 400)
+  if (typeof body.password !== 'string' || !body.password) {
+    return json({ error: 'Password is required' }, 400)
+  }
+  // Cap password length up front to avoid bcrypt DoS on huge inputs.
+  if (body.password.length > 200) return json({ error: 'Invalid credentials' }, 401)
+
   await connectDb()
-  const admin = await Admin.findOne({ email: email.toLowerCase().trim() })
+  const admin = await Admin.findOne({ email: emailV.value })
   if (!admin) return json({ error: 'Invalid credentials' }, 401)
-  const ok = await verifyPassword(password, admin.passwordHash)
+  const ok = await verifyPassword(body.password, admin.passwordHash)
   if (!ok) return json({ error: 'Invalid credentials' }, 401)
   admin.lastLoginAt = new Date()
   await admin.save()
   const token = signToken({ id: admin._id, email: admin.email, role: admin.role, name: admin.name })
-  return json({ token, admin: { id: admin._id, email: admin.email, name: admin.name, role: admin.role } })
+  return json(
+    { token, admin: { id: admin._id, email: admin.email, name: admin.name, role: admin.role } },
+    200,
+    rateLimitHeaders(rl, RL.login.limit)
+  )
 }
 
 async function handleMe(request) {
@@ -107,9 +147,17 @@ async function handleCollectionCreate(collection, request) {
   const Model = COLLECTION_MODELS[collection]
   if (!Model) return json({ error: 'Unknown collection' }, 404)
   await connectDb()
-  const body = await request.json()
+  const raw = await request.json().catch(() => null)
+  const body = sanitizeInput(raw) || {}
   if (collection === 'admins') {
     if (!body.password) return json({ error: 'password required' }, 400)
+    const pw = validatePasswordStrength(body.password)
+    if (!pw.ok) return json({ error: pw.error }, 400)
+    if (body.email) {
+      const ev = validateEmail(body.email)
+      if (!ev.ok) return json({ error: ev.error }, 400)
+      body.email = ev.value
+    }
     body.passwordHash = await hashPassword(body.password)
     delete body.password
   }
@@ -140,10 +188,18 @@ async function handleCollectionUpdate(collection, id, request) {
   const Model = COLLECTION_MODELS[collection]
   if (!Model) return json({ error: 'Unknown collection' }, 404)
   await connectDb()
-  const body = await request.json()
+  const raw = await request.json().catch(() => null)
+  const body = sanitizeInput(raw) || {}
   if (collection === 'admins' && body.password) {
+    const pw = validatePasswordStrength(body.password)
+    if (!pw.ok) return json({ error: pw.error }, 400)
     body.passwordHash = await hashPassword(body.password)
     delete body.password
+  }
+  if (collection === 'admins' && body.email) {
+    const ev = validateEmail(body.email)
+    if (!ev.ok) return json({ error: ev.error }, 400)
+    body.email = ev.value
   }
   delete body._id
   const targetId = SINGLETON_COLLECTIONS.has(collection) ? 'main' : id
@@ -174,18 +230,28 @@ async function handleCollectionDelete(collection, id, request) {
    PUBLIC CONTACT LEAD (existing behavior preserved)
 ============================================================ */
 async function handleContactLead(request) {
-  const body = await request.json()
-  const { name, email, phone, business, message } = body || {}
-  const NAME_RE = /^[A-Za-z][A-Za-z\s.'-]{1,}$/
-  const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
-  const PHONE_RE = /^\+?[0-9\s\-()]{7,20}$/
-  if (!name || !String(name).trim()) return json({ error: 'Name is required' }, 400)
-  if (!NAME_RE.test(String(name).trim())) return json({ error: 'Enter a valid name' }, 400)
-  if (!email || !String(email).trim()) return json({ error: 'Email is required' }, 400)
-  if (!EMAIL_RE.test(String(email).trim())) return json({ error: 'Enter a valid email' }, 400)
-  if (phone && !PHONE_RE.test(String(phone).trim())) return json({ error: 'Enter a valid phone number' }, 400)
-  if (!message || !String(message).trim()) return json({ error: 'Message is required' }, 400)
-  if (String(message).trim().length < 10) return json({ error: 'Message is too short' }, 400)
+  const ip = getClientIp(request)
+  const rl = checkRateLimit(`contact:${ip}`, RL.contact.limit, RL.contact.windowMs)
+  if (!rl.allowed) return tooMany(rl, RL.contact.limit)
+
+  const raw = await request.json().catch(() => null)
+  const body = sanitizeInput(raw) || {}
+  const { name, email, phone, business, message } = body
+
+  const nameV = validateName(name)
+  if (!nameV.ok) return json({ error: nameV.error }, 400)
+  const emailV = validateEmail(email)
+  if (!emailV.ok) return json({ error: emailV.error }, 400)
+  const phoneV = validatePhone(phone)
+  if (!phoneV.ok) return json({ error: phoneV.error }, 400)
+  if (!message || typeof message !== 'string' || !message.trim()) {
+    return json({ error: 'Message is required' }, 400)
+  }
+  const msgT = String(message).trim()
+  if (msgT.length < 10) return json({ error: 'Message is too short' }, 400)
+  if (msgT.length > 5000) return json({ error: 'Message is too long' }, 400)
+  const bizT = typeof business === 'string' ? business.trim().slice(0, 200) : ''
+
   await connectDb()
   const mongoose = (await import('mongoose')).default
   const LeadSchema = new mongoose.Schema({
@@ -194,8 +260,14 @@ async function handleContactLead(request) {
     createdAt: { type: Date, default: Date.now },
   }, { _id: false })
   const Lead = mongoose.models.Lead || mongoose.model('Lead', LeadSchema, 'leads')
-  const doc = await Lead.create({ name, email, phone: phone || '', business: business || '', message: message || '' })
-  return json({ ok: true, id: doc._id })
+  const doc = await Lead.create({
+    name: nameV.value,
+    email: emailV.value,
+    phone: phoneV.value,
+    business: bizT,
+    message: msgT,
+  })
+  return json({ ok: true, id: doc._id }, 200, rateLimitHeaders(rl, RL.contact.limit))
 }
 
 /* ============================================================
@@ -204,15 +276,32 @@ async function handleContactLead(request) {
 async function handler(request, { params }) {
   const segs = params?.path || []
   const method = request.method
+  const cHeaders = corsHeaders(request)
+
+  // CORS preflight — respond fast with allowed methods/headers.
+  if (method === 'OPTIONS') {
+    return new NextResponse(null, { status: 204, headers: cHeaders })
+  }
+
+  // Global rate limit — 100 req / 15 min / IP for everything except health.
+  const ip = getClientIp(request)
+  if (!(segs.length === 0 || segs[0] === 'health')) {
+    const rl = checkRateLimit(`api:${ip}`, RL.global.limit, RL.global.windowMs)
+    if (!rl.allowed) return tooMany(rl, RL.global.limit, cHeaders)
+  }
 
   try {
     // health
     if (segs.length === 0 || segs[0] === 'health') {
-      return json({ status: 'ok', app: 'vayucodes-cms', time: new Date().toISOString() })
+      return json({ status: 'ok', app: 'vayucodes-cms', time: new Date().toISOString() }, 200, cHeaders)
     }
 
     // AUTH
-    if (segs[0] === 'admin' && segs[1] === 'login' && method === 'POST') return handleLogin(request)
+    if (segs[0] === 'admin' && segs[1] === 'login' && method === 'POST') {
+      const res = await handleLogin(request)
+      Object.entries(cHeaders).forEach(([k, v]) => res.headers.set(k, v))
+      return res
+    }
     if (segs[0] === 'admin' && segs[1] === 'me' && method === 'GET') return handleMe(request)
 
     // MEDIA upload
@@ -232,7 +321,11 @@ async function handler(request, { params }) {
     }
 
     // Legacy public contact lead (kept for backwards-compat)
-    if (segs[0] === 'contact' && method === 'POST') return handleContactLead(request)
+    if (segs[0] === 'contact' && method === 'POST') {
+      const res = await handleContactLead(request)
+      Object.entries(cHeaders).forEach(([k, v]) => res.headers.set(k, v))
+      return res
+    }
 
     // CMS collections
     // /api/cms/{collection} (GET all, POST create)
@@ -248,11 +341,13 @@ async function handler(request, { params }) {
           const Model = COLLECTION_MODELS[collection]
           if (!Model) return json({ error: 'Unknown collection' }, 404)
           await connectDb()
-          let doc = await Model.findById(id).lean()
+          // `id` is user input — accept only safe strings before mongo lookup.
+          const safeId = typeof id === 'string' ? id.slice(0, 200).replace(/[^A-Za-z0-9_\-:.]/g, '') : ''
+          let doc = safeId ? await Model.findById(safeId).lean() : null
           // KEYED collections: allow lookup by key (e.g. /api/cms/legal_pages/privacy)
           const keyField = KEYED_COLLECTIONS[collection]
-          if (!doc && keyField) {
-            doc = await Model.findOne({ [keyField]: String(id).toLowerCase().trim() }).lean()
+          if (!doc && keyField && safeId) {
+            doc = await Model.findOne({ [keyField]: String(safeId).toLowerCase().trim() }).lean()
           }
           if (!doc) return json({ error: 'Not found' }, 404)
           return json({ data: doc })
@@ -262,10 +357,10 @@ async function handler(request, { params }) {
       }
     }
 
-    return json({ error: 'Not found', path: segs.join('/') }, 404)
+    return json({ error: 'Not found', path: segs.join('/') }, 404, cHeaders)
   } catch (e) {
     console.error('[api]', e)
-    return json({ error: e.message || 'Server error' }, 500)
+    return json({ error: e.message || 'Server error' }, 500, cHeaders)
   }
 }
 
@@ -274,6 +369,7 @@ export const POST = handler
 export const PUT = handler
 export const PATCH = handler
 export const DELETE = handler
+export const OPTIONS = handler
 
 // force node runtime (needed for fs, mongoose)
 export const runtime = 'nodejs'
