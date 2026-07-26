@@ -12,9 +12,17 @@ import { PageWrapper, useCmsPageContent } from '@/components/site/Shared'
 const SLIDE_ICONS = [TrendingUp, Sparkles, Camera, Megaphone, MessagesSquare]
 const PILLAR_ICONS = [BarChart3, TargetIcon, Zap]
 
+const DEFAULT_SLIDES = [
+  { code: '01', title: 'Performance', italic: 'Marketing', tag: 'Meta · Google · LinkedIn', body: 'Creative-led performance campaigns. We test 40 variants a week, kill losers fast, scale winners harder — every rupee measured, every click accountable.', img: 'https://images.unsplash.com/photo-1529078155058-5d716f45d604?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400', stats: [{ v: '4.2x', l: 'Avg ROAS' }, { v: '↓ 38%', l: 'CAC drop' }, { v: '40+', l: 'Creatives / week' }] },
+  { code: '02', title: 'Brand', italic: 'Marketing', tag: 'Positioning · Voice · Story', body: 'Naming, identity, and messaging that make your business memorable. We turn positioning workshops into deliverables you can actually deploy across every channel.', img: 'https://images.unsplash.com/photo-1698328722160-7ecf41b789c5?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400', stats: [{ v: '12', l: 'Brand systems' }, { v: '6+', l: 'Industries' }, { v: '100%', l: 'Fixed-scope' }] },
+  { code: '03', title: 'Content', italic: '& Creative', tag: 'Reels · Films · UGC', body: 'Vertical-first content engine. High-velocity reels with hook-first scripting, cinema-grade brand films, and a curated UGC network across India.', img: 'https://images.unsplash.com/photo-1513031300226-c8fb12de9ade?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400', stats: [{ v: '500+', l: 'Reels shipped' }, { v: '10M+', l: 'Views' }, { v: '1.5s', l: 'Avg hook' }] },
+  { code: '04', title: 'Field &', italic: 'Local Marketing', tag: 'GBP · Local SEO · Events', body: 'Show up where your customers actually search. Google Business optimization, hyperlocal SEO, review systems, and on-ground activations built for your geography.', img: 'https://images.unsplash.com/photo-1611166498484-5585e08d5656?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400', stats: [{ v: '4.9★', l: 'Avg review' }, { v: '↑2.6x', l: 'Local traffic' }, { v: '25+', l: 'GBPs managed' }] },
+  { code: '05', title: 'Sales', italic: 'Enablement', tag: 'WhatsApp · CRM · Funnels', body: 'Conversation-led commerce with automated WhatsApp funnels, broadcast systems, and click-to-chat ads. Where India actually buys — we close the loop.', img: 'https://images.unsplash.com/photo-1553081871-306366d02dfc?crop=entropy&cs=srgb&fm=jpg&ixlib=rb-4.1.0&q=85&w=1400', stats: [{ v: '↑68%', l: 'Reply rate' }, { v: '↓5 min', l: 'Response' }, { v: '10+', l: 'Playbooks' }] },
+]
+
 function SlideshowHero() {
   const d = useCmsPageContent('digital-marketing') || {}
-  const slides = Array.isArray(d.slides) && d.slides.length ? d.slides : []
+  const slides = Array.isArray(d.slides) && d.slides.length ? d.slides : DEFAULT_SLIDES
   const [i, setI] = useState(0)
   useEffect(() => {
     if (!slides.length) return
@@ -292,8 +300,7 @@ function ReelCell({ reel, index }) {
              className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
       <div className="absolute top-3 left-3 backdrop-blur-md bg-white/10 border border-white/20 rounded-full px-2.5 py-1 text-[9px] tracking-[0.2em] uppercase text-white font-semibold">{reel.tag}</div>
-      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-        <div className="text-white text-xs md:text-sm font-medium">{reel.title}</div>
+      <div className="absolute bottom-3 right-3 flex items-center justify-end">
         <div className="opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8 rounded-full bg-white flex items-center justify-center">
           <Play size={12} className="text-black ml-0.5" fill="black" />
         </div>
