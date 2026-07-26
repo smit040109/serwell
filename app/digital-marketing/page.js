@@ -342,12 +342,12 @@ function CaseHighlight() {
 ============================================================ */
 function ReelGrid() {
   const reels = [
-    { src: '/videos/p1.mp4', title: 'Festive Hook', tag: 'Reel' },
-    { src: '/videos/p2.mp4', title: 'Product Drop', tag: 'Reel' },
-    { src: '/videos/p3.mp4', title: 'Behind The Loom', tag: 'BTS' },
-    { src: '/videos/p4.mp4', title: 'Founder Story', tag: 'Doc' },
-    { src: '/videos/p5.mp4', title: 'Sanskar Diwali', tag: 'Ad' },
-    { src: '/videos/p6.mp4', title: 'Bandhan Launch', tag: 'Promo' },
+    { src: '/videos/r1.mp4', title: 'Festive Hook', tag: 'Reel' },
+    { src: '/videos/r2.mp4', title: 'Product Drop', tag: 'Reel' },
+    { src: '/videos/r3.mp4', title: 'Behind The Loom', tag: 'BTS' },
+    { src: '/videos/r4.mp4', title: 'Founder Story', tag: 'Doc' },
+    { src: '/videos/r5.mp4', title: 'Sanskar Diwali', tag: 'Ad' },
+    { src: '/videos/r6.mp4', title: 'Bandhan Launch', tag: 'Promo' },
   ]
   return (
     <section className="relative bg-[#0A0A0A] py-24 md:py-32 px-6 md:px-10">

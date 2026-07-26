@@ -38,6 +38,7 @@ export default function RootLayout({ children }) {
       <head>
         {/* Preload the intro-critical assets so the Preloader logo and VideoIntro clip appear instantly, without progressive top-to-bottom paint stutter. */}
         <link rel="preload" as="image" href="/brand/logo-full.png" fetchPriority="high" />
+        <link rel="preload" as="fetch" href="/brand/logo-3d.glb" crossOrigin="anonymous" fetchPriority="high" />
         <link rel="preload" as="image" href="/brand/logo-lockup.png" fetchPriority="high" />
         <link rel="preload" as="image" href="/video/intro-poster.jpg?v=4" fetchPriority="high" />
         <link rel="preload" as="video" href="/video/intro.mp4?v=4" type="video/mp4" fetchPriority="high" />

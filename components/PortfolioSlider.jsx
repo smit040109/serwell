@@ -10,7 +10,7 @@ const projects = [
     subtitle: "Operations Suite · Multi-Branch Command Center",
     desc: "One system replacing six spreadsheets and a dozen phone calls. Every branch, every technician, every job — visible in real time, from a single screen.",
     stat: "3.5× faster ticket resolution across 12 branches.",
-    video: "/videos/p1.mp4",
+    video: "/videos/portfolio-1.mp4",
     accent: "#F5A5A5",
     bg: "#7A1414"
   },
@@ -21,7 +21,7 @@ const projects = [
     subtitle: "Brand Website · Sound-First Web Experience",
     desc: "A site built to be felt before it's read. Rhythm in the scroll, texture in the type — a digital front door that sounds like the brand behind it.",
     stat: "Full brand launch shipped in 6 weeks.",
-    video: "/videos/p2.mp4",
+    video: "/videos/portfolio-2.mp4",
     accent: "#DDDDDD",
     bg: "#0B0B0B"
   },
@@ -32,7 +32,7 @@ const projects = [
     subtitle: "Digital Marketing · Heritage Craft, New Audience",
     desc: "Generations-old handloom craft, translated for a scroll-first audience — without losing the hand that made it. Campaigns built around the story, not just the sale.",
     stat: "2.8× online orders in one festive season.",
-    video: "/videos/p3.mp4",
+    video: "/videos/portfolio-3.mp4",
     accent: "#EBC69A",
     bg: "#4A2818"
   },
@@ -43,7 +43,7 @@ const projects = [
     subtitle: "Internal CRM · Client Intelligence",
     desc: "Built for a business where the relationship outlasts the receipt. Every preference, occasion, and follow-up tracked across a client's lifetime — not just their last visit.",
     stat: "Every client, every carat, one dashboard.",
-    video: "/videos/p4.mp4",
+    video: "/videos/portfolio-4.mp4",
     accent: "#B7CBEE",
     bg: "#0F2444"
   },
@@ -54,7 +54,7 @@ const projects = [
     subtitle: "Store Management Software · Servall Network",
     desc: "Inventory, billing, and stock alerts unified into one system — built for the counter, not the boardroom. Every store now runs like the best-performing one.",
     stat: "Reconciliation time cut from hours to minutes.",
-    video: "/videos/p5.mp4",
+    video: "/videos/portfolio-5.mp4",
     accent: "#B4E0C3",
     bg: "#153322"
   },
@@ -65,7 +65,7 @@ const projects = [
     subtitle: "Learning Management System · Workforce Training",
     desc: "Onboarding, rebuilt as a habit instead of a binder. Courses, progress, and certification tracked for every technician, at every branch, automatically.",
     stat: "Onboarding time cut in half network-wide.",
-    video: "/videos/p6.mp4",
+    video: "/videos/portfolio-6.mp4",
     accent: "#D6BCF0",
     bg: "#2A1A4A"
   }
@@ -80,7 +80,9 @@ export default function PortfolioSlider() {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    const handleScroll = () => {
+    let ticking = false;
+
+    const computeCurrent = () => {
       const el = containerRef.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
@@ -94,11 +96,23 @@ export default function PortfolioSlider() {
 
       const idx = Math.floor(progress * total);
       setCurrent(Math.min(idx, total - 1));
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(computeCurrent);
+        ticking = true;
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll, { passive: true });
+    computeCurrent();
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, []);
 
   const goTo = (idx) => {
@@ -114,7 +128,7 @@ export default function PortfolioSlider() {
     <div
       ref={containerRef}
       className="ps-scroll-container"
-      style={{ height: `${projects.length * 100}vh`, '--stage-bg': projects[current]?.bg || '#0A0A0A' }}
+      style={{ height: `${projects.length * 100}svh`, '--stage-bg': projects[current]?.bg || '#0A0A0A' }}
     >
       <div className="ps-stage">
         <div className="ps-frame">
@@ -148,7 +162,7 @@ export default function PortfolioSlider() {
         .ps-stage {
           position: sticky;
           top: 0;
-          height: 100vh;
+          height: 100svh;
           width: 100%;
           background: var(--stage-bg, #0A0A0A);
           transition: background 800ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -204,13 +218,11 @@ export default function PortfolioSlider() {
         }
         @media (max-width: 900px) {
           .ps-stage {
-            padding: 24px 16px;
-            height: 100vh;
-            /* modern viewport unit that accounts for mobile browser chrome */
+            padding: 92px 16px 24px;
             height: 100svh;
           }
           .ps-frame {
-            height: calc(100svh - 48px);
+            height: calc(100svh - 116px);
             max-width: 100%;
           }
           .ps-navdots { display: none; }
@@ -233,6 +245,7 @@ function Slide({ p, idx, current }) {
       style={{
         transform,
         zIndex: idx + 1,
+        boxShadow: isWaiting ? 'none' : '0 -20px 60px rgba(0, 0, 0, 0.35)',
         '--accent': p.accent,
         '--bg': p.bg || '#10201b',
       }}
@@ -274,7 +287,6 @@ function Slide({ p, idx, current }) {
           gap: 64px;
           align-items: center;
           background: var(--bg, #10201b);
-          box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.35);
           transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1);
           will-change: transform;
           padding: 0 4px;
@@ -291,7 +303,7 @@ function Slide({ p, idx, current }) {
           inset: 0;
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          object-fit: contain;
         }
         .ps-fallback {
           position: absolute;

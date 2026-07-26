@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { NAV_LINKS } from '@/components/site/Shared'
+import Logo3D from '@/components/scale/Logo3D'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -26,13 +27,7 @@ export default function Navbar() {
       <div className="max-w-page mx-auto px-6 md:px-8 flex items-center justify-between h-16">
         {/* Left: VayuCodes wordmark */}
         <Link href="/" aria-label="VayuCodes home" className="inline-flex items-center">
-          <img
-            src="/brand/logo-lockup.png"
-            alt="VayuCodes"
-            className="h-7 md:h-8 w-auto select-none"
-            style={{ filter: 'invert(1) brightness(2)' }}
-            draggable={false}
-          />
+          <Logo3D className="h-9 md:h-10 w-24 md:w-28" />
         </Link>
 
         {/* Center: primary nav */}

@@ -18,6 +18,7 @@ export default function ScrollToTop() {
     // 1) Kill Lenis smooth-scroll if it's mounted (it hijacks scrollTo otherwise)
     const lenis = window.__lenis
     if (lenis && typeof lenis.scrollTo === 'function') {
+      if (typeof lenis.__resetJumpGuard === 'function') lenis.__resetJumpGuard()
       lenis.scrollTo(0, { immediate: true, force: true })
     }
 

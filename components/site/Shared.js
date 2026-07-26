@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'
 import { useRef, useState, useEffect, useCallback, createContext, useContext } from 'react'
 import Link from 'next/link'
+import Logo3D from '@/components/scale/Logo3D'
 import { usePathname } from 'next/navigation'
 import {
   ArrowRight, Menu, X, MapPin, Mail, Phone, CheckCircle2, Circle, Sparkles, Volume2, VolumeX
@@ -138,10 +139,9 @@ export function Wordmark({ className = '', light = false }) {
   return (
     <Link href="/" className={`inline-flex items-center ${className}`} aria-label="VayuCodes home">
       <img
-        src="/brand/logo-lockup.png"
+        src={light ? '/brand/logo-3d-light.png' : '/brand/logo-3d-dark.png'}
         alt="VayuCodes"
-        className={`h-7 md:h-8 w-auto select-none ${light ? 'invert brightness-200' : ''}`}
-        style={{ filter: light ? 'invert(1) brightness(2)' : 'none' }}
+        className="h-8 md:h-10 w-auto -ml-1"
         draggable={false}
       />
     </Link>
@@ -167,15 +167,26 @@ export function Navbar({ darkHero = false }) {
   }, [open])
 
   return (
-    <motion.header
-      initial={{ y: -30, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
-      className="fixed top-0 inset-x-0 z-40 bg-transparent"
-      // Disable difference blend when the mobile menu is open — otherwise the
-      // menu text mixes with the underlying page and appears "overlapping".
-      style={{ mixBlendMode: open ? 'normal' : 'difference' }}
-    >
+    <>
+      {/* Soft readability gradient behind the navbar — purely visual, no
+          background color/blur, so it stays fully transparent-feeling. */}
+      <div
+        aria-hidden="true"
+        className="fixed top-0 inset-x-0 z-30 pointer-events-none"
+        style={{
+          height: '130px',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.18) 45%, rgba(0,0,0,0) 100%)'
+        }}
+      />
+      <motion.header
+        initial={{ y: -30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
+        className="fixed top-0 inset-x-0 z-40 bg-transparent"
+        // Disable difference blend when the mobile menu is open — otherwise the
+        // menu text mixes with the underlying page and appears "overlapping".
+        style={{ mixBlendMode: open ? 'normal' : 'difference' }}
+      >
       <div className={`max-w-[1500px] mx-auto flex justify-between items-center py-5 px-6 lg:px-10 ${open ? 'bg-[#0A0A0A]' : ''}`}>
         <Wordmark light={true} />
 
@@ -266,6 +277,7 @@ export function Navbar({ darkHero = false }) {
         )}
       </AnimatePresence>
     </motion.header>
+    </>
   )
 }
 
@@ -280,6 +292,24 @@ export function Footer() {
 
       <div className="relative max-w-[1500px] mx-auto px-6 lg:px-10 py-20">
         <div className="grid lg:grid-cols-12 gap-12">
+          <div className="lg:col-span-6 flex flex-col justify-between">
+            <div>
+              <Wordmark light className="mb-8" />
+              <h3
+                className="text-white/90 leading-[1.1] tracking-[-0.02em] max-w-lg"
+                style={{ fontFamily: 'var(--font-instrument)', fontWeight: 400, fontSize: 'clamp(26px,3vw,38px)' }}
+              >
+                Engineering the <span className="italic text-white/50">next chapter</span> of ambitious businesses.
+              </h3>
+            </div>
+            <Link
+              href="/contact"
+              className="mt-10 inline-flex items-center gap-2 w-fit text-[11px] tracking-[0.25em] uppercase text-white/70 hover:text-white transition-colors border-b border-white/20 hover:border-white/60 pb-1"
+            >
+              Start a project <ArrowRight size={13} />
+            </Link>
+          </div>
+
           <div className="lg:col-span-3 lg:col-start-9 space-y-8">
             <div>
               <div className="text-[10px] tracking-[0.3em] uppercase text-white/40 mb-3">Navigate</div>
@@ -779,10 +809,9 @@ export function VideoIntro({ onEnd, onColor }) {
         className="absolute top-8 left-8 z-10"
       >
         <img
-          src="/brand/logo-lockup.png"
+          src="/brand/logo-3d-light.png"
           alt="VayuCodes"
           className="h-14 md:h-16 w-auto select-none"
-          style={{ filter: 'invert(1) brightness(2)' }}
           draggable={false}
         />
       </motion.div>

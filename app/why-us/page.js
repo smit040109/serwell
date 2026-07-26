@@ -409,6 +409,23 @@ function MockDashboard() {
 }
 
 function MockMobileUI() {
+  const [istTime, setIstTime] = useState('')
+
+  useEffect(() => {
+    const updateTime = () => {
+      const formatted = new Date().toLocaleTimeString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      })
+      setIstTime(formatted)
+    }
+    updateTime()
+    const interval = setInterval(updateTime, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <div className="relative flex items-center justify-center py-4">
       {/* phone frame */}
@@ -436,7 +453,7 @@ function MockMobileUI() {
 
           {/* Top status bar */}
           <div className="absolute top-3 left-4 right-4 z-20 flex items-center justify-between text-[10px] text-white/85 font-medium">
-            <span className="tabular-nums">9:41</span>
+            <span className="tabular-nums">{istTime}</span>
             <span className="flex items-center gap-1">
               <span className="w-1 h-1 rounded-full bg-white/70" />
               <span className="w-1 h-1 rounded-full bg-white/70" />
@@ -446,32 +463,9 @@ function MockMobileUI() {
 
           {/* Live pulse label top-right */}
 
-          {/* Bottom caption card */}
-          <div className="absolute inset-x-4 bottom-4 z-20">
-            <div className="mt-3 flex items-center gap-2">
-              <div className="flex-1 h-1 rounded-full bg-white/15 overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  whileInView={{ width: '72%' }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
-                  className="h-full bg-white"
-                />
-              </div>
-              <span className="text-white/75 text-[10px] tabular-nums">72%</span>
-            </div>
-          </div>
+          {/* Bottom caption card removed — clean video only */}
         </div>
       </div>
-      {/* floating badges */}
-      <motion.div
-        animate={{ y: [-5, 5, -5] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-8 right-2 md:right-6 bg-white text-[10px] tracking-[0.15em] uppercase font-semibold px-3 py-1.5 rounded-full border border-black/10 text-[#0A0A0A]"
-        style={{ boxShadow: '0 12px 30px -12px rgba(0,0,0,0.2)' }}
-      >
-        Shipped on time
-      </motion.div>
     </div>
   )
 }

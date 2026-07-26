@@ -385,9 +385,9 @@ export default function ScrollShowcase({
   }, [products])
 
   useEffect(() => {
-    const id = setTimeout(() => ScrollTrigger.refresh(), 500)
+    // Cleanup only — refresh is now handled centrally by LenisProvider
+    // to avoid racing/overlapping ScrollTrigger.refresh() calls.
     return () => {
-      clearTimeout(id)
       ScrollTrigger.getAll().forEach(t => t.kill())
     }
   }, [])

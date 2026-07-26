@@ -160,7 +160,7 @@ function Hero() {
                     transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                     className="italic text-white/85 inline-block"
                   >
-                    {ROTATING_WORDS[idx]}.
+                    {rotatingWords[idx % rotatingWords.length]}.
                   </motion.span>
                 </AnimatePresence>
               )}

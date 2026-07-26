@@ -31,7 +31,9 @@ const PILLS = [
 
 export default function HeroFullBleed() {
   const rootRef = useRef(null)
+  const videoRef = useRef(null)
   const [accentIdx, setAccentIdx] = useState(0)
+  const [isMobileVideo, setIsMobileVideo] = useState(false)
 
   const mouseX = useMotionValue(0.5)
   const mouseY = useMotionValue(0.5)
@@ -60,6 +62,14 @@ export default function HeroFullBleed() {
     return () => clearInterval(id)
   }, [])
 
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    setIsMobileVideo(mq.matches)
+    const handler = (e) => setIsMobileVideo(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+
   return (
     <section
       ref={rootRef}
@@ -67,6 +77,8 @@ export default function HeroFullBleed() {
     >
       {/* --- Cinematic video background --- */}
       <video
+        key={isMobileVideo ? 'mobile' : 'desktop'}
+        ref={videoRef}
         autoPlay
         loop
         muted
@@ -77,9 +89,20 @@ export default function HeroFullBleed() {
           filter: 'grayscale(1) brightness(0.85) contrast(1.2)',
         }}
       >
-        <source src="/videos/p1.mp4" type="video/mp4" />
-        <source src="/videos/p2.mp4" type="video/mp4" />
+        {isMobileVideo ? (
+          <source src="/videos/hero-mobile-compressed.mp4" type="video/mp4" />
+        ) : (
+          <>
+            <source src="/videos/p1.mp4" type="video/mp4" />
+            <source src="/videos/p2.mp4" type="video/mp4" />
+          </>
+        )}
       </video>
+
+      {/* TEMP DEBUG BADGE */}
+      <div style={{position:'fixed', top:60, left:10, zIndex:9999, background:'red', color:'white', padding:'8px 12px', fontSize:14, fontFamily:'monospace'}}>
+        mobile:{String(isMobileVideo)} w:{typeof window !== 'undefined' ? window.innerWidth : '?'}
+      </div>
 
       {/* Dark vignette \u2014 lighter around the video, darker at edges + behind text */}
       <div

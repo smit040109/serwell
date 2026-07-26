@@ -102,3 +102,35 @@ node_modules/
 credentials.json
 *.key
 .credentials
+
+# Video processing artifacts (debug/backup files from ffmpeg experiments)
+public/videos/*-backup_*
+public/videos/*-original-backup.mp4
+public/videos/*-raw.mp4
+public/videos/loop_check_*.jpg
+public/videos/preview_*.jpg
+public/videos/mobile-hero-*.mp4
+public/videos/p1-mobile*.mp4
+public/videos/p2-mobile.mp4
+public/videos/hero-mobile.mp4
+
+# Empty/unused file
+/ssh
+
+# Debug/dev-only scripts (not part of the app)
+check_dbs.js
+check_media.js
+check_portfolio_videos.js
+render.js
+render.html
+
+# Orphaned/unused assets
+public/video/sunset.mp4
+uploads/
+
+# Old backup naming patterns not caught above
+*.bak_*
+*.backup2
+*.backup3
+*.backup4
+*.backup5
