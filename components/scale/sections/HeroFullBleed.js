@@ -254,14 +254,14 @@ export default function HeroFullBleed() {
             style={{ transform: 'translateZ(50px)' }}
           >
             <Link
-              href="/contact"
+              href="/contact" data-track="contact"
               className="group inline-flex items-center gap-3 bg-pure-white text-vc-ink eyebrow px-7 py-4 rounded-full font-medium hover:bg-pure-white/90 transition-colors"
             >
               Start a project
               <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
-              href="/our-work"
+              href="/our-work" data-track="portfolio"
               className="inline-flex items-center gap-3 bg-transparent text-pure-white eyebrow px-7 py-4 rounded-full border border-white/25 hover:bg-white/10 transition-colors backdrop-blur"
             >
               See our work

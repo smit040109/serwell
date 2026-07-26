@@ -100,7 +100,7 @@ function ContactHero() {
   const ph = d.formPlaceholders || {}
 
   return (
-    <section className="relative min-h-[100vh] bg-[#FAFAF7] pt-32 md:pt-40 pb-16 px-6 md:px-10 overflow-hidden">
+    <section data-section="contact" className="relative min-h-[100vh] bg-[#FAFAF7] pt-32 md:pt-40 pb-16 px-6 md:px-10 overflow-hidden">
       <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[120vw] h-[60vh] rounded-full"
            style={{ background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.05), transparent 60%)' }} />
 
@@ -248,7 +248,7 @@ function FAQ() {
 
   if (!faqs.length) return null
   return (
-    <section className="relative bg-[#FAFAF7] py-24 md:py-32 px-6 md:px-10 border-t border-black/8">
+    <section data-section="faq" className="relative bg-[#FAFAF7] py-24 md:py-32 px-6 md:px-10 border-t border-black/8">
       <div className="max-w-[1100px] mx-auto">
         <div className="max-w-3xl mb-12 md:mb-16">
           <div className="text-[10px] tracking-[0.3em] uppercase text-[#6B6B6B] mb-4">{d.faqEyebrow || '— Frequently asked'}</div>

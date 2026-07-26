@@ -55,7 +55,7 @@ export default function NewsGrid() {
               Things we&apos;ve <span className="italic text-vc-ink/60">built</span>.
             </h2>
           </div>
-          <Link href="/our-work" className="group inline-flex items-center gap-2 text-[14px] font-aeonik text-vc-ink">
+          <Link href="/our-work" data-track="portfolio" className="group inline-flex items-center gap-2 text-[14px] font-aeonik text-vc-ink">
             See all work
             <ArrowUpRight size={16} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
@@ -65,7 +65,7 @@ export default function NewsGrid() {
           {work.map(n => (
             <Link
               key={n.title}
-              href="/our-work"
+              href="/our-work" data-track="portfolio"
               className={`group relative rounded-card overflow-hidden bg-pure-white flex flex-col ${
                 n.size === 'lg' ? 'md:col-span-2 md:row-span-2 md:min-h-[520px]' : 'min-h-[320px]'
               }`}

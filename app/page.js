@@ -107,7 +107,7 @@ function Hero() {
   }, [introComplete])
 
   return (
-    <section ref={ref} className="relative min-h-[100vh] bg-black overflow-hidden flex items-center justify-center px-4">
+    <section ref={ref} data-section="hero" className="relative min-h-[100vh] bg-black overflow-hidden flex items-center justify-center px-4">
       {/* Cinematic video background — full bleed */}
       <motion.div
         style={{ y: videoY, scale: videoScale }}
@@ -304,7 +304,7 @@ function HowWeWork() {
     : STEPS
 
   return (
-    <section className="relative bg-[#FAFAF7] py-24 md:py-40 px-6 md:px-10">
+    <section data-section="services" className="relative bg-[#FAFAF7] py-24 md:py-40 px-6 md:px-10">
       <div className="max-w-[1400px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -426,7 +426,7 @@ function SelectedWork() {
   const fg = current.accentTextColor || '#FFFFFF'
 
   return (
-    <section className="relative overflow-hidden transition-colors duration-700 ease-out"
+    <section data-section="portfolio" className="relative overflow-hidden transition-colors duration-700 ease-out"
              style={{ background: bg, color: fg }}>
       <div className="max-w-[1400px] mx-auto px-6 md:px-10 py-24 md:py-40">
         <motion.div
@@ -443,7 +443,7 @@ function SelectedWork() {
               {pc?.selectedWorkHeadline1 || 'Products that'} <span className="italic opacity-70">{pc?.selectedWorkHeadlineItalic || 'actually shipped.'}</span>
             </h2>
           </div>
-          <Link href="/our-work" className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase font-semibold underline-offset-4 hover:underline">
+          <Link href="/our-work" data-track="portfolio" className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase font-semibold underline-offset-4 hover:underline">
             View all work <ArrowUpRight size={14} />
           </Link>
         </motion.div>
@@ -525,7 +525,7 @@ function ClosingStatement() {
   const closing = cms?.closingStatement || ''
   const match = closing ? closing.match(/^([^?]*\?)\s*(.*)$/) : null
   return (
-    <section className="relative bg-[#0A0A0A] text-white py-28 md:py-40 px-6 md:px-10 overflow-hidden">
+    <section data-section="contact-cta" className="relative bg-[#0A0A0A] text-white py-28 md:py-40 px-6 md:px-10 overflow-hidden">
       <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[80vw] h-[60vh] rounded-full"
            style={{ background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.06), transparent 60%)' }} />
       <div className="relative max-w-4xl mx-auto text-center">

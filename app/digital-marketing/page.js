@@ -50,10 +50,10 @@ function SlideshowHero() {
   }, [slides.length])
   const s = slides[i]
 
-  if (!s) return <section className="relative min-h-[100vh] bg-[#171717]" />
+  if (!s) return <section data-section="hero" className="relative min-h-[100vh] bg-[#171717]" />
 
   return (
-    <section className="relative min-h-[100vh] bg-[#171717] text-white overflow-hidden flex items-center px-4 md:px-10 pt-24 pb-16">
+    <section data-section="hero" className="relative min-h-[100vh] bg-[#171717] text-white overflow-hidden flex items-center px-4 md:px-10 pt-24 pb-16">
       <AnimatePresence mode="wait">
         <motion.div key={'bg-' + i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                     transition={{ duration: 1.4 }} className="absolute inset-0">
@@ -138,7 +138,7 @@ function SlideshowHero() {
 function MarketingPhilosophy() {
   const d = useCmsPageContent('digital-marketing') || {}
   return (
-    <section className="relative bg-[#FAFAF7] py-28 md:py-40 px-6 md:px-10">
+    <section data-section="philosophy" className="relative bg-[#FAFAF7] py-28 md:py-40 px-6 md:px-10">
       <div className="max-w-[1200px] mx-auto text-center">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.9 }}
@@ -164,11 +164,10 @@ function MarketingPhilosophy() {
   )
 }
 
-function ServicePillars() {
-  const d = useCmsPageContent('digital-marketing') || {}
+function ServicePillars() {  const d = useCmsPageContent('digital-marketing') || {}
   const pillars = Array.isArray(d.pillars) && d.pillars.length ? d.pillars : DEFAULT_PILLARS
   return (
-    <section className="relative bg-white py-24 md:py-32 px-6 md:px-10 border-t border-black/8">
+    <section data-section="services" className="relative bg-white py-24 md:py-32 px-6 md:px-10 border-t border-black/8">
       <div className="max-w-[1400px] mx-auto">
         <div className="max-w-3xl mb-16 md:mb-20">
           <div className="text-[10px] tracking-[0.35em] uppercase text-[#6B6B6B] mb-4">{d.pillarsEyebrow || '— How we operate'}</div>
@@ -224,7 +223,7 @@ function CaseHighlight() {
   const headline2 = d.caseHeadline2 || DEFAULT_CASE.headline2
   const bodyText = d.caseBody || DEFAULT_CASE.body
   return (
-    <section className="relative bg-[#FAFAF7] py-24 md:py-32 px-6 md:px-10">
+    <section data-section="case-study" className="relative bg-[#FAFAF7] py-24 md:py-32 px-6 md:px-10">
       <div className="max-w-[1400px] mx-auto">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.9 }}
@@ -236,7 +235,7 @@ function CaseHighlight() {
               {headline1} <span className="italic text-[#0A0A0A]/60">{headlineItalic}</span> {headline2}
             </h2>
             <p className="text-[15px] text-[#525252] leading-relaxed max-w-md mb-6">{bodyText}</p>
-            <Link href="/our-work" className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase font-semibold text-[#0A0A0A] hover:underline underline-offset-4">
+            <Link href="/our-work" data-track="portfolio" className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase font-semibold text-[#0A0A0A] hover:underline underline-offset-4">
               See more work <ArrowRight size={13} />
             </Link>
           </div>
@@ -279,7 +278,7 @@ function ReelGrid() {
     tag: cmsReels[i]?.tag || r.tag,
   }))
   return (
-    <section className="relative bg-[#0A0A0A] py-24 md:py-32 px-6 md:px-10">
+    <section data-section="portfolio" className="relative bg-[#0A0A0A] py-24 md:py-32 px-6 md:px-10">
       <div className="max-w-[1500px] mx-auto">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-14">
           <div>
@@ -335,7 +334,7 @@ function ReelCell({ reel, index }) {
 function FinalCTA() {
   const d = useCmsPageContent('digital-marketing') || {}
   return (
-    <section className="relative bg-[#0A0A0A] py-28 md:py-40 px-6 md:px-10 border-t border-white/8 overflow-hidden">
+    <section data-section="contact-cta" className="relative bg-[#0A0A0A] py-28 md:py-40 px-6 md:px-10 border-t border-white/8 overflow-hidden">
       <div className="pointer-events-none absolute -top-40 -right-40 w-[60vw] h-[60vw] rounded-full"
            style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.06), transparent 60%)', filter: 'blur(40px)' }} />
       <div className="relative max-w-4xl mx-auto text-center">
@@ -345,6 +344,7 @@ function FinalCTA() {
           {d.ctaHeadline1 || "Let's make"} <span className="italic text-white/60">{d.ctaHeadlineItalic || 'something worth watching.'}</span>
         </h2>
         <Link href="/contact"
+              data-track="contact"
               className="group inline-flex items-center gap-3 mt-10 border border-white text-white text-xs tracking-[0.2em] uppercase font-semibold px-8 py-4 rounded-full hover:bg-white hover:text-black transition-all">
           {d.ctaButton || 'Book a discovery call'}
           <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />

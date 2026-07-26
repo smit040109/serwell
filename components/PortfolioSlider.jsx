@@ -127,6 +127,7 @@ export default function PortfolioSlider() {
   return (
     <div
       ref={containerRef}
+      data-section="portfolio"
       className="ps-scroll-container"
       style={{ height: `${projects.length * 100}svh`, '--stage-bg': projects[current]?.bg || '#0A0A0A' }}
     >

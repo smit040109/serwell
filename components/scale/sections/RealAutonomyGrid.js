@@ -123,7 +123,7 @@ export default function RealAutonomyGrid() {
           </p>
 
           <div className="mt-10">
-            <Button variant="filled-dark" href="/contact">Start a project</Button>
+            <Button variant="filled-dark" href="/contact" data-track="contact">Start a project</Button>
           </div>
         </div>
 

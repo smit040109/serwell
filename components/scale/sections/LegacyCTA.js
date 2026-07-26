@@ -63,14 +63,14 @@ export default function LegacyCTA() {
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
-                href="/contact"
+                href="/contact" data-track="contact"
                 className="group inline-flex items-center gap-3 bg-pure-white text-vc-ink font-medium eyebrow px-7 py-4 rounded-btn hover:bg-white/90 transition-colors"
               >
                 Start a project
                 <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
-                href="/contact"
+                href="/contact" data-track="contact"
                 className="inline-flex items-center gap-3 bg-transparent text-pure-white border border-white/25 eyebrow px-7 py-4 rounded-btn hover:bg-white/10 transition-colors"
               >
                 Book a call

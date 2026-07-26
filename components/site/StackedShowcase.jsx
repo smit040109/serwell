@@ -265,7 +265,7 @@ export default function StackedShowcase({ projects = PROJECTS }) {
 
                   {/* CTA */}
                   <Link
-                    href="/contact"
+                    href="/contact" data-track="contact"
                     className="group inline-flex items-center gap-2.5 mt-2 pt-5 border-t border-white/20 text-white/70 hover:text-white transition-colors w-fit"
                     style={{ fontFamily: 'var(--font-syne)' }}
                   >

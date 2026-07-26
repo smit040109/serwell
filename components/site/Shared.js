@@ -213,7 +213,7 @@ export function Navbar({ darkHero = false }) {
 
         <div className="flex items-center gap-4">
           <Link
-            href="/contact"
+            href="/contact" data-track="contact"
             className="hidden sm:inline-flex text-[11px] font-semibold tracking-[0.18em] uppercase px-5 py-2.5 rounded-full transition-all border bg-white text-[#111111] border-white hover:bg-[#E5E5E5]"
           >
             Start Project
@@ -261,7 +261,7 @@ export function Navbar({ darkHero = false }) {
 
               <div className="pt-8 mt-4">
                 <Link
-                  href="/contact"
+                  href="/contact" data-track="contact"
                   onClick={() => setOpen(false)}
                   className="w-full inline-flex items-center justify-center gap-2 bg-white text-[#0A0A0A] text-xs font-semibold tracking-[0.2em] uppercase px-6 py-4 rounded-full active:scale-[0.98] transition-all"
                 >
@@ -303,7 +303,7 @@ export function Footer() {
               </h3>
             </div>
             <Link
-              href="/contact"
+              href="/contact" data-track="contact"
               className="mt-10 inline-flex items-center gap-2 w-fit text-[11px] tracking-[0.25em] uppercase text-white/70 hover:text-white transition-colors border-b border-white/20 hover:border-white/60 pb-1"
             >
               Start a project <ArrowRight size={13} />
@@ -1167,7 +1167,7 @@ export function SectionHeading({ tag, title, italicWord, subtitle, align = 'left
 ============================================================ */
 export function CTABlock({ kicker = 'Ready when you are', title = 'Let&apos;s talk numbers, not jargon.', italicWord = 'numbers,' }) {
   return (
-    <section className="relative bg-[#F7F6F3] py-28 px-6 lg:px-10 overflow-hidden">
+    <section data-section="contact-cta" className="relative bg-[#F7F6F3] py-28 px-6 lg:px-10 overflow-hidden">
       <div className="max-w-[1500px] mx-auto">
         <Tilt3DCard intensity={6} className="relative bg-[#111111] rounded-[32px] p-12 lg:p-20 overflow-hidden">
           <div className="absolute -top-32 -right-32 w-[60vw] h-[60vw] rounded-full bg-white/[0.06] blur-3xl pointer-events-none" />
@@ -1190,7 +1190,7 @@ export function CTABlock({ kicker = 'Ready when you are', title = 'Let&apos;s ta
             </div>
             <div className="lg:col-span-4 flex lg:justify-end" style={{ transform: 'translateZ(60px)' }}>
               <Link
-                href="/contact"
+                href="/contact" data-track="contact"
                 className="group inline-flex items-center gap-3 bg-white text-[#111111] font-semibold text-xs tracking-[0.2em] uppercase px-8 py-4 rounded-full hover:bg-[#E5E5E5] transition-all"
               >
                 Book a call

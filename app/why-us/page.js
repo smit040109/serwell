@@ -102,7 +102,7 @@ function Hero() {
   const left = founders[0] || DEFAULT_FOUNDERS[0]
   const right = founders[1] || DEFAULT_FOUNDERS[1]
   return (
-    <section className="relative overflow-hidden pt-32 md:pt-40 pb-24" style={{ background: C.bg }}>
+    <section data-section="hero" className="relative overflow-hidden pt-32 md:pt-40 pb-24" style={{ background: C.bg }}>
       <div className="pointer-events-none absolute inset-0 -z-0">
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[90vw] h-[70vw] rounded-full"
              style={{ background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.06), transparent 60%)' }} />
@@ -165,7 +165,7 @@ function ImpactStats() {
     { value: 100, suffix: '%', label: 'Founder-Led', sub: 'Every project touched by both of us.' },
   ]
   return (
-    <section className="relative py-28 md:py-36" style={{ background: C.bg }}>
+    <section data-section="stats" className="relative py-28 md:py-36" style={{ background: C.bg }}>
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
@@ -208,7 +208,7 @@ function VisionMission() {
   const visionBullets = visionBulletsRaw.length ? visionBulletsRaw : DEFAULT_VISION_BULLETS
   const missionBullets = missionBulletsRaw.length ? missionBulletsRaw : DEFAULT_MISSION_BULLETS
   return (
-    <section className="relative py-28 md:py-36" style={{ background: C.bg2 }}>
+    <section data-section="mission" className="relative py-28 md:py-36" style={{ background: C.bg2 }}>
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.9 }}
@@ -345,7 +345,7 @@ function CoreValues() {
   const d = useCmsPageContent('why-us') || {}
   const values = Array.isArray(d.values) && d.values.length ? d.values : DEFAULT_VALUES
   return (
-    <section className="relative py-28 md:py-36" style={{ background: C.bg }}>
+    <section data-section="values" className="relative py-28 md:py-36" style={{ background: C.bg }}>
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.9 }}
@@ -385,7 +385,7 @@ function CoFounders() {
   const d = useCmsPageContent('why-us') || {}
   const founders = Array.isArray(d.founders) && d.founders.length ? d.founders : DEFAULT_FOUNDERS
   return (
-    <section className="relative py-28 md:py-36 overflow-hidden" style={{ background: C.bg2 }}>
+    <section data-section="founders" className="relative py-28 md:py-36 overflow-hidden" style={{ background: C.bg2 }}>
       <div className="pointer-events-none absolute -bottom-20 left-1/2 -translate-x-1/2 w-[80vw] h-[40vw] rounded-full"
            style={{ background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.08), transparent 60%)' }} />
 
@@ -446,7 +446,7 @@ function NewsletterCTA() {
     setSubmitted(true); setTimeout(() => setSubmitted(false), 3500); setEmail('')
   }
   return (
-    <section className="relative py-24 md:py-32 overflow-hidden" style={{ background: C.bg }}>
+    <section data-section="contact-cta" className="relative py-24 md:py-32 overflow-hidden" style={{ background: C.bg }}>
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
         <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: '-80px' }}
@@ -472,7 +472,7 @@ function NewsletterCTA() {
             </form>
 
             <div className="mt-8 text-[11px] tracking-[0.2em] uppercase text-[#A3A3A3]">
-              Or — <Link href="/contact" className="text-[#0A0A0A] underline underline-offset-4 hover:no-underline">book a 20-min discovery call</Link>
+              Or — <Link href="/contact" data-track="contact" className="text-[#0A0A0A] underline underline-offset-4 hover:no-underline">book a 20-min discovery call</Link>
             </div>
           </div>
         </motion.div>

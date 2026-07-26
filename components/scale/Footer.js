@@ -82,7 +82,7 @@ export default function Footer() {
           </h3>
 
           <Link
-            href="/contact"
+            href="/contact" data-track="contact"
             className="group inline-flex items-center gap-3 self-start md:self-end bg-pure-white text-vc-ink font-medium eyebrow px-7 py-4 rounded-btn hover:bg-vc-cream transition-colors"
           >
             Start a project

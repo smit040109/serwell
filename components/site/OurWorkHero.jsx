@@ -31,7 +31,7 @@ export default function OurWorkHero() {
   }, [rotating.length])
 
   return (
-    <section ref={ref} className="relative min-h-[100vh] bg-[#0A0A0A] text-white overflow-hidden flex items-center justify-center">
+    <section ref={ref} data-section="hero" className="relative min-h-[100vh] bg-[#0A0A0A] text-white overflow-hidden flex items-center justify-center">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[120vw] h-[80vh] rounded-full"
              style={{ background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.06), transparent 60%)' }} />
