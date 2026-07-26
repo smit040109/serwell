@@ -11,7 +11,7 @@ import time
 from PIL import Image
 
 # Use production URL from .env
-BASE_URL = "https://vayucms-phase4.preview.emergentagent.com/api"
+BASE_URL = "https://vayu-dashboard.preview.emergentagent.com/api"
 ADMIN_EMAIL = "admin@vayucodes.com"
 ADMIN_PASSWORD = "VayuAdmin@2026"
 
@@ -964,7 +964,7 @@ def test_phase4_media_endpoints():
     try:
         media_url = test_ids.get("phase4_media_url")
         if media_url:
-            full_url = f"https://vayucms-phase4.preview.emergentagent.com{media_url}"
+            full_url = f"https://vayu-dashboard.preview.emergentagent.com{media_url}"
             resp = requests.get(full_url, timeout=10)
             passed = resp.status_code == 200
             print_test("Phase 4 - Verify uploaded file accessible", passed, f"Status: {resp.status_code}, URL: {media_url}")
@@ -1032,7 +1032,7 @@ def test_phase4_media_endpoints():
     try:
         media_url = test_ids.get("phase4_media_url")
         if media_url:
-            full_url = f"https://vayucms-phase4.preview.emergentagent.com{media_url}"
+            full_url = f"https://vayu-dashboard.preview.emergentagent.com{media_url}"
             resp = requests.get(full_url, timeout=10)
             passed = resp.status_code == 404
             print_test("Phase 4 - Verify physical file removed → 404", passed, f"Status: {resp.status_code}")

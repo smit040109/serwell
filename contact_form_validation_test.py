@@ -7,7 +7,7 @@ Tests all 10 validation scenarios for /api/contact endpoint as per review reques
 import requests
 import json
 
-BASE_URL = "https://06fbfc4e-347b-41d8-b0a5-7ca0f9c8303f.preview.emergentagent.com/api"
+BASE_URL = "https://vayu-dashboard.preview.emergentagent.com/api"
 
 def print_test(name, passed, details=""):
     status = "✅ PASS" if passed else "❌ FAIL"
