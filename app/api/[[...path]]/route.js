@@ -27,7 +27,7 @@ const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads')
 --------------------------------------------------------------- */
 const RL = {
   global:  { limit: 1000, windowMs: 15 * 60 * 1000 },
-  login:   { limit: 5,   windowMs: 15 * 60 * 1000 },
+  login:   { limit: 10,  windowMs: 15 * 60 * 1000 },
   contact: { limit: 20,  windowMs: 15 * 60 * 1000 },
   track:   { limit: 600, windowMs: 15 * 60 * 1000 },  // 40/min avg per IP — page views + events
 }
