@@ -16,6 +16,25 @@ const C = {
 
 const VALUE_ICONS = [Zap, Shield, Target, Users2, Sparkles, InfinityIcon]
 
+const DEFAULT_FOUNDERS = [
+  {
+    photo: '/team/smit.webp',
+    name: 'Uday Tailor',
+    title: 'Co-Founder',
+    caption: 'Technical Operations & Backend Systems',
+    bio: 'Uday manages the technical foundation of every project at VayuCodes. He is responsible for backend architecture, project structuring, system planning, and operational workflows. Alongside technical execution, he handles project documentation, gathers client requirements, and oversees accounting and internal operations to keep every project organized and efficient.',
+    tag: 'Building',
+  },
+  {
+    photo: '/team/uday.webp',
+    name: 'Smit Patel',
+    title: 'Co-Founder',
+    caption: 'Client Strategy & Product Development',
+    bio: "Smit leads client relationships, project strategy, and product execution at VayuCodes. From understanding business requirements and presenting tailored solutions to managing communication throughout the project lifecycle, he ensures every product is aligned with the client's vision. He also oversees planning, UI/UX direction, and delivery to create impactful digital experiences.",
+    tag: 'Shipping',
+  },
+]
+
 function CountUp({ to = 100, suffix = '+', duration = 1.8 }) {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
@@ -58,9 +77,9 @@ function FloatingProfileCard({ src, name, role, tag, rotate = -6, delay = 0, flo
 
 function Hero() {
   const d = useCmsPageContent('why-us') || {}
-  const founders = Array.isArray(d.founders) ? d.founders : []
-  const left = founders[0] || { photo: '/team/smit.webp', name: 'Uday Tailor', title: 'Co-Founder', tag: 'Building' }
-  const right = founders[1] || { photo: '/team/uday.webp', name: 'Smit Patel', title: 'Co-Founder', tag: 'Shipping' }
+  const founders = Array.isArray(d.founders) && d.founders.length ? d.founders : DEFAULT_FOUNDERS
+  const left = founders[0] || DEFAULT_FOUNDERS[0]
+  const right = founders[1] || DEFAULT_FOUNDERS[1]
   return (
     <section className="relative overflow-hidden pt-32 md:pt-40 pb-24" style={{ background: C.bg }}>
       <div className="pointer-events-none absolute inset-0 -z-0">
@@ -341,7 +360,7 @@ function CoreValues() {
 
 function CoFounders() {
   const d = useCmsPageContent('why-us') || {}
-  const founders = Array.isArray(d.founders) && d.founders.length ? d.founders : []
+  const founders = Array.isArray(d.founders) && d.founders.length ? d.founders : DEFAULT_FOUNDERS
   return (
     <section className="relative py-28 md:py-36 overflow-hidden" style={{ background: C.bg2 }}>
       <div className="pointer-events-none absolute -bottom-20 left-1/2 -translate-x-1/2 w-[80vw] h-[40vw] rounded-full"
