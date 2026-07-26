@@ -73,8 +73,8 @@ export default function RootLayout({ children }) {
         <link rel="preload" as="image" href="/brand/logo-full.png" fetchPriority="high" />
         <link rel="preload" as="fetch" href="/brand/logo-3d.glb" crossOrigin="anonymous" fetchPriority="high" />
         <link rel="preload" as="image" href="/brand/logo-lockup.png" fetchPriority="high" />
-        <link rel="preload" as="image" href="/video/intro-poster.jpg?v=4" fetchPriority="high" />
-        <link rel="preload" as="video" href="/video/intro.mp4?v=4" type="video/mp4" fetchPriority="high" />
+        <link rel="preload" as="image" href="/video/intro-poster.jpg?v=5" fetchPriority="high" />
+        <link rel="preload" as="video" href="/video/intro.mp4?v=5" type="video/mp4" fetchPriority="high" />
         <AnalyticsHead />
       </head>
       <body className="antialiased bg-[#FAFAF7] text-[#0A0A0A]" style={{ fontFamily: 'var(--font-geist-sans), Inter, system-ui, sans-serif' }}>

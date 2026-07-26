@@ -522,8 +522,8 @@ export function Preloader({ progress }) {
 /* ============================================================
    CINEMATIC VIDEO INTRO \u2014 iPhone 15 Pro Max footage + typewriter + sound
 ============================================================ */
-export const CINEMATIC_VIDEO_URL = '/video/intro.mp4?v=4'
-export const CINEMATIC_VIDEO_POSTER = '/video/intro-poster.jpg?v=4'
+export const CINEMATIC_VIDEO_URL = '/video/intro.mp4?v=5'
+export const CINEMATIC_VIDEO_POSTER = '/video/intro-poster.jpg?v=5'
 
 /* ------------------------------------------------------------
    CMS site settings — module-level cache so every consumer
@@ -771,6 +771,7 @@ export function VideoIntro({ onEnd, onColor }) {
   const sampleColor = useCallback(() => {
     const v = videoRef.current
     if (!v || sampledRef.current) return
+    if (v.readyState < 2) return
     try {
       const cw = 32, ch = 18
       const canvas = document.createElement('canvas')
@@ -812,12 +813,10 @@ export function VideoIntro({ onEnd, onColor }) {
       }
     }
     tryPlay()
-    v.addEventListener('canplay', tryPlay)
-    v.addEventListener('loadeddata', tryPlay)
+    v.addEventListener('canplay', tryPlay, { once: true })
     return () => {
       cancelled = true
       v.removeEventListener('canplay', tryPlay)
-      v.removeEventListener('loadeddata', tryPlay)
     }
   }, [])
 
@@ -839,10 +838,11 @@ export function VideoIntro({ onEnd, onColor }) {
     return () => clearInterval(id)
   }, [])
 
-  // Sample color periodically while playing
+  // Sample color once around 1.5s in — repeated drawImage/getImageData during
+  // playback caused paint stalls that read as "glitches" in the video.
   useEffect(() => {
-    const id = setInterval(sampleColor, 1500)
-    return () => clearInterval(id)
+    const id = setTimeout(sampleColor, 1500)
+    return () => clearTimeout(id)
   }, [sampleColor])
 
   return (
@@ -988,7 +988,7 @@ export function LandingFlow({ children }) {
       const saved = sessionStorage.getItem('vc_video_color')
       if (saved) setVideoColor(JSON.parse(saved))
     } catch {}
-    const seen = sessionStorage.getItem('vc_intro_seen_v4')
+    const seen = sessionStorage.getItem('vc_intro_seen_v5')
     if (!seen) setStage('loading')
   }, [])
 
@@ -1010,7 +1010,7 @@ export function LandingFlow({ children }) {
     if (stage !== 'home') document.body.style.overflow = 'hidden'
     else {
       document.body.style.overflow = ''
-      if (mounted) sessionStorage.setItem('vc_intro_seen_v4', '1')
+      if (mounted) sessionStorage.setItem('vc_intro_seen_v5', '1')
     }
     return () => { document.body.style.overflow = '' }
   }, [stage, mounted])
