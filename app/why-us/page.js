@@ -35,6 +35,27 @@ const DEFAULT_FOUNDERS = [
   },
 ]
 
+const DEFAULT_VALUES = [
+  { title: 'Speed as a discipline', body: 'Two-week sprints, weekly demos, and never a "we\u2019ll get to it next month." Momentum is the product.' },
+  { title: 'Radical transparency', body: 'You get the invoice, the timeline, the Slack channel, and the honest answer — even when it\u2019s inconvenient.' },
+  { title: 'Precision over polish', body: 'We ship what moves the business. Beautiful, yes. But shipped and measurable — always first.' },
+  { title: 'Founder empathy', body: 'We\u2019ve been on your side of the table. Every decision respects your P&L, your calendar, and your team.' },
+  { title: 'Craft you can feel', body: 'Every button, every query, every workflow — engineered like it\u2019s the only thing we\u2019ll ever be judged on.' },
+  { title: 'Compound trust', body: 'Most of our clients come back for round two. That\u2019s the only metric that matters to us long-term.' },
+]
+
+const DEFAULT_VISION_BULLETS = [
+  'Founder-led delivery on every build',
+  'AI + automation baked into the base layer',
+  'Handover-ready. No lock-in. No black boxes.',
+]
+
+const DEFAULT_MISSION_BULLETS = [
+  'One point of contact — always a founder',
+  'Weekly demos, weekly progress, zero mystery',
+  'Real numbers. Real deadlines. Real launches.',
+]
+
 function CountUp({ to = 100, suffix = '+', duration = 1.8 }) {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
@@ -182,8 +203,10 @@ function ImpactStats() {
 
 function VisionMission() {
   const d = useCmsPageContent('why-us') || {}
-  const visionBullets = Array.isArray(d.visionBullets) ? d.visionBullets.filter(Boolean) : []
-  const missionBullets = Array.isArray(d.missionBullets) ? d.missionBullets.filter(Boolean) : []
+  const visionBulletsRaw = Array.isArray(d.visionBullets) ? d.visionBullets.filter(Boolean) : []
+  const missionBulletsRaw = Array.isArray(d.missionBullets) ? d.missionBullets.filter(Boolean) : []
+  const visionBullets = visionBulletsRaw.length ? visionBulletsRaw : DEFAULT_VISION_BULLETS
+  const missionBullets = missionBulletsRaw.length ? missionBulletsRaw : DEFAULT_MISSION_BULLETS
   return (
     <section className="relative py-28 md:py-36" style={{ background: C.bg2 }}>
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
@@ -320,7 +343,7 @@ function MockMobileUI({ videoUrl }) {
 
 function CoreValues() {
   const d = useCmsPageContent('why-us') || {}
-  const values = Array.isArray(d.values) && d.values.length ? d.values : []
+  const values = Array.isArray(d.values) && d.values.length ? d.values : DEFAULT_VALUES
   return (
     <section className="relative py-28 md:py-36" style={{ background: C.bg }}>
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
