@@ -232,7 +232,21 @@ function CaseHighlight() {
 
 function ReelGrid() {
   const d = useCmsPageContent('digital-marketing') || {}
-  const reels = Array.isArray(d.reels) && d.reels.length ? d.reels : []
+  const defaultReels = [
+    { src: '/videos/r1.mp4', title: 'Festive Hook', tag: 'Reel' },
+    { src: '/videos/r2.mp4', title: 'Product Drop', tag: 'Reel' },
+    { src: '/videos/r3.mp4', title: 'Behind The Loom', tag: 'BTS' },
+    { src: '/videos/r4.mp4', title: 'Founder Story', tag: 'Doc' },
+    { src: '/videos/r5.mp4', title: 'Sanskar Diwali', tag: 'Ad' },
+    { src: '/videos/r6.mp4', title: 'Bandhan Launch', tag: 'Promo' },
+  ]
+  const cmsReels = Array.isArray(d.reels) && d.reels.length ? d.reels : []
+  // Always use our 6 split video parts as sources, but preserve CMS-configured title/tag when available
+  const reels = defaultReels.map((r, i) => ({
+    ...r,
+    title: cmsReels[i]?.title || r.title,
+    tag: cmsReels[i]?.tag || r.tag,
+  }))
   return (
     <section className="relative bg-[#0A0A0A] py-24 md:py-32 px-6 md:px-10">
       <div className="max-w-[1500px] mx-auto">

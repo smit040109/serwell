@@ -200,7 +200,7 @@ backend:
         comment: "Added /api/admin/media: POST (multipart upload, same handler as /api/admin/upload), GET (list all media, requires Bearer), DELETE /api/admin/media/{id} (deletes doc + unlinks file from public/uploads). Media delete via /api/cms/media/{id} also unlinks physical file now."
       - working: true
         agent: "testing"
-        comment: "✅ VERIFIED: Phase 4 /api/admin/media endpoints fully functional. POST /api/admin/media without auth → 401 ✓. POST with auth (multipart file upload) → 200 with {media} object containing url='/uploads/1784895954923-56473e7f.png', type='image' ✓. GET /api/admin/media without auth → 401 ✓. GET with auth → 200 with {data: [...]} array containing uploaded item ✓. Uploaded file accessible at https://vayu-dashboard.preview.emergentagent.com/uploads/1784895954923-56473e7f.png → 200 ✓. DELETE /api/admin/media/{id} without auth → 401 ✓. DELETE with auth → 200 {ok: true} ✓. Verified doc removed from GET list ✓. Verified physical file removed (GET file URL → 404) ✓. Legacy POST /api/admin/upload still works → 200 ✓. DELETE via /api/cms/media/{id} also unlinks physical file ✓. All Phase 4 media endpoints working correctly with proper auth guards and file cleanup."
+        comment: "✅ VERIFIED: Phase 4 /api/admin/media endpoints fully functional. POST /api/admin/media without auth → 401 ✓. POST with auth (multipart file upload) → 200 with {media} object containing url='/uploads/1784895954923-56473e7f.png', type='image' ✓. GET /api/admin/media without auth → 401 ✓. GET with auth → 200 with {data: [...]} array containing uploaded item ✓. Uploaded file accessible at https://reels-player-2.preview.emergentagent.com/uploads/1784895954923-56473e7f.png → 200 ✓. DELETE /api/admin/media/{id} without auth → 401 ✓. DELETE with auth → 200 {ok: true} ✓. Verified doc removed from GET list ✓. Verified physical file removed (GET file URL → 404) ✓. Legacy POST /api/admin/upload still works → 200 ✓. DELETE via /api/cms/media/{id} also unlinks physical file ✓. All Phase 4 media endpoints working correctly with proper auth guards and file cleanup."
 
 
   - task: "MongoDB Atlas connection via mongoose"
@@ -309,7 +309,7 @@ backend:
         comment: "BUG FIX APPLIED (Jul 26 continuation). User requested: 'Mobile view mein hero pe naya video (Video Project 28.mp4) show ho, web view same rehni'. FIX: (1) Added heroVideoUrlMobile field to /admin/home editor, (2) Updated Home Hero component to detect matchMedia('(max-width: 767px)') and swap video src accordingly, (3) Downloaded user's Video Project 28.mp4 to /public/videos/hero-mobile.mp4 (51MB), (4) Set home page_content.data.heroVideoUrlMobile='/videos/hero-mobile.mp4' via direct DB update. PageContentSchema with key='home' stores flexible data object including heroVideoUrlMobile, heroVideoUrl, heroVideoEnabled fields."
       - working: true
         agent: "testing"
-        comment: "✅ VERIFIED: BUG FIX #3 working perfectly (2/2 tests passed). RESULTS: (1) GET /api/cms/page_content/home → 200 with correct video fields: heroVideoUrlMobile='/videos/hero-mobile.mp4', heroVideoUrl='/videos/hero-cinematic.mp4', heroVideoEnabled=true. All 3 fields present and correctly configured. (2) HEAD/GET https://734264ff-a107-4451-8b82-e5374e83c18f.preview.emergentagent.com/videos/hero-mobile.mp4 → 200 OK, Content-Type: video/mp4, Size: 50.7MB (within expected 40-60MB range). Mobile video file exists and is accessible. Backend configuration complete and working."
+        comment: "✅ VERIFIED: BUG FIX #3 working perfectly (2/2 tests passed). RESULTS: (1) GET /api/cms/page_content/home → 200 with correct video fields: heroVideoUrlMobile='/videos/hero-mobile.mp4', heroVideoUrl='/videos/hero-cinematic.mp4', heroVideoEnabled=true. All 3 fields present and correctly configured. (2) HEAD/GET https://reels-player-2.preview.emergentagent.com/videos/hero-mobile.mp4 → 200 OK, Content-Type: video/mp4, Size: 50.7MB (within expected 40-60MB range). Mobile video file exists and is accessible. Backend configuration complete and working."
 
   - task: "BUG FIX #4: Portfolio slider (frontend CSS fix)"
     implemented: true
@@ -324,7 +324,7 @@ backend:
         comment: "BUG FIX APPLIED (Jul 26 continuation). User reported: 'Mobile view mein scroll par white space aa raha hai — remove karo' (white space appearing on scroll in mobile view). FIX: Fixed white-space issue in PortfolioSlider (/our-work page) by adding background: var(--stage-bg); transition: background 800ms cubic-bezier(...) to .ps-scroll-container so the parent scroll container matches the current slide's bg color — no white flash between slides on mobile. This is a frontend CSS fix only, no backend changes required."
       - working: true
         agent: "testing"
-        comment: "✅ VERIFIED: BUG FIX #4 working (1/1 test passed). Frontend CSS fix confirmed. RESULT: GET https://734264ff-a107-4451-8b82-e5374e83c18f.preview.emergentagent.com/our-work → 200 OK. Page renders successfully. No backend testing required for this CSS-only fix."
+        comment: "✅ VERIFIED: BUG FIX #4 working (1/1 test passed). Frontend CSS fix confirmed. RESULT: GET https://reels-player-2.preview.emergentagent.com/our-work → 200 OK. Page renders successfully. No backend testing required for this CSS-only fix."
 
   - task: "Seed script — idempotent initial content"
     implemented: true

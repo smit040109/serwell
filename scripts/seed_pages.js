@@ -79,7 +79,7 @@ async function run() {
           'Weekly demos, weekly progress, zero mystery',
           'Real numbers. Real deadlines. Real launches.',
         ],
-        missionVideoUrl: '/videos/p4.mp4',
+        missionVideoUrl: '/videos/mission-full.mp4',
         valuesEyebrow: '— Core Values',
         valuesHeadline1: 'The',
         valuesHeadlineItalic: 'six standards',

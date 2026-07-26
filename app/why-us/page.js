@@ -208,7 +208,7 @@ function VisionMission() {
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true, margin: '-80px' }}
                       transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }} className="lg:col-span-7 order-2 lg:order-1">
-            <MockMobileUI videoUrl={d.missionVideoUrl || '/videos/p4.mp4'} />
+            <MockMobileUI videoUrl={'/videos/mission-full.mp4'} />
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }}

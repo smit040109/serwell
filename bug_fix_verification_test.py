@@ -9,7 +9,7 @@ import json
 import time
 
 # Use production URL from review request
-BASE_URL = "https://734264ff-a107-4451-8b82-e5374e83c18f.preview.emergentagent.com/api"
+BASE_URL = "https://reels-player-2.preview.emergentagent.com/api"
 ADMIN_EMAIL = "admin@vayucodes.com"
 ADMIN_PASSWORD = "VayuCodes@2026"
 
@@ -379,7 +379,7 @@ def test_bugfix3_home_page_content_get():
 def test_bugfix3_mobile_video_file_exists():
     """BUG FIX #3.2: HEAD/GET /videos/hero-mobile.mp4 → 200 OK, Content-Type: video/mp4, size ~51MB"""
     try:
-        video_url = "https://734264ff-a107-4451-8b82-e5374e83c18f.preview.emergentagent.com/videos/hero-mobile.mp4"
+        video_url = "https://reels-player-2.preview.emergentagent.com/videos/hero-mobile.mp4"
         resp = requests.head(video_url, timeout=10, allow_redirects=True)
         
         # If HEAD doesn't work, try GET with stream
@@ -409,7 +409,7 @@ def test_bugfix3_mobile_video_file_exists():
 def test_bugfix4_our_work_page_renders():
     """BUG FIX #4: GET /our-work page → 200 OK (frontend CSS fix, no backend test needed)"""
     try:
-        page_url = "https://734264ff-a107-4451-8b82-e5374e83c18f.preview.emergentagent.com/our-work"
+        page_url = "https://reels-player-2.preview.emergentagent.com/our-work"
         resp = requests.get(page_url, timeout=10)
         
         passed = resp.status_code == 200
