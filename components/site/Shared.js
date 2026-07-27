@@ -369,7 +369,7 @@ export function Footer() {
               <div className="text-[10px] tracking-[0.3em] uppercase text-white/40 mb-3">Studio</div>
               <div className="text-sm text-white/80 space-y-1">
                 <div>India · Worldwide</div>
-                <a href="mailto:hello@vayucodes.com" className="block hover:text-white transition-colors">hello@vayucodes.com</a>
+                <a href="mailto:smitpatel@vayucodes.com" className="block hover:text-white transition-colors">smitpatel@vayucodes.com</a>
               </div>
             </div>
           </div>
@@ -383,7 +383,7 @@ export function Footer() {
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[10px] tracking-[0.25em] uppercase text-white/60">
             <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-            <a href="mailto:hello@vayucodes.com" className="hover:text-white transition-colors">Contact</a>
+            <a href="mailto:smitpatel@vayucodes.com" className="hover:text-white transition-colors">Contact</a>
           </div>
 
           <div className="text-[10px] tracking-[0.25em] uppercase text-white/40 flex items-center gap-2">

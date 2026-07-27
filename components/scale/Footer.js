@@ -26,7 +26,7 @@ const columns = [
   {
     label: 'Reach',
     links: [
-      { name: 'hello@vayucodes.com', href: 'mailto:hello@vayucodes.com' },
+      { name: 'smitpatel@vayucodes.com', href: 'mailto:smitpatel@vayucodes.com' },
       { name: 'Valsad, Gujarat', href: '/contact' },
       { name: 'India · 396001', href: '/contact' },
     ],
